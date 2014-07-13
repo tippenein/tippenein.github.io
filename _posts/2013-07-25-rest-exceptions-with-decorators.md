@@ -1,7 +1,7 @@
 ---
+layout: post
 title: REST exception handling with decorators
 tags: [decorators, REST, exceptions, python]
-date: 07/25/2013
 ---
 
 #### Raising REST exceptions

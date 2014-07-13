@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Natural Language and Computer Language
-date: 04/19/2013
 ---
 
 ####Language -> Objects or Objects -> Language

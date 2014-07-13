@@ -24,7 +24,7 @@ Since the data is collected daily, there was no reason to use anything more "ser
 After about 2 hours of mucking about with scraping we had all the data we needed for a prototype so we took the time to refactor what we had and organize it for placing in a database. 
 I threw together a Flask application and used the boilerplate database query methods to grab data from our database. With a tiny bit of css and jinja templating, we had a crappy looking webapp which did part of its job.  
 
-![initial design](/imgs/_posts/scraper-page-prelim.png)
+![initial design](/images/_posts/scraper-page-prelim.png)
 
 
 #### The 2nd round
@@ -39,7 +39,7 @@ It would be more telling to show a screenshot from a phone using this, but alas,
 For me, this was the most useful aspect of it, so if it didn't work smoothly on a phone, there wasn't much point.
 This is what we came up with the second round of coding:  
 
-![2nd redux](/imgs/_posts/scraper-page-2nd.png)  
+![2nd redux](/images/_posts/scraper-page-2nd.png)  
 
 At this point we could search for specific buildings, the time data was more user friendly, it didn't look terrible, it scaled down to smart phone scale well, AND the backend was much more organized. 
 There are some ui changes to make with jquery and the class info dropdowns, but essentially we created and deployed a useful webapp in a matter of 3-4 days.  

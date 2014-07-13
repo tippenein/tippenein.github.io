@@ -1,7 +1,7 @@
 ---
+layout: post
 title: Comparison Trap
 tags: [life, zen]
-date: 3/19/2013
 ---
 
 #### Comparison trap
@@ -12,7 +12,7 @@ Being bad at something and realizing it is the first step to being slightly bett
 <!--more-->
 This quote should probably be taken with a grain of salt since it came from this guy...
 
-![roosevelt riding a moose](/imgs/_posts/roosevelt-moose.jpg)
+![roosevelt riding a moose](/images/_posts/roosevelt-moose.jpg)
 
 
 #### Smail's Three laws

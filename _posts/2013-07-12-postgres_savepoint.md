@@ -1,8 +1,7 @@
 ---
+layout: post
 title: Postgres savepoint
 tags: [database, postgres, python]
-date: 07/12/2013
-category: postgres
 ---
 
 #### Postgres savepoint and try/catch

@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Structure of 'call' in a programming language
-date: 3/20/2013
 ---
 
 #### Grokking the 'call' construct

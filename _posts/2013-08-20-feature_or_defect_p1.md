@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Let's play 'Feature or Defect!'
-date: 08/20/2013
 ---
 
 #### Lolwhut?!
