@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Prototyping a classroom schedule scraper
-date: 2/1/2013
 ---
 
 #### The problem and goal

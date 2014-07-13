@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Death of a scraper
-date: 06/02/2013
 ---
 
 ####Scraping is dumb
