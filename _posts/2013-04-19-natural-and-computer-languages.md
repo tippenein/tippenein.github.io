@@ -21,9 +21,11 @@ In programming languages, a certain language may have the semantics that another
 Two well known examples are these quotes by *esr* and *Paul Graham* (both referring to the benefits of using Lisp).
 
 __Eric Raymond__
+
 >Lisp is worth learning for the profound enlightenment experience you will have when you finally get it; that experience will make you a better programmer for the rest of your days, even if you never actually use Lisp itself a lot.
 
 __Paul Graham__
+
 > Languages less powerful than [Blub](http://www.paulgraham.com/avg.html) are obviously less powerful. But when our hypothetical Blub programmer looks in the other direction, up the power continuum, he doesn't realize he's looking up. What he sees are merely weird languages. Blub is good enough for him, because he thinks in Blub.
 
 If you've never read the Paul Graham post and need context, it's [here](http://www.paulgraham.com/avg.html). 
