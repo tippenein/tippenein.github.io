@@ -19,7 +19,7 @@ This is what's called from within our language. Each expression has an environme
     (struct call (funexp actual) #:transparent)
     (struct closure (env fun) #:transparent)
     
-#### eval within a specific environement
+#### eval within a specific environment
 The fun comes with defining `eval-under-env`. This is the given spec for implementing call.
 
 > A call evaluates its first and second subexpressions to values. If the first is not a closure, it is an error. Else, it evaluates the closure's function's body in the closure's environment __extended to map the function's name to the closure__ (unless the name field is #f) and the functions argument to the result of the second subexpression.
