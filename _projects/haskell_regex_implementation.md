@@ -3,7 +3,7 @@ layout: project
 title: A Haskell Regex Implementation
 ---
 
-<img src="/images/projects/regex.png" onlick='this.src="/images/projects/regex.png">
+<img src="/images/projects/regex.png">
 
 This is obviously just a test my friend and I undertook (since Haskell's pattern matching is far superior to regex).
 We took specs from the wikipedia and implemented them incrementally, first defining the data types and working through each case.

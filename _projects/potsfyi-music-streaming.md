@@ -4,7 +4,7 @@ title: Potsfyi - HTML5 music streaming
 name: postfyi
 ---
 
-<img src="/images/projects/potsfyi-preview.png" onlick='this.src="/images/projects/potsfyi.png">
+<img src="/images/projects/potsfyi.png">
 
 [@graue](http://twitter.com/graue) started a music streaming app intended to
 run on a personal server. Since we both had the same idea, we started tackling
