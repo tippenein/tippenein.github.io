@@ -4,7 +4,7 @@ title: Classroom Finder
 name: scraper
 ---
 
-<img src="/images/projects/scraper.png">
+<img src="/images/projects/scraper-preview.png" onlick='this.src="/images/projects/scraper.png">
 
 Collaborated with a couple people from school to build a scraper for scraping
 times from the official class schedule website.  It notifies of rooms in any

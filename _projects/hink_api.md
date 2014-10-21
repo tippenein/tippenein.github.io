@@ -4,7 +4,8 @@ title: Hink - API for files and text
 name: hink
 ---
 
-<img src="/images/projects/hink.png">
+
+<img src="/images/projects/hink-preview.png" onlick='this.src="/images/projects/hink.png">
 
 Hink is a project that seeks to create an easily configurable API for
 notes, links, images, or whatever you want to store on your vps/AWS/whatever.
