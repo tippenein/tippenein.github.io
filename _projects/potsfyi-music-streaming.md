@@ -4,6 +4,8 @@ title: Potsfyi - HTML5 music streaming
 name: postfyi
 ---
 
+<img src="/images/projects/potsfyi.png">
+
 [@graue](http://twitter.com/graue) started a music streaming app intended to
 run on a personal server. Since we both had the same idea, we started tackling
 bits and pieces of functionality at a time.
