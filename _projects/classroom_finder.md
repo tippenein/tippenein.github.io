@@ -1,11 +1,8 @@
 ---
 layout: project
 title: Classroom Finder
+name: scraper
 ---
-
-<a href="../../../images/_posts/scraper.png">
-  <img src="../../../images/_posts/scraper-preview.png"  alt=""  height=150 width=200>
-  </a>
 
 Collaborated with a couple people from school to build a scraper for scraping
 times from the official class schedule website.  It notifies of rooms in any

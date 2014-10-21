@@ -1,11 +1,8 @@
 ---
 layout: project
 title: Tornado IRC Bot
+name: irc-thing
 ---
-
-<a href="../../../images/_posts/irc-thing.png">
-  <img src="../../../images/_posts/irc-thing-preview.png"  alt=""  height=150 width=200>
-  </a>
 
 Using [Tornado Async](http://www.tornadoweb.org/en/stable/) library I built up
 an irc bot for general use. It comes with
