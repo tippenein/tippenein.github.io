@@ -10,7 +10,7 @@ GHCmod-vim hinted at an improvement in some code I was writing:
 
 So I looked at the type signatures for each of these.
 
-```ghci
+```
 > :t reverse $ sort
 > Ord a => [a] -> [a]
 
