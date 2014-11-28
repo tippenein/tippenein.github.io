@@ -10,7 +10,6 @@ GHCmod-vim hinted at an improvement in some code I was writing:
 
 So I looked at the type signatures for each of these.
 
-```
 > :t reverse $ sort
 > Ord a => [a] -> [a]
 
@@ -19,18 +18,15 @@ So I looked at the type signatures for each of these.
 
 > :t (flip compare)
 > Ord b => b -> b -> Ordering
-```
 
 `flip` is just `f x y = f y x`
 
 A little reminder of how `compare` works:
 
-```ghci
 > compare 1 2
 > LT
 > flip compare 1 2
 > GT
-```
 
 This is the part that wasn’t obvious to me; that by simply flipping the
 comparison we’re reversing the resulting sorted list.
