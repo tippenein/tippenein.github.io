@@ -10,23 +10,23 @@ GHCmod-vim hinted at an improvement in some code I was writing:
 
 So I looked at the type signatures for each of these.
 
-> :t reverse $ sort
-> Ord a => [a] -> [a]
+    λ > :t reverse $ sort
+    λ > Ord a => [a] -> [a]
 
-> :t sortBy
-> (a -> a -> Ordering) -> [a] -> [a]
+    λ > :t sortBy
+    λ > (a -> a -> Ordering) -> [a] -> [a]
 
-> :t (flip compare)
-> Ord b => b -> b -> Ordering
+:t (flip compare)
+Ord b => b -> b -> Ordering
 
 `flip` is just `f x y = f y x`
 
 A little reminder of how `compare` works:
 
-> compare 1 2
-> LT
-> flip compare 1 2
-> GT
+    λ > compare 1 2
+    λ > LT
+    λ > flip compare 1 2
+    λ > GT
 
 This is the part that wasn’t obvious to me; that by simply flipping the
 comparison we’re reversing the resulting sorted list.
