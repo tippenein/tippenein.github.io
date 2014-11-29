@@ -16,8 +16,8 @@ So I looked at the type signatures for each of these.
     λ > :t sortBy
     λ > (a -> a -> Ordering) -> [a] -> [a]
 
-:t (flip compare)
-Ord b => b -> b -> Ordering
+    λ > :t (flip compare)
+    λ > Ord b => b -> b -> Ordering
 
 `flip` is just `f x y = f y x`
 
