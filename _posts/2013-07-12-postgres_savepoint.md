@@ -13,8 +13,10 @@ I ran into a simple, but necessary bit of postgres knowledge this week while usi
 #### The fix
 Fortunately, to fix this you just add a savepoint within the try block to rollback to in case of an exception. I'll give a bit of an example.
 
-    query = 'declare myc cursor for select * from tableToCheck'
-    
+{% highlight python %}
+query = 'declare myc cursor for select * from tableToCheck'
+{% endhighlight %}
+
 You need to declare a cursor name (in this case 'myc') for the transaction to use.
 
 <script src="https://gist.github.com/tippenein/5986823.js"></script>
