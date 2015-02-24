@@ -5,14 +5,17 @@ title: Brady Ouren (Tippenein)
 
 <div id="home">
   <h1>Blog Posts</h1>
-  <ul class="posts">
+  <ul class="list-unstyled posts">
     {% for post in site.posts %}
-      <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ post.url }}">{{ post.title }}</a></li>
+      <li class="row">
+        <a class="col-sm-9" href="{{ post.url }}">{{ post.title }}</a>
+        <div class="col-sm-3">{{ post.date | date_to_string }}</div>
+      </li>
     {% endfor %}
   </ul>
 
   <h1>Open Source Projects</h1>
-  <ul class="projects">
+  <ul class="list-unstyled projects">
     {% for project in site.projects %}
       <li><a href="{{ project.url }}">{{ project.title }}</a></li>
     {% endfor %}

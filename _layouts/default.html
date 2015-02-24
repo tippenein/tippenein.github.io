@@ -5,42 +5,40 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Brady Ouren (Tippenein)</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="http://tippenein.github.io/stylesheets/styles.css">
-    <link rel="stylesheet" href="http://tippenein.github.io/stylesheets/pygment_trac.css">
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <link rel="stylesheet" href="/stylesheets/pygment_trac.css">
+    <link rel="alternate" type="application/rss+xml" title="{{ site.name }}" href="{{ site.url }}/feed.xml">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
-    <div class="wrapper">
-      <header>
-        <h2><a href="/">Brady Ouren</a></h2>
-        <img src="/images/me.jpeg" alt="me" />
-        <p> PLT, functional programming and software design</p>
-        <p class="view"><a href="https://github.com/tippenein">View My GitHub Profile</a></p>
-      </header>
-      <section>
-        <div class="content">
-          {{ content }}
-        </div>
-      </section>
-      <footer>
-        <div class="contact">
-          <p>
-            <a href="mailto:brady.ouren@gmail.com">email</a><br />
-            <a href="http://twitter.com/tippenein/">twitter</a><br />
-			<a href="/resume.pdf">resume</a>
-          </p>
-        </div>
-        <div class="rss">
-          <a href="http://feeds.feedburner.com/tippenein">
-            <img src="/images/rss.png" height="24" width="24" alt="Subscribe to RSS Feed" />
-          </a>
-        </div>
-      </footer>
-    </div>
+    <header class="profile row">
+      <div class="col-sm-8">
+        <h2><a class="header-link name" href="/">Brady Ouren</a></h2>
+      </div>
+      <ul class="col-sm-4 list-inline">
+        <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
+        <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
+        <li><a class="header-link" href="https://instagram.com/tippenein"><i class="fa fa-instagram fa-3x"></i></a></li>
+        <li><a class="header-link" href="/feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
+      </ul>
+    </header>
+    <section>
+      <div class="content">
+        {{ content }}
+      </div>
+    </section>
+    <footer>
+      <hr>
+      <div class="pull-right">
+        <p>{{ site.description }} - <a href="mailto:brady.ouren@gmail.com">contact me</a>
+      </div>
+    </footer>
   <script src="javascripts/scale.fix.js"></script>
   </body>
 </html>

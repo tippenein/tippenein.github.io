@@ -3,3 +3,6 @@ highlighter: pygments
 collections:
   projects:
     output: true
+name: BrdyOrn
+description: some thoughts on stuff
+url: http://brdyorn.com
