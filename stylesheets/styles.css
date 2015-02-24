@@ -40,25 +40,33 @@ h3, h4, h5, h6 {
   color:#494949;
 }
 
+header {
+  text-align:left;
+  line-height: 1;
+  background-color: #db0a5b;
+}
+
+p.name {
+  font-family: "Abel",sans-serif;
+  font-size: 48px;
+  font-weight:900;
+  padding:0px;
+}
+
 a {
   color:#db0a5b;
   font-weight:400;
+  text-decoration: none !important;
 }
 
 .header-link {
-  color: #98fb98;
+  color: #38f689; /* #98fb98; */
   transition: all 1s ease 0s;
   transform: translateZ(0px);
 }
 
 .social:hover {
   color: #111
-}
-
-header {
-  height: 190px;
-  line-height: 190px;
-  background-color: #db0a5b;
 }
 
 .wrapper {
@@ -101,7 +109,7 @@ section {
   margin-left: auto;
   margin-right: auto;
   width:600px;
-  padding-top:50px;
+  padding-top:20px;
   padding-bottom:20px;
 }
 
