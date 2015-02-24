@@ -1,8 +1,19 @@
-markdown: kramdown
-highlighter: pygments
-collections:
-  projects:
-    output: true
 name: BrdyOrn
 description: Turning &#x1F355; into code
 url: http://brdyorn.com
+
+collections:
+  projects:
+    output: true
+
+markdown: kramdown
+highlighter: pygments
+assets:
+  dirname: assets
+  baseurl: /assets/
+  sources:
+    - _assets/fonts
+    - _assets/javascript
+    - _assets/stylesheets
+  js_compressor: uglifier
+  css_compressor: sass
