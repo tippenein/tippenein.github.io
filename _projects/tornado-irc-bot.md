@@ -4,7 +4,7 @@ title: Tornado IRC Bot
 name: irc-thing
 ---
 
-<img src="/images/projects/irc-thing.png">
+<img src="/assets/images/projects/irc-thing.png">
 
 Using [Tornado Async](http://www.tornadoweb.org/en/stable/) library I built up
 an irc bot for general use. It comes with

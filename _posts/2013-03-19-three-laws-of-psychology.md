@@ -11,7 +11,7 @@ Being bad at something and realizing it is the first step to being slightly bett
 
 This quote should probably be taken with a grain of salt since it came from this guy...
 
-![roosevelt riding a moose](../../../images/_posts/roosevelt-moose.jpg)
+![roosevelt riding a moose](/assets/images/posts/roosevelt-moose.jpg)
 
 
 #### Smail's Three laws
