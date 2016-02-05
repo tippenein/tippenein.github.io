@@ -7,7 +7,7 @@ collections:
     output: true
 
 markdown: kramdown
-highlighter: pygments
+highlighter: rouge
 assets:
   dirname: assets
   baseurl: /assets/
