@@ -5,6 +5,8 @@ url: http://brdyorn.com
 collections:
   projects:
     output: true
+  slides:
+    output: true
 
 markdown: kramdown
 highlighter: rouge
