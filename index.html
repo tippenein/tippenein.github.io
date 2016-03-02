@@ -4,7 +4,7 @@ title: Brady Ouren (Tippenein)
 ---
 
 <div id="home">
-  <h1>Blog Posts</h1>
+  <h1 class="section-block blog">Posts</h1>
   <ul class="list-unstyled posts">
     {% for post in site.posts %}
       <li class="row">
@@ -14,8 +14,8 @@ title: Brady Ouren (Tippenein)
     {% endfor %}
   </ul>
 
-  <h1>Open Source Projects</h1>
-  <ul class="list-unstyled projects">
+  <h1 class="section-block projects">Projects</h1>
+  <ul class="list-unstyled">
     {% for project in site.projects %}
       <li><a href="{{ project.url }}">{{ project.title }}</a></li>
     {% endfor %}

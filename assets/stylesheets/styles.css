@@ -17,6 +17,12 @@ p, ul, ol, table, pre, dl {
   margin:0 0 20px;
 }
 
+::selection {
+  background: #fffe2f; /* WebKit/Blink Browsers */
+}
+::-moz-selection {
+  background: #fffe2f; /* Gecko Browsers */
+}
 h1, h2, h3 {
   line-height:1.1;
 }
@@ -42,8 +48,9 @@ h3, h4, h5, h6 {
 header {
   text-align:left;
   line-height: 1;
-  background-color: #db0a5b;
+  background-color: #00bf0c;
 }
+
 
 p.name {
   font-family: "Abel",sans-serif;
@@ -52,15 +59,32 @@ p.name {
   padding:0px;
 }
 
+a.header-link:hover {
+  color: #fffe2f;
+
+}
+a:hover {
+  color: #00bf0c;
+}
+
+h1.section-block {
+  padding: 12px;
+}
+h1.projects {
+  background-color: #ff9c00;
+}
+h1.blog {
+  background-color: #0d5fc2;
+}
 a {
-  color:#db0a5b;
+  color:#23527c;
   font-weight:400;
   text-decoration: none !important;
 }
 
 .header-link {
-  color: #38f689; /* #98fb98; */
-  transition: all 1s ease 0s;
+  color: #2e001a; /* #98fb98; */
+  transition: all 500ms ease 0ms;
   transform: translateZ(0px);
   float: left;
 }
@@ -71,7 +95,7 @@ a {
 }
 
 .social:hover {
-  color: #111
+  color: #d4dc03;
 }
 
 .wrapper {
@@ -114,8 +138,6 @@ section {
   margin-left: auto;
   margin-right: auto;
   width:600px;
-  padding-top:20px;
-  padding-bottom:20px;
 }
 
 hr {
