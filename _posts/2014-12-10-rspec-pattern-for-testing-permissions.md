@@ -3,7 +3,7 @@ layout: post
 title: rspec pattern for testing permissions
 ---
 
-####A problem you're bound to face
+### A problem you're bound to face
 
 Most projects will run into the problem of testing multiple levels of
 permissions with rspec at some point. The project I was on came up with what I
@@ -36,7 +36,7 @@ end
 
 {% endhighlight %}
 
-####A more centralized solution
+### A more centralized solution
 
 Setting the permissions in each context for a higher level before block is both
 confusing and spreads permission logic out over every controller spec. What we
