@@ -12,7 +12,8 @@ However, FWIW, all the parsers _work_.
 
 ### The Setup
 
-Say we have data that looks something like `"1%400:3.2 6%some_description|100:1"`
+Say we have data that looks something like:
+`"1%400:3.2 6%some_description|100:1"`
 
 First we decide what we're trying to pull out of this. These values happen to
 be space separated so we can just use the Prelude's `words`
