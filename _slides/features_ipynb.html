@@ -173,7 +173,7 @@ div#notebook {
 
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[46]:</div>
+<div class="prompt input_prompt">In&nbsp;[58]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span></span><span class="cm">{-# LANGUAGE FlexibleContexts  #-}</span>
@@ -184,11 +184,6 @@ div#notebook {
 <span class="kr">type</span> <span class="kt">Parser</span> <span class="ow">=</span> <span class="kt">Parsec</span> <span class="kt">String</span> <span class="nb">()</span>
 
 <span class="nf">parse&#39;</span> <span class="n">rule</span> <span class="ow">=</span> <span class="n">parse</span> <span class="n">rule</span> <span class="s">&quot;(source)&quot;</span>
-
-<span class="nf">eol</span> <span class="ow">=</span> <span class="n">char</span> <span class="sc">&#39;</span><span class="se">\n</span><span class="sc">&#39;</span>
-
-<span class="nf">endOfLineOrInput</span> <span class="ow">::</span> <span class="kt">Parser</span> <span class="nb">()</span>
-<span class="nf">endOfLineOrInput</span> <span class="ow">=</span> <span class="n">eol</span> <span class="o">*&gt;</span> <span class="n">return</span> <span class="nb">()</span> <span class="o">&lt;|&gt;</span> <span class="n">eof</span>
 </pre></div>
 
 </div>
@@ -198,13 +193,14 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[47]:</div>
+<div class="prompt input_prompt">In&nbsp;[59]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span></span><span class="kr">data</span> <span class="kt">Feature</span>
   <span class="ow">=</span> <span class="kt">Feature</span>
-  <span class="p">{</span> <span class="n">k</span>          <span class="ow">::</span> <span class="kt">String</span>
-  <span class="p">,</span> <span class="n">v</span>          <span class="ow">::</span> <span class="kt">String</span>
+  <span class="p">{</span> <span class="n">row</span>        <span class="ow">::</span> <span class="kt">String</span>
+  <span class="p">,</span> <span class="n">col</span>        <span class="ow">::</span> <span class="kt">String</span>
+  <span class="p">,</span> <span class="n">value</span>      <span class="ow">::</span> <span class="kt">String</span>
   <span class="p">,</span> <span class="n">descriptor</span> <span class="ow">::</span> <span class="kt">Maybe</span> <span class="kt">String</span>
   <span class="p">}</span> <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">)</span>
 
@@ -217,17 +213,17 @@ div#notebook {
 <span class="nf">descP</span> <span class="ow">::</span> <span class="kt">Parser</span> <span class="p">(</span><span class="kt">Maybe</span> <span class="kt">String</span><span class="p">)</span>
 <span class="nf">descP</span> <span class="ow">=</span> <span class="n">optionMaybe</span> <span class="o">$</span> <span class="n">try</span> <span class="o">$</span> <span class="n">manyTill</span> <span class="n">anyToken</span> <span class="n">descSep</span>
 
-<span class="nf">featureP</span> <span class="ow">::</span> <span class="kt">Parser</span> <span class="p">(</span><span class="kt">String</span><span class="p">,</span> <span class="kt">Feature</span><span class="p">)</span>
+<span class="nf">featureP</span> <span class="ow">::</span> <span class="kt">Parser</span> <span class="kt">Feature</span>
 <span class="nf">featureP</span> <span class="ow">=</span> <span class="kr">do</span>
-  <span class="n">r</span> <span class="ow">&lt;-</span> <span class="n">anythingUntil</span> <span class="n">signal</span>
+  <span class="n">row</span> <span class="ow">&lt;-</span> <span class="n">anythingUntil</span> <span class="n">signal</span>
   <span class="n">desc</span> <span class="ow">&lt;-</span> <span class="n">descP</span>
-  <span class="n">k</span> <span class="ow">&lt;-</span> <span class="n">anythingUntil</span> <span class="n">kvSep</span>
-  <span class="n">v</span> <span class="ow">&lt;-</span> <span class="n">manyTill</span> <span class="n">anyToken</span> <span class="n">endOfLineOrInput</span>
-  <span class="n">f</span> <span class="ow">&lt;-</span> <span class="kt">Feature</span> <span class="o">&lt;$&gt;</span> <span class="n">return</span> <span class="n">k</span> <span class="o">&lt;*&gt;</span> <span class="n">return</span> <span class="n">v</span> <span class="o">&lt;*&gt;</span> <span class="n">return</span> <span class="n">desc</span>
-  <span class="n">return</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+  <span class="n">col</span> <span class="ow">&lt;-</span> <span class="n">anythingUntil</span> <span class="n">kvSep</span>
+  <span class="n">value</span> <span class="ow">&lt;-</span> <span class="n">manyTill</span> <span class="n">anyToken</span> <span class="n">eof</span>
+  <span class="kt">Feature</span> <span class="o">&lt;$&gt;</span> <span class="n">return</span> <span class="n">row</span> <span class="o">&lt;*&gt;</span> <span class="n">return</span> <span class="n">col</span> <span class="o">&lt;*&gt;</span> <span class="n">return</span> <span class="n">value</span> <span class="o">&lt;*&gt;</span> <span class="n">return</span> <span class="n">desc</span>
 
 
-<span class="nf">parseFeature</span> <span class="ow">::</span> <span class="kt">String</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">String</span><span class="p">,</span> <span class="kt">Feature</span><span class="p">)</span>
+
+<span class="nf">parseFeature</span> <span class="ow">::</span> <span class="kt">String</span> <span class="ow">-&gt;</span> <span class="kt">Feature</span>
 <span class="nf">parseFeature</span> <span class="n">input</span> <span class="ow">=</span>
   <span class="kr">case</span> <span class="n">parse&#39;</span> <span class="n">featureP</span> <span class="n">input</span> <span class="kr">of</span>
     <span class="kt">Left</span> <span class="n">err</span> <span class="ow">-&gt;</span> <span class="ne">error</span> <span class="p">(</span><span class="n">show</span> <span class="n">err</span><span class="p">)</span>
@@ -241,7 +237,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[48]:</div>
+<div class="prompt input_prompt">In&nbsp;[60]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span></span><span class="nf">input</span> <span class="ow">::</span> <span class="kt">IO</span> <span class="p">[</span><span class="kt">String</span><span class="p">]</span>
@@ -255,7 +251,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[49]:</div>
+<div class="prompt input_prompt">In&nbsp;[61]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span></span><span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
@@ -271,7 +267,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[50]:</div>
+<div class="prompt input_prompt">In&nbsp;[62]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span></span><span class="nf">parseFeature</span> <span class="s">&quot;1$$stuff|1231234:1&quot;</span>
@@ -289,7 +285,7 @@ div#notebook {
 
 
 <div class="output_text output_subarea ">
-<pre>(&quot;1&quot;,Feature {k = &quot;1231234&quot;, v = &quot;1&quot;, descriptor = Just &quot;stuff&quot;})</pre>
+<pre>Feature {row = &quot;1&quot;, col = &quot;1231234&quot;, value = &quot;1&quot;, descriptor = Just &quot;stuff&quot;}</pre>
 </div>
 
 </div>
@@ -300,7 +296,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[51]:</div>
+<div class="prompt input_prompt">In&nbsp;[63]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span></span><span class="nf">main</span>
@@ -318,7 +314,7 @@ div#notebook {
 
 
 <div class="output_text output_subarea ">
-<pre>[(&quot;8&quot;,Feature {k = &quot;3462&quot;, v = &quot;1&quot;, descriptor = Just &quot;stuff&quot;}),(&quot;8&quot;,Feature {k = &quot;10842&quot;, v = &quot;1&quot;, descriptor = Nothing}),(&quot;9&quot;,Feature {k = &quot;something&quot;, v = &quot;4.12&quot;, descriptor = Nothing}),(&quot;7&quot;,Feature {k = &quot;derp&quot;, v = &quot;7.1&quot;, descriptor = Nothing}),(&quot;8&quot;,Feature {k = &quot;12&quot;, v = &quot;1&quot;, descriptor = Nothing}),(&quot;9&quot;,Feature {k = &quot;something&quot;, v = &quot;4.12&quot;, descriptor = Just &quot;some_data&quot;}),(&quot;7&quot;,Feature {k = &quot;derp&quot;, v = &quot;7.1&quot;, descriptor = Nothing}),(&quot;8&quot;,Feature {k = &quot;123&quot;, v = &quot;1&quot;, descriptor = Nothing}),(&quot;8&quot;,Feature {k = &quot;12842&quot;, v = &quot;1&quot;, descriptor = Nothing}),(&quot;9&quot;,Feature {k = &quot;knows&quot;, v = &quot;3.2&quot;, descriptor = Just &quot;who&quot;}),(&quot;7&quot;,Feature {k = &quot;derp&quot;, v = &quot;7.1&quot;, descriptor = Nothing}),(&quot;7&quot;,Feature {k = &quot;thing&quot;, v = &quot;0.1&quot;, descriptor = Nothing}),(&quot;8&quot;,Feature {k = &quot;1234&quot;, v = &quot;1&quot;, descriptor = Nothing}),(&quot;8&quot;,Feature {k = &quot;13842&quot;, v = &quot;1&quot;, descriptor = Nothing}),(&quot;9&quot;,Feature {k = &quot;somethin&quot;, v = &quot;4.12&quot;, descriptor = Nothing}),(&quot;7&quot;,Feature {k = &quot;derr&quot;, v = &quot;7.2&quot;, descriptor = Nothing})]</pre>
+<pre>[Feature {row = &quot;8&quot;, col = &quot;3462&quot;, value = &quot;1&quot;, descriptor = Just &quot;stuff&quot;},Feature {row = &quot;8&quot;, col = &quot;10842&quot;, value = &quot;1&quot;, descriptor = Nothing},Feature {row = &quot;9&quot;, col = &quot;something&quot;, value = &quot;4.12&quot;, descriptor = Nothing},Feature {row = &quot;7&quot;, col = &quot;derp&quot;, value = &quot;7.1&quot;, descriptor = Nothing},Feature {row = &quot;8&quot;, col = &quot;12&quot;, value = &quot;1&quot;, descriptor = Nothing},Feature {row = &quot;9&quot;, col = &quot;something&quot;, value = &quot;4.12&quot;, descriptor = Just &quot;some_data&quot;},Feature {row = &quot;7&quot;, col = &quot;derp&quot;, value = &quot;7.1&quot;, descriptor = Nothing},Feature {row = &quot;8&quot;, col = &quot;123&quot;, value = &quot;1&quot;, descriptor = Nothing},Feature {row = &quot;8&quot;, col = &quot;12842&quot;, value = &quot;1&quot;, descriptor = Nothing},Feature {row = &quot;9&quot;, col = &quot;knows&quot;, value = &quot;3.2&quot;, descriptor = Just &quot;who&quot;},Feature {row = &quot;7&quot;, col = &quot;derp&quot;, value = &quot;7.1&quot;, descriptor = Nothing},Feature {row = &quot;7&quot;, col = &quot;thing&quot;, value = &quot;0.1&quot;, descriptor = Nothing},Feature {row = &quot;8&quot;, col = &quot;1234&quot;, value = &quot;1&quot;, descriptor = Nothing},Feature {row = &quot;8&quot;, col = &quot;13842&quot;, value = &quot;1&quot;, descriptor = Nothing},Feature {row = &quot;9&quot;, col = &quot;somethin&quot;, value = &quot;4.12&quot;, descriptor = Nothing},Feature {row = &quot;7&quot;, col = &quot;derr&quot;, value = &quot;7.2&quot;, descriptor = Nothing}]</pre>
 </div>
 
 </div>
