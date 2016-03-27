@@ -13,6 +13,7 @@ However, FWIW, all the parsers _work_.
 ### The Setup
 
 Say we have data that looks something like:
+
 `"1%400:3.2 6%some_description|100:1"`
 
 First we decide what we're trying to pull out of this. These values happen to
@@ -31,7 +32,7 @@ data Feature
   { row        :: String
   , col        :: String
   , value      :: String
-  , descriptor :: Maybe String  -- since this isn't included in all features
+  , descriptor :: Maybe String
   } deriving (Show)
 {% endhighlight %}
 
@@ -64,8 +65,6 @@ The way we'll use this is pretty simple
 
 {% highlight haskell %}
 
-descriptorP = undefined
-
 featureP :: Parser Feature
 featureP = do
   row <- anythingUntil breakSep
@@ -79,8 +78,8 @@ featureP = do
 Now we need to fill in the optional `descriptor` parser
 
 {% highlight haskell %}
-descP :: Parser (Maybe String)
-descP = optionMaybe $ try $ anythingUntil descSep
+descriptorP :: Parser (Maybe String)
+descriptorP = optionMaybe $ try $ anythingUntil descSep
 {% endhighlight %}
 
 `optionMaybe` allows us to optionally consume some data and return a Maybe value.
