@@ -26,10 +26,10 @@ I certainly could've used a regex pattern like `\d\%(\w*\|)?(\d+):(\d+\.?\d?)`
 
 I had never encountered the acronym FFR until I started working in financial
 software. It stands for Fixed Format Response, but that's not really important.
-The important part here is that the FFR we're dealing with here is ~100 different signals which indicate
+The important part is that the FFR we're dealing with has ~100 different signals which indicate
 a specific type of data.
 
-So, we'll create a data type deriving `Enum` to describe what we expect.
+So, we'll create a data type deriving `Enum` to describe how we expect to split the data up.
 
 {% highlight haskell %}
 

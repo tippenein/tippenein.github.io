@@ -50,7 +50,7 @@ descriptionSep = string "|"
 
 ### The Actual Parsing
 
-Since we'll be slurping up data up until we hit one of the above defined
+Since we'll be slurping up data until we hit one of the above defined
 separators, we'll make a parser to do just that:
 
 {% highlight haskell %}
@@ -91,6 +91,6 @@ Since the the anythingUntil parser _can_ fail in this case, we need to use
 
 Personally, I find this easier to reason about than a regex or generic
 string functions. The point here is that I can easily expand on this and add
-new detailed parsers (This will be covered in part 2)
+new detailed parsers (This will be covered in [part 2](/2016/03/27/parser-combinators2))
 
 I've included a snapshot of the ihaskell session I was working in for full context [here](/slides/features_ipynb.html)
