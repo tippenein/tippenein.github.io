@@ -18,8 +18,8 @@ I certainly could've used a regex pattern like `\d\%(\w*\|)?(\d+):(\d+\.?\d?)`
 ...but, there are some scenarios where this falls apart quite quickly:
 
 - if we learn about other formats of data that can be included
-- if you have other parsing tasks that need similar matchers?
-- if you need to morph the data in some way before you do the matching
+- if we have other parsing tasks that need similar matchers?
+- if we need to morph the data in some way before you do the matching
 - if the list of possible separators are very large. (`\d\%|\$$|\&|...`)
 
 ### An example to prove I'm not making this up
@@ -92,3 +92,9 @@ type SignalMap = Map.Map Signal String
 From here we'd want to inspect what each signal has inside of it, so we can
 take from this `Map` and further parse the string content.
 
+### Credit
+
+Thanks a bunch to both of these resources (which are far both better and more comprehensive than this):
+
+- [https://github.com/JakeWheat/intro_to_parsing](https://github.com/JakeWheat/intro_to_parsing)
+- [http://unbui.lt/#!/post/haskell-parsec-basics/](http://unbui.lt/#!/post/haskell-parsec-basics/)
