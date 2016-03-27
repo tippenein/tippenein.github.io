@@ -3,6 +3,7 @@ layout: post
 title: Comparing reverse sort and flip compare
 ---
 
+### Comparing flip compare
 
 GHCmod-vim hinted at an improvement in some code I was writing:
 

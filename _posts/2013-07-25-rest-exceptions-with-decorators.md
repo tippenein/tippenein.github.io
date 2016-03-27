@@ -4,7 +4,7 @@ title: REST exception handling with decorators
 tags: [decorators, REST, exceptions, python]
 ---
 
-#### Raising REST exceptions
+### Raising REST exceptions
 I can't decide if this is the "right" way of doing this, but it seems
 relatively succinct, so I'll attempt to describe how I handled exceptions for a
 REST api in django.
@@ -35,7 +35,7 @@ except exceptions.NoSuchUser
   `RestException`
 
 
-####Exception Decorator
+###Exception Decorator
 So, catch the general exception, raise the REST exception... but then what?
 This is where the decorator comes in. It handles when a rest exception is raised and returns an appropriate response.
 
@@ -60,5 +60,5 @@ Basically just returning an HttpResponse encoded properly as json. You'd want to
 
 If multiple modules have a REST api this would help to generalize the exception handling. I'm sure there are other/better ways of doing this and I'd love to know what they are. Even if it is a crap way of doing it, maybe you can use the idea to implement something else.
 
-#####Bottom line: Decorators are fun
+###Bottom line: Decorators are fun
 

@@ -3,6 +3,8 @@ layout: post
 title: Servant Patterns for Clients
 ---
 
+### Clients for Free
+
 The unfortunate reality of many of our day jobs is that we are _not_ able to
 replace existing services with haskell. However, don't despair! We can still
 write services which consume our existing services quite easily with

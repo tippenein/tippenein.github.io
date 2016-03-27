@@ -4,7 +4,7 @@ title: Partial Application for real
 tags: [haskell, functional-programming]
 ---
 
-#### Intuitive Solutions
+### Intuitive Solutions
 
 While working on [a library](http://github.com/tippenein/BankHoliday) recently, I came across an elegant use of partial application.
 
@@ -54,7 +54,7 @@ because of the type: `(a -> Maybe b) -> [a] -> [b]`
 mapMaybe id january_holidays
 {% endhighlight %}
 
-#### The subtle benefit
+### The subtle benefit
 
 There is plenty said about the benefits of partial application or the lack
 thereof, but this isn't really about that. It's about the ease of prototyping

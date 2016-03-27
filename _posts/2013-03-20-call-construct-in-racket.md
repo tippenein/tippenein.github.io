@@ -3,7 +3,7 @@ layout: post
 title: Structure of 'call' in a programming language
 ---
 
-#### Grokking the 'call' construct
+### Grokking the 'call' construct
 While implementing the MUPL (Made Up Programming Language) for a programming languages course I found call to be interesting. I'll underline some of the implementation here.
 
 Now, call isn't necessarily a difficult concept. It's used all the time in jQuery and javascript to alter the `this` of a function call and here we'll do a similar thing, but it seems more fun because you're also using lexical scope and closure environment within the call implementation. It's easier if I just show some of the code.
@@ -23,7 +23,7 @@ This is what's called from within our language. Each expression has an environme
     (struct closure (env fun) #:transparent)
 {% endhighlight %}
 
-#### eval within a specific environment
+### eval within a specific environment
 The fun comes with defining `eval-under-env`. This is the given spec for implementing call.
 
 > A call evaluates its first and second subexpressions to values. If the first is not a closure, it is an error. Else, it evaluates the closure's function's body in the closure's environment __extended to map the function's name to the closure__ (unless the name field is #f) and the functions argument to the result of the second subexpression.

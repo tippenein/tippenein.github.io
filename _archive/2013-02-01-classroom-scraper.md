@@ -3,7 +3,7 @@ layout: post
 title: Prototyping a classroom schedule scraper
 ---
 
-#### The problem and goal
+### The problem and goal
 - Knowledge of which classrooms are vacant and for how long
 - easy and portable way of accessing the information that's given
 - a simple UI for searching this data
@@ -14,19 +14,19 @@ I believe this idea was mentioned a year or so ago, but sometimes you just have 
 
 <!--more-->
 
-#### The Solution
+### The Solution
 I started a github public repo and dropped in some [BeautifulSoup](http://www.crummy.com/software/BeautifulSoup/) and a python virtualenv and told some people about it.  I had the idea that this project would take a day or so, but the expectations quickly grew. 
 Initially it was supposed to just collect the data and spit it back for anyone who pinged a server holding the scraper code, but for fun we dropped the scrapes into a sqlite db. 
 Since the data is collected daily, there was no reason to use anything more "serious".
 
-#### The Scraper
+### The Scraper
 After about 2 hours of mucking about with scraping we had all the data we needed for a prototype so we took the time to refactor what we had and organize it for placing in a database. 
 I threw together a Flask application and used the boilerplate database query methods to grab data from our database. With a tiny bit of css and jinja templating, we had a crappy looking webapp which did part of its job.  
 
 ![initial design](/assets/images/posts/scraper-page-prelim.png)
 
 
-#### The 2nd round
+### The 2nd round
 After 2 days of work we had a completely workable webapp running on a spare VPS, but there were a few conveniences to add.
 
 - a new scraper for classroom data

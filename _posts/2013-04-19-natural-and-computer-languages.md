@@ -3,7 +3,7 @@ layout: post
 title: Natural Language and Computer Language
 ---
 
-####Language -> Objects or Objects -> Language
+###Language -> Objects or Objects -> Language
 
 I'm interested in this idea of mapping thoughts to language and language to thoughts. I guess anyone who's thought about how the mind works will naturally wonder along these lines. Does the language you know affect the ideas you're able to communicate? This quote from the wikipedia entry on [linguistic relativity](http://en.wikipedia.org/wiki/Linguistic_relativity) seems to sum the question up nicely.
 > Philosophers also vary in the question of whether language is basically a tool for representing and referring to objects in the world, or whether it is a system used to construct mental representations of the world that can be shared and circulated between people.
@@ -15,7 +15,7 @@ There's continuity between natural language and computer language enough that we
 1. Is your thought process structured in a specific language?
 2. Are some languages more apt at certain problems than others? or is it the person weilding the language who determines the effectiveness.
 
-####Semantics and Idioms
+###Semantics and Idioms
 In programming languages, a certain language may have the semantics that another language requires an idiom to achieve. This is the same as natural language in a way. Consider a Brazilian trying to explain the look of snow. It might take them a paragraph to do it, whereas an Eskimo would have 1 word to encapsulate the look accurately.
 
 Two well known examples are these quotes by *esr* and *Paul Graham* (both referring to the benefits of using Lisp).

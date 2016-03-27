@@ -3,7 +3,7 @@ layout: post
 title: Let's play 'Feature or Defect!'
 ---
 
-#### Lolwhut?!
+### Lolwhut?!
 
 Sometimes you run into programming language "features" that make you wonder if that was the intended effect. This particular one involves python and a mutable default function argument. Here's a quick example:
 

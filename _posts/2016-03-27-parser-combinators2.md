@@ -19,7 +19,7 @@ I certainly could've used a regex pattern like `\d\%(\w*\|)?(\d+):(\d+\.?\d?)`
 
 - if we learn about other formats of data that can be included
 - if we have other parsing tasks that need similar matchers?
-- if we need to morph the data in some way before you do the matching
+- if we need to morph the data in some way before matching
 - if the list of possible separators are very large. (`\d\%|\$$|\&|...`)
 
 ### An example to prove I'm not making this up
