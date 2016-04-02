@@ -1,27 +1,487 @@
----
----
-<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
-  <channel>
-    <title>{{ site.name | xml_escape }}</title>
-    <description>{% if site.description %}{{ site.description | xml_escape }}{% endif %}</description>
-    <link>{{ site.url }}</link>
-    <atom:link href="{{ site.url }}/feed.xml" rel="self" type="application/rss+xml" />
-    {% for post in site.posts limit:10 %}
-    <item>
-      <title>{{ post.title | xml_escape }}</title>
-      {% if post.author.name %}
-      <dc:creator>{{ post.author.name | xml_escape }}</dc:creator>
-      {% endif %}
-      {% if post.excerpt %}
-      <description>{{ post.excerpt | xml_escape }}</description>
-      {% else %}
-      <description>{{ post.content | xml_escape }}</description>
-      {% endif %}
-      <pubDate>{{ post.date | date: "%a, %d %b %Y %H:%M:%S %z" }}</pubDate>
-      <link>{{ site.url }}{{ post.url }}</link>
-      <guid isPermaLink="true">{{ site.url }}{{ post.url }}</guid>
-    </item>
-    {% endfor %}
-  </channel>
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"
+    xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title>Brady Ouren's home page feed.</title>
+        <link>http://brdyorn.com</link>
+        <description><![CDATA[Brady Ouren's home page feed.]]></description>
+        <atom:link href="http://brdyorn.com/feed.xml" rel="self"
+                   type="application/rss+xml" />
+        <lastBuildDate>Sun, 27 Mar 2016 00:00:00 UT</lastBuildDate>
+        <item>
+    <title>Parser Combinatorz part2</title>
+    <link>http://brdyorn.com/posts/2016-03-27-parser-combinators2.html</link>
+    <description><![CDATA[<div class="info">
+  <!-- Posted on Mar 27, 2016 -->
+  
+</div>
+
+<h3 id="prt2">P▲rT2</h3>
+<p>In the <a href="/2016/03/26/parser-combinators">previous post</a> I showed how to use <a href="https://www.stackage.org/package/parsec">parsec</a> to parse data in a format like this:</p>
+<p><code>&quot;1%400:3.2 6%some_description|100:1&quot;</code></p>
+<h3 id="why-not-regex">Why not regex?</h3>
+<p>I certainly could’ve used a regex pattern like <code>\d\%(\w*\|)?(\d+):(\d+\.?\d?)</code></p>
+<p>…but, there are some scenarios where this falls apart quite quickly:</p>
+<ul>
+<li>if we learn about other formats of data that can be included</li>
+<li>if we have other parsing tasks that need similar matchers?</li>
+<li>if we need to morph the data in some way before matching</li>
+<li>if the list of possible separators are very large. (<code>\d\%|\$$|\&amp;|...</code>)</li>
+</ul>
+<h3 id="an-example-to-prove-im-not-making-this-up">An example to prove I’m not making this up</h3>
+<p>I had never encountered the acronym FFR until I started working in financial software. It stands for Fixed Format Response, but that’s not really important. The important part is that the FFR we’re dealing with has ~100 different signals which indicate a specific type of data.</p>
+<p>So, we’ll create a data type deriving <code>Enum</code> to describe how we expect to split the data up.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="kw">data</span> <span class="dt">Signal</span>
+  <span class="fu">=</span> <span class="dt">AD02</span> <span class="fu">|</span> <span class="dt">AD11</span> <span class="fu">|</span> <span class="dt">AH11</span> <span class="fu">|</span> <span class="dt">AM01</span> <span class="fu">|</span>
+    <span class="dt">AO01</span> <span class="fu">|</span> <span class="dt">AR01</span> <span class="fu">|</span> <span class="dt">AS01</span> <span class="fu">|</span> <span class="dt">AT11</span> <span class="fu">|</span> <span class="dt">BR01</span> <span class="fu">|</span>
+    <span class="co">-- ... more of these removed for reading clarity</span>
+    <span class="dt">UA11</span> <span class="fu">|</span> <span class="dt">UF11</span> <span class="fu">|</span> <span class="dt">VH01</span> <span class="fu">|</span> <span class="dt">VS01</span> <span class="fu">|</span> <span class="dt">WS01</span> <span class="fu">|</span>
+    <span class="dt">YI01</span> <span class="fu">|</span> <span class="dt">ZC01</span>
+  <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Enum</span>, <span class="dt">Ord</span>, <span class="dt">Eq</span>, <span class="dt">Read</span>)
+
+<span class="ot">allSignals ::</span> [<span class="dt">String</span>]
+allSignals <span class="fu">=</span> map show [<span class="dt">AD02</span> <span class="fu">..</span>]</code></pre></div>
+<p>Note: The syntax for <code>allSignals</code> is just enumerating all the constructors. (The space is significant <code>[YourFirstEnum ..]</code>)</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">-- notice we&#39;re reusing this from the previous parser</span>
+anythingUntil p <span class="fu">=</span> manyTill anyToken p
+
+<span class="ot">anySignal ::</span> <span class="dt">Parser</span> (<span class="dt">Signal</span>, <span class="dt">String</span>)
+anySignal <span class="fu">=</span> <span class="kw">do</span>
+  signal <span class="ot">&lt;-</span> signalParser
+  content <span class="ot">&lt;-</span> anythingUntil (endOfLineOrInput <span class="fu">&lt;|&gt;</span> signalLookahead)
+  return (toSignal signal, content)
+
+signalLookahead <span class="fu">=</span> lookAhead signalParser <span class="fu">*&gt;</span> return ()
+
+<span class="ot">signalParser ::</span> <span class="dt">Parser</span> <span class="dt">String</span>
+signalParser <span class="fu">=</span> choice <span class="fu">$</span> fmap try <span class="fu">$</span> string <span class="fu">&lt;$&gt;</span> allSignals</code></pre></div>
+<p>We’re going to use the <code>anySignal</code> parser to pull out many pieces of content from a string, but the interesting part is the <code>signalParser</code> itself. <code>choice</code> and <code>&lt;|&gt;</code> are the same, but we need to choose between <em>all</em> the signals so we pass a list of Parsers. If it helps, it looks a bit like this if you were to expand it:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">choice [(try <span class="fu">$</span> string <span class="st">&quot;AD02&quot;</span>), (try <span class="fu">$</span> string <span class="st">&quot;AD11&quot;</span>), <span class="fu">...</span>]</code></pre></div>
+<p>Another thing to note is the <code>signalLookahead</code>. We need to avoid eating up the next signal and just use it to signal the end of input.</p>
+<p>Once again, there’s a freeze of the jupyter notebook if you’d like to see it in the full context (<a href="/slides/ffrparse">here</a>)</p>
+<h3 id="further-processing">Further processing</h3>
+<p>There are many more things we can do with our data in this format, but the first thing I would do is consume the data into some Map like this:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">SignalMap</span> <span class="fu">=</span> <span class="dt">Map.Map</span> <span class="dt">Signal</span> <span class="dt">String</span></code></pre></div>
+<p>From here we’d want to inspect what each signal has inside of it, so we can take from this <code>Map</code> and further parse the string content.</p>
+<h3 id="credit">Credit</h3>
+<p>Thanks a bunch to both of these resources (which are far both better and more comprehensive than this):</p>
+<ul>
+<li><a href="https://github.com/JakeWheat/intro_to_parsing" class="uri">https://github.com/JakeWheat/intro_to_parsing</a></li>
+<li><a href="http://unbui.lt/#!/post/haskell-parsec-basics/" class="uri">http://unbui.lt/#!/post/haskell-parsec-basics/</a></li>
+</ul>
+]]></description>
+    <pubDate>Sun, 27 Mar 2016 00:00:00 UT</pubDate>
+    <guid>http://brdyorn.com/posts/2016-03-27-parser-combinators2.html</guid>
+    <dc:creator>Brady Ouren</dc:creator>
+</item>
+<item>
+    <title>Parser Combinatorz part1</title>
+    <link>http://brdyorn.com/posts/2016-03-26-parser-combinators.html</link>
+    <description><![CDATA[<div class="info">
+  <!-- Posted on Mar 26, 2016 -->
+  
+</div>
+
+<h3 id="the-value-of-composable-parts">The value of composable parts</h3>
+<p>I’ve found myself in some strange parsing tasks lately. This is a new thing for me, so don’t take this post as an example of the best practices for parsing. However, FWIW, all the parsers <em>work</em>.</p>
+<h3 id="the-setup">The Setup</h3>
+<p>Say we have data that looks something like:</p>
+<p><code>&quot;1%400:3.2 6%some_description|100:1&quot;</code></p>
+<p>First we decide what we’re trying to pull out of this. These values happen to be space separated so we can just use the Prelude’s <code>words</code></p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">words theString
+<span class="fu">&gt;</span> [<span class="st">&quot;1%400:3.2&quot;</span>, <span class="st">&quot;6%some_description|100:1&quot;</span>]</code></pre></div>
+<p>Each string in this list we’ll call a <code>Feature</code> so we write a data type for it:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Feature</span>
+  <span class="fu">=</span> <span class="dt">Feature</span>
+  {<span class="ot"> row        ::</span> <span class="dt">String</span>
+  ,<span class="ot"> col        ::</span> <span class="dt">String</span>
+  ,<span class="ot"> value      ::</span> <span class="dt">String</span>
+  ,<span class="ot"> descriptor ::</span> <span class="dt">Maybe</span> <span class="dt">String</span>
+  } <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre></div>
+<p>Notice that we’re just reading this in as String data at the moment, but we can easily change that once we get the parsing structure down.</p>
+<p>Anyway, almost done with the easy stuff. We need to pull the garbage data out somehow. That’s cool, we’ll just write out our signal matchers.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">breakSep <span class="fu">=</span> string <span class="st">&quot;%&quot;</span>
+kvSep <span class="fu">=</span> string <span class="st">&quot;:&quot;</span>
+descriptionSep <span class="fu">=</span> string <span class="st">&quot;|&quot;</span></code></pre></div>
+<h3 id="the-actual-parsing">The Actual Parsing</h3>
+<p>Since we’ll be slurping up data until we hit one of the above defined separators, we’ll make a parser to do just that:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">anythingUntil ::</span> <span class="dt">Parser</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Parser</span> <span class="dt">String</span>
+anythingUntil p <span class="fu">=</span> manyTill anyToken (p <span class="fu">*&gt;</span> return ())</code></pre></div>
+<p>This function eats up any type of input until it hits one of our separators and returns everything before it.</p>
+<p>The way we’ll use this is pretty simple</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="ot">featureP ::</span> <span class="dt">Parser</span> <span class="dt">Feature</span>
+featureP <span class="fu">=</span> <span class="kw">do</span>
+  row <span class="ot">&lt;-</span> anythingUntil breakSep
+  desc <span class="ot">&lt;-</span> descriptorP
+  col <span class="ot">&lt;-</span> anythingUntil kvSep
+  value <span class="ot">&lt;-</span> manyTill anyToken eof <span class="co">-- get the remaining</span>
+  return <span class="fu">$</span> <span class="dt">Feature</span> row col value desc</code></pre></div>
+<p>Now we need to fill in the optional <code>descriptor</code> parser</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">descriptorP ::</span> <span class="dt">Parser</span> (<span class="dt">Maybe</span> <span class="dt">String</span>)
+descriptorP <span class="fu">=</span> optionMaybe <span class="fu">$</span> try <span class="fu">$</span> anythingUntil descSep</code></pre></div>
+<p><code>optionMaybe</code> allows us to optionally consume some data and return a Maybe value.</p>
+<p>Since the the anythingUntil parser <em>can</em> fail in this case, we need to use <code>try</code> to save us from erroring out.</p>
+<h3 id="the-benefit-over-x">The Benefit over X</h3>
+<p>Personally, I find this easier to reason about than a regex or generic string functions. The point here is that I can easily expand on this and add new detailed parsers (This will be covered in <a href="/2016/03/27/parser-combinators2">part 2</a>)</p>
+<p>I’ve included a snapshot of the ihaskell session I was working in for full context <a href="/slides/features_ipynb.html">here</a></p>
+]]></description>
+    <pubDate>Sat, 26 Mar 2016 00:00:00 UT</pubDate>
+    <guid>http://brdyorn.com/posts/2016-03-26-parser-combinators.html</guid>
+    <dc:creator>Brady Ouren</dc:creator>
+</item>
+<item>
+    <title>Servant Patterns for Clients</title>
+    <link>http://brdyorn.com/posts/2015-12-12-servant-patterns-for-clients.html</link>
+    <description><![CDATA[<div class="info">
+  <!-- Posted on Dec 12, 2015 -->
+  
+</div>
+
+<h3 id="clients-for-free">Clients for Free</h3>
+<p>The unfortunate reality of many of our day jobs is that we are <em>not</em> able to replace existing services with haskell. However, don’t despair! We can still write services which consume our existing services quite easily with <a href="https://github.com/haskell-servant/servant">Servant</a>.</p>
+<p>I’ve picked up some patterns for writing clean haskell code from <a href="https://github.com/tfausak/factory">tfausak</a> and they’ve all come together in a working user client.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">User</span> <span class="fu">=</span> <span class="dt">User</span> {
+<span class="ot">    id             ::</span> <span class="dt">Int</span>
+  ,<span class="ot"> email          ::</span> <span class="dt">Text</span>
+  ,<span class="ot"> first_name     ::</span> <span class="dt">Text</span>
+  ,<span class="ot"> last_name      ::</span> <span class="dt">Text</span>
+  ,<span class="ot"> dob            ::</span> <span class="dt">Day</span>
+  } <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Generic</span>, <span class="dt">ToJSON</span>, <span class="dt">FromJSON</span>)
+
+<span class="kw">data</span> <span class="dt">UsersResponse</span> <span class="fu">=</span> <span class="dt">UsersResponse</span> {
+<span class="ot">  users ::</span> [<span class="dt">User</span>]
+  } <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Generic</span>, <span class="dt">FromJSON</span>, <span class="dt">ToJSON</span>)
+
+run action <span class="fu">=</span> <span class="kw">do</span>
+  result <span class="ot">&lt;-</span> <span class="dt">Either</span><span class="fu">.</span>runEitherT action
+  <span class="kw">case</span> result <span class="kw">of</span>
+    <span class="dt">Left</span> message <span class="ot">-&gt;</span> error (show message)
+    <span class="dt">Right</span> x <span class="ot">-&gt;</span> return x
+
+<span class="kw">type</span> <span class="dt">UserAPI</span> <span class="fu">=</span>
+       <span class="dt">GetUsers</span>
+  <span class="fu">:&lt;|&gt;</span> <span class="dt">GetUser</span>
+  <span class="fu">:&lt;|&gt;</span> <span class="dt">CreateUser</span>
+  <span class="fu">:&lt;|&gt;</span> <span class="dt">UpdateUser</span>
+  <span class="fu">:&lt;|&gt;</span> <span class="dt">DestroyUser</span>
+
+
+<span class="kw">type</span> <span class="dt">GetUsers</span> <span class="fu">=</span> <span class="st">&quot;user&quot;</span> <span class="fu">:&gt;</span> <span class="st">&quot;users&quot;</span>
+    <span class="fu">:&gt;</span> <span class="dt">QueryParam</span> <span class="st">&quot;id&quot;</span> <span class="dt">Int</span>
+    <span class="fu">:&gt;</span> <span class="dt">QueryParam</span> <span class="st">&quot;email&quot;</span> <span class="dt">Text</span>
+    <span class="fu">:&gt;</span> <span class="dt">Get</span> <span class="ch">&#39;[JSON] UsersResponse</span>
+
+<span class="kw">type</span> <span class="dt">GetUser</span> <span class="fu">=</span> <span class="st">&quot;user&quot;</span> <span class="fu">:&gt;</span> <span class="st">&quot;users&quot;</span>
+    <span class="fu">:&gt;</span> <span class="dt">Capture</span> <span class="st">&quot;id&quot;</span> <span class="dt">Integer</span>
+    <span class="fu">:&gt;</span> <span class="dt">Get</span> <span class="ch">&#39;[JSON] User</span>
+
+<span class="kw">type</span> <span class="dt">CreateUser</span> <span class="fu">=</span>  <span class="st">&quot;user&quot;</span> <span class="fu">:&gt;</span> <span class="st">&quot;users&quot;</span>
+    <span class="fu">:&gt;</span> <span class="dt">ReqBody</span> <span class="ch">&#39;[JSON] User</span>
+    <span class="fu">:&gt;</span> <span class="dt">Post</span> <span class="ch">&#39;[JSON] User</span>
+
+<span class="kw">type</span> <span class="dt">UpdateUser</span> <span class="fu">=</span> <span class="st">&quot;user&quot;</span> <span class="fu">:&gt;</span> <span class="st">&quot;users&quot;</span>
+    <span class="fu">:&gt;</span> <span class="dt">Capture</span> <span class="st">&quot;id&quot;</span> <span class="dt">Integer</span>
+    <span class="fu">:&gt;</span> <span class="dt">ReqBody</span> <span class="ch">&#39;[JSON] User</span>
+    <span class="fu">:&gt;</span> <span class="dt">Put</span> <span class="ch">&#39;[JSON] User</span>
+
+<span class="kw">type</span> <span class="dt">DestroyUser</span> <span class="fu">=</span> <span class="st">&quot;user&quot;</span> <span class="fu">:&gt;</span> <span class="st">&quot;users&quot;</span>
+    <span class="fu">:&gt;</span> <span class="dt">Capture</span> <span class="st">&quot;id&quot;</span> <span class="dt">Integer</span>
+    <span class="fu">:&gt;</span> <span class="dt">Delete</span> <span class="ch">&#39;[JSON] User</span>
+
+getUsers <span class="fu">:&lt;|&gt;</span> getUser <span class="fu">:&lt;|&gt;</span> createUser <span class="fu">:&lt;|&gt;</span> updateUser <span class="fu">:&lt;|&gt;</span> destroyUser <span class="fu">=</span>
+  client (<span class="dt">Proxy</span><span class="ot"> ::</span> <span class="dt">Proxy</span> <span class="dt">UserAPI</span>) (<span class="dt">BaseUrl</span> <span class="dt">Http</span> <span class="st">&quot;localhost&quot;</span> <span class="dv">5000</span>)</code></pre></div>
+<p>With these client functions defined and assuming you have a user service instance running on port 5000 we can test this code out with <code>stack ghci servant-server servant-client --resolver=lts-3.14</code></p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">-- &gt; :load Main.hs</span>
+
+<span class="co">-- to get a specific user</span>
+run <span class="fu">$</span> getUser <span class="dv">10001035</span>
+
+<span class="co">-- to query on an attribute</span>
+run <span class="fu">$</span> getUsers <span class="dt">Nothing</span> (<span class="dt">Just</span> <span class="st">&quot;garybusey@example.com&quot;</span>)</code></pre></div>
+<p>The only thing to add for production-ready status is a header with auth-tokens, but it really goes to show the ease of generating clients with Servant.</p>
+]]></description>
+    <pubDate>Sat, 12 Dec 2015 00:00:00 UT</pubDate>
+    <guid>http://brdyorn.com/posts/2015-12-12-servant-patterns-for-clients.html</guid>
+    <dc:creator>Brady Ouren</dc:creator>
+</item>
+<item>
+    <title>Partial Application for real</title>
+    <link>http://brdyorn.com/posts/2015-06-04-partial-application.html</link>
+    <description><![CDATA[<div class="info">
+  <!-- Posted on Jun  4, 2015 -->
+  
+</div>
+
+<h3 id="intuitive-solutions">Intuitive Solutions</h3>
+<p>While working on <a href="http://github.com/tippenein/BankHoliday">a library</a> recently, I came across an elegant use of partial application.</p>
+<p>How would we model the first monday in any given month. Firstly I needed a way of passing around the concept of a <code>month</code> which ends up being simply <code>fromGregorian</code> applied to a year and month index.</p>
+<p>The type signature being: <code>fromGregorian :: Integer -&gt; Int -&gt; Int -&gt; Day</code></p>
+<p>So, a month, when partially applied, becomes a function taking an <code>Int</code> and returning a <code>Day</code> which is exactly what we want.</p>
+<p>A common scenario for a bank holiday library is “first monday in <em>month</em>” and with our ability to pass in “months” to a function we define it this way:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">[jan, feb, mar] <span class="fu">=</span> map (fromGregorian <span class="dv">1999</span>) [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>]
+
+firstMondayIn month <span class="fu">=</span> addDays offset (month <span class="dv">07</span>)
+  <span class="kw">where</span>
+    offset <span class="fu">=</span> negate (weekIndex (month <span class="dv">02</span>))
+
+weekIndex day <span class="fu">=</span> toModifiedJulianDay day <span class="ot">`mod`</span> <span class="dv">7</span></code></pre></div>
+<p>The most difficult part here was figuring out how Julian time worked, but the solution ends up being super readable.</p>
+<p>The other scenario for describing US bank holidays is the case where a holiday falls on a weekend.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">january_holidays <span class="fu">=</span> [weekendHolidayFrom (jan <span class="dv">1</span>), weekendHolidayFrom (jan <span class="dv">20</span>)]
+
+<span class="ot">weekendHolidayFrom ::</span> <span class="dt">Day</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">Day</span>
+weekendHolidayFrom d <span class="fu">=</span> <span class="kw">case</span> weekIndex d <span class="kw">of</span>
+  <span class="dv">3</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span>            <span class="co">-- saturday</span>
+  <span class="dv">4</span> <span class="ot">-&gt;</span> <span class="dt">Just</span> (addDays <span class="dv">1</span> d) <span class="co">-- sunday</span>
+  _ <span class="ot">-&gt;</span> <span class="dt">Just</span> d</code></pre></div>
+<p>From here, we have a list of <code>Maybe Day</code>’s so we need to filter them down to <code>Day</code>s. There’s probably a better way of doing this, but I used <code>mapMaybe</code> because of the type: <code>(a -&gt; Maybe b) -&gt; [a] -&gt; [b]</code></p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">mapMaybe id january_holidays</code></pre></div>
+<h3 id="the-subtle-benefit">The subtle benefit</h3>
+<p>There is plenty said about the benefits of partial application or the lack thereof, but this isn’t really about that. It’s about the ease of prototyping this sort of solution. From what I can tell, the equivalent ruby solution would not have been as clean, <em>because</em> of the lack of first class partial application.</p>
+<p>I’m also amused by this application because most other cases I read have seemingly contrived examples whereas this seems natural to me</p>
+]]></description>
+    <pubDate>Thu, 04 Jun 2015 00:00:00 UT</pubDate>
+    <guid>http://brdyorn.com/posts/2015-06-04-partial-application.html</guid>
+    <dc:creator>Brady Ouren</dc:creator>
+</item>
+<item>
+    <title>rspec pattern for testing permissions</title>
+    <link>http://brdyorn.com/posts/2014-12-10-rspec-pattern-for-testing-permissions.html</link>
+    <description><![CDATA[<div class="info">
+  <!-- Posted on Dec 10, 2014 -->
+  
+</div>
+
+<h3 id="a-problem-youre-bound-to-face">A problem you’re bound to face</h3>
+<p>Most projects will run into the problem of testing multiple levels of permissions with rspec at some point. The project I was on came up with what I take to be the most sane way of tackling permission testing with rspec.</p>
+<p>For example, say you’re trying to test success and failure of 3 different authorization settings. You might try this to accomplish permission testing on each controller action:</p>
+<div class="sourceCode"><pre class="sourceCode ruby"><code class="sourceCode ruby">before <span class="kw">do</span>
+  permissions
+<span class="kw">end</span>
+
+context <span class="st">&quot;as a super admin&quot;</span> <span class="kw">do</span>
+  let(<span class="st">:permissions</span>) { stub_an_admin }
+
+  it <span class="st">&quot;allows them to do this action&quot;</span> <span class="kw">do</span>
+    ...
+  <span class="kw">end</span>
+<span class="kw">end</span>
+
+context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">do</span>
+  let(<span class="st">:permissions</span>) { stub_some_permissions }
+
+  it <span class="st">&quot;disallows this action&quot;</span> <span class="kw">do</span>
+    ...
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre></div>
+<h3 id="a-more-centralized-solution">A more centralized solution</h3>
+<p>Setting the permissions in each context for a higher level before block is both confusing and spreads permission logic out over every controller spec. What we want is to have a central location where permission logic for specs can be accessed. This of course assumes you have a permission system with a relatively complex hierarchy of needs (If you don’t now, you probably will in the future).</p>
+<p>Ideally we would want to test controller actions like this:</p>
+<div class="sourceCode"><pre class="sourceCode ruby"><code class="sourceCode ruby">as_admin_on <span class="st">:some_resource</span> <span class="kw">do</span>
+  it <span class="st">&quot;allows this action&quot;</span> <span class="kw">do</span>
+    ...
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre></div>
+<p>This shows clearly what permission level we expect right out front and doesn’t require defining permission stubbing logic in each context. Luckily we can do this by using a controller macro to write new contexts for given permissions.</p>
+<p>To centralize permission stubbing we use <code>support/controller_macros.rb</code> to contain all the contexts. (don’t forget to add the module to your <code>rails_helper.rb</code>)</p>
+<div class="sourceCode"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="kw">module</span> <span class="dt">ControllerMacros</span>
+  <span class="kw">module</span> <span class="dt">ClassMethods</span>
+    <span class="kw">def</span> as_admin_on(resource_type, &amp;block)
+      context <span class="st">&quot;as an Admin&quot;</span> <span class="kw">do</span>
+        before <span class="kw">do</span>
+          stub_permissions_for(send(resource_type))
+          try(<span class="st">:request!</span>)
+        <span class="kw">end</span>
+
+        class_exec(&amp;block)
+      <span class="kw">end</span>
+    <span class="kw">end</span>
+
+    <span class="kw">def</span> as_plebian_user(&amp;block)
+      context <span class="st">&quot;with no permissions&quot;</span> <span class="kw">do</span>
+        before <span class="kw">do</span>
+          stub_basic_user
+          try(<span class="st">:request!</span>)
+        <span class="kw">end</span>
+
+        class_exec(&amp;block)
+      <span class="kw">end</span>
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre></div>
+<p>This to me makes it very explicit what permission spec is being tested for each case and if stubbing methods change, you have one central location to change.</p>
+<p>Shoutout to <a href="http://chrisarcand.com">chris arcand</a> for this solution to organizing permissions testing.</p>
+]]></description>
+    <pubDate>Wed, 10 Dec 2014 00:00:00 UT</pubDate>
+    <guid>http://brdyorn.com/posts/2014-12-10-rspec-pattern-for-testing-permissions.html</guid>
+    <dc:creator>Brady Ouren</dc:creator>
+</item>
+<item>
+    <title>Comparing reverse sort and flip compare</title>
+    <link>http://brdyorn.com/posts/2014-11-23-reverse-sort-versus-flip-compare.html</link>
+    <description><![CDATA[<div class="info">
+  <!-- Posted on Nov 23, 2014 -->
+  
+</div>
+
+<h3 id="comparing-flip-compare">Comparing flip compare</h3>
+<p>GHCmod-vim hinted at an improvement in some code I was writing:</p>
+<p><code>reverse $ sort</code> why not <code>sortBy (flip compare)</code></p>
+<p>So I looked at the type signatures for each of these.</p>
+<pre><code>λ &gt; :t reverse $ sort
+λ &gt; Ord a =&gt; [a] -&gt; [a]
+
+λ &gt; :t sortBy
+λ &gt; (a -&gt; a -&gt; Ordering) -&gt; [a] -&gt; [a]
+
+λ &gt; :t (flip compare)
+λ &gt; Ord b =&gt; b -&gt; b -&gt; Ordering</code></pre>
+<p><code>flip</code> is just <code>f x y = f y x</code></p>
+<p>A little reminder of how <code>compare</code> works:</p>
+<pre><code>λ &gt; compare 1 2
+λ &gt; LT
+λ &gt; flip compare 1 2
+λ &gt; GT</code></pre>
+<p>This is the part that wasn’t obvious to me; that by simply flipping the comparison we’re reversing the resulting sorted list. At that point we can see that <code>sortBy</code> is traversing the list once whereas <code>reverse $ sort</code> is running through the list twice.</p>
+]]></description>
+    <pubDate>Sun, 23 Nov 2014 00:00:00 UT</pubDate>
+    <guid>http://brdyorn.com/posts/2014-11-23-reverse-sort-versus-flip-compare.html</guid>
+    <dc:creator>Brady Ouren</dc:creator>
+</item>
+<item>
+    <title>Let's play 'Feature or Defect!'</title>
+    <link>http://brdyorn.com/posts/2013-08-20-feature_or_defect_p1.html</link>
+    <description><![CDATA[<div class="info">
+  <!-- Posted on Aug 20, 2013 -->
+  
+</div>
+
+<h3 id="lolwhut">Lolwhut?!</h3>
+<p>Sometimes you run into programming language “features” that make you wonder if that was the intended effect. This particular one involves python and a mutable default function argument. Here’s a quick example:</p>
+<!--more-->
+<pre><code>&gt;&gt;&gt; def foo(a=[]):
+...   a.append(1)
+...   return a
+... 
+&gt;&gt;&gt; foo()
+[1]
+&gt;&gt;&gt; foo()
+[1, 1]
+&gt;&gt;&gt; foo()
+[1, 1, 1]
+&gt;&gt;&gt; foo()
+[1, 1, 1, 1]</code></pre>
+<p>On the one hand, this can be used as a weird little way of caching items. Since <code>a</code> is mutable, it acts as a global variable. To me, this is counterintuitive. If I say, <code>def foo(a=[]):</code> I expect <code>a</code> to be an empty list every time I run that function unless I tell it otherwise.</p>
+]]></description>
+    <pubDate>Tue, 20 Aug 2013 00:00:00 UT</pubDate>
+    <guid>http://brdyorn.com/posts/2013-08-20-feature_or_defect_p1.html</guid>
+    <dc:creator>Brady Ouren</dc:creator>
+</item>
+<item>
+    <title>REST exception handling with decorators</title>
+    <link>http://brdyorn.com/posts/2013-07-25-rest-exceptions-with-decorators.html</link>
+    <description><![CDATA[<div class="info">
+  <!-- Posted on Jul 25, 2013 -->
+  
+</div>
+
+<h3 id="raising-rest-exceptions">Raising REST exceptions</h3>
+<p>I can’t decide if this is the “right” way of doing this, but it seems relatively succinct, so I’ll attempt to describe how I handled exceptions for a REST api in django.</p>
+<p>Say you need to return user info and the info given for user lookup fails.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> users
+<span class="im">import</span> exceptions
+<span class="im">import</span> rest_exceptions <span class="im">as</span> rest_excs
+<span class="im">import</span> decorators.rest <span class="im">as</span> rest
+
+<span class="at">@rest.exceptions</span>
+<span class="kw">def</span> get_user_info(input_name):
+<span class="cf">try</span>:
+    user <span class="op">=</span> users.get_user(input_name)
+<span class="cf">except</span> exceptions.NoSuchUser
+    <span class="cf">raise</span> rest_exc.NoSuchUser</code></pre></div>
+<ul>
+<li>The <code>exceptions</code> import is for general error catching and it allows you to collect all your exception definitions for specific modules.</li>
+<li><code>decorators.rest</code> holds… well, decorator functions specific to REST stuff. You don’t need a separate directory <code>decorators</code> but I happened to have more decorator types than were sensible to put in the main modules dir..</li>
+<li><code>rest_exceptions</code> is similar to exceptions but these will need to define a status code to return and inherit from a exception class we define called <code>RestException</code></li>
+</ul>
+<h3 id="exception-decorator">Exception Decorator</h3>
+<p>So, catch the general exception, raise the REST exception… but then what? This is where the decorator comes in. It handles when a rest exception is raised and returns an appropriate response.</p>
+<script src="https://gist.github.com/tippenein/6188769.js"></script>
+<p>You’d define the base exception class, <code>RestException</code> as:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> RestException(<span class="pp">Exception</span>):
+    code <span class="op">=</span> <span class="dv">500</span>
+    message <span class="op">=</span> {<span class="st">&quot;reason&quot;</span> : <span class="st">&quot;failed&quot;</span>}
+    response <span class="op">=</span> <span class="va">None</span></code></pre></div>
+<p>Define all the specific exceptions with this as the base class (ex. <code>PermissionDenied(RestException)</code>). This way you can specify the status code and response for each type of exception.</p>
+<p>The JSONResponse object:</p>
+<script src="https://gist.github.com/tippenein/6188792.js"></script>
+<p>Basically just returning an HttpResponse encoded properly as json. You’d want to check kwargs for a status as well.</p>
+<p>If multiple modules have a REST api this would help to generalize the exception handling. I’m sure there are other/better ways of doing this and I’d love to know what they are. Even if it is a crap way of doing it, maybe you can use the idea to implement something else.</p>
+<h3 id="bottom-line-decorators-are-fun">Bottom line: Decorators are fun</h3>
+]]></description>
+    <pubDate>Thu, 25 Jul 2013 00:00:00 UT</pubDate>
+    <guid>http://brdyorn.com/posts/2013-07-25-rest-exceptions-with-decorators.html</guid>
+    <dc:creator>Brady Ouren</dc:creator>
+</item>
+<item>
+    <title>Postgres savepoint</title>
+    <link>http://brdyorn.com/posts/2013-07-12-postgres_savepoint.html</link>
+    <description><![CDATA[<div class="info">
+  <!-- Posted on Jul 12, 2013 -->
+  
+</div>
+
+<h3 id="postgres-savepoint-and-trycatch">Postgres savepoint and try/catch</h3>
+<p>I ran into a simple, but necessary bit of postgres knowledge this week while using a bloom filter to purge outdated database entries. The problem I encountered was within a try/catch block. I was catching a <code>ForeignKeyError</code> if the deletion of a row failed. Since I was doing this transaction within a cursor, I would get an error along the lines of: <code>&quot;Current transaction is aborted, commands ignored until end of transaction block&quot;</code></p>
+<!--more-->
+<h3 id="the-fix">The fix</h3>
+<p>Fortunately, to fix this you just add a savepoint within the try block to rollback to in case of an exception. I’ll give a bit of an example.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">query <span class="op">=</span> <span class="st">&#39;declare myc cursor for select * from tableToCheck&#39;</span></code></pre></div>
+<p>You need to declare a cursor name (in this case ‘myc’) for the transaction to use.</p>
+<script src="https://gist.github.com/tippenein/5986823.js"></script>
+]]></description>
+    <pubDate>Fri, 12 Jul 2013 00:00:00 UT</pubDate>
+    <guid>http://brdyorn.com/posts/2013-07-12-postgres_savepoint.html</guid>
+    <dc:creator>Brady Ouren</dc:creator>
+</item>
+<item>
+    <title>Natural Language and Computer Language</title>
+    <link>http://brdyorn.com/posts/2013-04-19-natural-and-computer-languages.html</link>
+    <description><![CDATA[<div class="info">
+  <!-- Posted on Apr 19, 2013 -->
+  
+</div>
+
+<h3 id="language---objects-or-objects---language">Language -&gt; Objects or Objects -&gt; Language</h3>
+<p>I’m interested in this idea of mapping thoughts to language and language to thoughts. I guess anyone who’s thought about how the mind works will naturally wonder along these lines. Does the language you know affect the ideas you’re able to communicate? This quote from the wikipedia entry on <a href="http://en.wikipedia.org/wiki/Linguistic_relativity">linguistic relativity</a> seems to sum the question up nicely. &gt; Philosophers also vary in the question of whether language is basically a tool for representing and referring to objects in the world, or whether it is a system used to construct mental representations of the world that can be shared and circulated between people.</p>
+<!--more-->
+<p>There’s continuity between natural language and computer language enough that we can use linguistic theory to analyze the same idea in programming languages. Essentially, the question is whether the language you use determines how you write and reason about code.</p>
+<ol style="list-style-type: decimal">
+<li>Is your thought process structured in a specific language?</li>
+<li>Are some languages more apt at certain problems than others? or is it the person weilding the language who determines the effectiveness.</li>
+</ol>
+<h3 id="semantics-and-idioms">Semantics and Idioms</h3>
+<p>In programming languages, a certain language may have the semantics that another language requires an idiom to achieve. This is the same as natural language in a way. Consider a Brazilian trying to explain the look of snow. It might take them a paragraph to do it, whereas an Eskimo would have 1 word to encapsulate the look accurately.</p>
+<p>Two well known examples are these quotes by <em>esr</em> and <em>Paul Graham</em> (both referring to the benefits of using Lisp).</p>
+<p><strong>Eric Raymond</strong></p>
+<blockquote>
+<p>Lisp is worth learning for the profound enlightenment experience you will have when you finally get it; that experience will make you a better programmer for the rest of your days, even if you never actually use Lisp itself a lot.</p>
+</blockquote>
+<p><strong>Paul Graham</strong></p>
+<blockquote>
+<p>Languages less powerful than <a href="http://www.paulgraham.com/avg.html">Blub</a> are obviously less powerful. But when our hypothetical Blub programmer looks in the other direction, up the power continuum, he doesn’t realize he’s looking up. What he sees are merely weird languages. Blub is good enough for him, because he thinks in Blub.</p>
+</blockquote>
+<p>If you’ve never read the Paul Graham post and need context, it’s <a href="http://www.paulgraham.com/avg.html">here</a>.</p>
+<p>Paraphrasing a bit of La Rouchfoucald; “No one would fall in love if they hadn’t read about it.” This is an interesting idea. Relating this back to programming languages; if your language has no notion of recursion would it even exist in your mind? Is that a problem? Arguably yes.</p>
+<p>One last quote from Ludwig Wittgenstein’s ‘Philosophical Investigations’ - “language is a form of life, not outside of it”</p>
+<p>I’m still thinking about this question and I plan on revisiting this idea often because it seems to me the question “Do objects define a language or do languages define objects” is one which takes a lot of pondering to grasp.</p>
+]]></description>
+    <pubDate>Fri, 19 Apr 2013 00:00:00 UT</pubDate>
+    <guid>http://brdyorn.com/posts/2013-04-19-natural-and-computer-languages.html</guid>
+    <dc:creator>Brady Ouren</dc:creator>
+</item>
+
+    </channel>
 </rss>

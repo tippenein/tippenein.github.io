@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Brady Ouren (Tippenein)</title>
+
+    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/default.css">
+    <link rel="stylesheet" href="../css/syntax.css">
+    <link rel="alternate" type="application/rss+xml" title="BrdyOrn.com" href="brdyorn.com/feed.xml">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <header class="profile row">
+      <div class="col-sm-6">
+        <p class="name"><a class="header-link" href="../">Brady Ouren</a></p>
+      </div>
+      <div class="col-sm-6">
+        <ul class="social list-inline">
+          <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
+          <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
+          <li><a class="header-link" href="../feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
+        </ul>
+      </div>
+    </header>
+    <section>
+      <div class="content">
+        <div class="info">
+  <!-- Posted on Dec 12, 2015 -->
+  
+</div>
+
+<h3 id="clients-for-free">Clients for Free</h3>
+<p>The unfortunate reality of many of our day jobs is that we are <em>not</em> able to replace existing services with haskell. However, don’t despair! We can still write services which consume our existing services quite easily with <a href="https://github.com/haskell-servant/servant">Servant</a>.</p>
+<p>I’ve picked up some patterns for writing clean haskell code from <a href="https://github.com/tfausak/factory">tfausak</a> and they’ve all come together in a working user client.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">User</span> <span class="fu">=</span> <span class="dt">User</span> {
+<span class="ot">    id             ::</span> <span class="dt">Int</span>
+  ,<span class="ot"> email          ::</span> <span class="dt">Text</span>
+  ,<span class="ot"> first_name     ::</span> <span class="dt">Text</span>
+  ,<span class="ot"> last_name      ::</span> <span class="dt">Text</span>
+  ,<span class="ot"> dob            ::</span> <span class="dt">Day</span>
+  } <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Generic</span>, <span class="dt">ToJSON</span>, <span class="dt">FromJSON</span>)
+
+<span class="kw">data</span> <span class="dt">UsersResponse</span> <span class="fu">=</span> <span class="dt">UsersResponse</span> {
+<span class="ot">  users ::</span> [<span class="dt">User</span>]
+  } <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Generic</span>, <span class="dt">FromJSON</span>, <span class="dt">ToJSON</span>)
+
+run action <span class="fu">=</span> <span class="kw">do</span>
+  result <span class="ot">&lt;-</span> <span class="dt">Either</span><span class="fu">.</span>runEitherT action
+  <span class="kw">case</span> result <span class="kw">of</span>
+    <span class="dt">Left</span> message <span class="ot">-&gt;</span> error (show message)
+    <span class="dt">Right</span> x <span class="ot">-&gt;</span> return x
+
+<span class="kw">type</span> <span class="dt">UserAPI</span> <span class="fu">=</span>
+       <span class="dt">GetUsers</span>
+  <span class="fu">:&lt;|&gt;</span> <span class="dt">GetUser</span>
+  <span class="fu">:&lt;|&gt;</span> <span class="dt">CreateUser</span>
+  <span class="fu">:&lt;|&gt;</span> <span class="dt">UpdateUser</span>
+  <span class="fu">:&lt;|&gt;</span> <span class="dt">DestroyUser</span>
+
+
+<span class="kw">type</span> <span class="dt">GetUsers</span> <span class="fu">=</span> <span class="st">&quot;user&quot;</span> <span class="fu">:&gt;</span> <span class="st">&quot;users&quot;</span>
+    <span class="fu">:&gt;</span> <span class="dt">QueryParam</span> <span class="st">&quot;id&quot;</span> <span class="dt">Int</span>
+    <span class="fu">:&gt;</span> <span class="dt">QueryParam</span> <span class="st">&quot;email&quot;</span> <span class="dt">Text</span>
+    <span class="fu">:&gt;</span> <span class="dt">Get</span> <span class="ch">'[JSON] UsersResponse</span>
+
+<span class="kw">type</span> <span class="dt">GetUser</span> <span class="fu">=</span> <span class="st">&quot;user&quot;</span> <span class="fu">:&gt;</span> <span class="st">&quot;users&quot;</span>
+    <span class="fu">:&gt;</span> <span class="dt">Capture</span> <span class="st">&quot;id&quot;</span> <span class="dt">Integer</span>
+    <span class="fu">:&gt;</span> <span class="dt">Get</span> <span class="ch">'[JSON] User</span>
+
+<span class="kw">type</span> <span class="dt">CreateUser</span> <span class="fu">=</span>  <span class="st">&quot;user&quot;</span> <span class="fu">:&gt;</span> <span class="st">&quot;users&quot;</span>
+    <span class="fu">:&gt;</span> <span class="dt">ReqBody</span> <span class="ch">'[JSON] User</span>
+    <span class="fu">:&gt;</span> <span class="dt">Post</span> <span class="ch">'[JSON] User</span>
+
+<span class="kw">type</span> <span class="dt">UpdateUser</span> <span class="fu">=</span> <span class="st">&quot;user&quot;</span> <span class="fu">:&gt;</span> <span class="st">&quot;users&quot;</span>
+    <span class="fu">:&gt;</span> <span class="dt">Capture</span> <span class="st">&quot;id&quot;</span> <span class="dt">Integer</span>
+    <span class="fu">:&gt;</span> <span class="dt">ReqBody</span> <span class="ch">'[JSON] User</span>
+    <span class="fu">:&gt;</span> <span class="dt">Put</span> <span class="ch">'[JSON] User</span>
+
+<span class="kw">type</span> <span class="dt">DestroyUser</span> <span class="fu">=</span> <span class="st">&quot;user&quot;</span> <span class="fu">:&gt;</span> <span class="st">&quot;users&quot;</span>
+    <span class="fu">:&gt;</span> <span class="dt">Capture</span> <span class="st">&quot;id&quot;</span> <span class="dt">Integer</span>
+    <span class="fu">:&gt;</span> <span class="dt">Delete</span> <span class="ch">'[JSON] User</span>
+
+getUsers <span class="fu">:&lt;|&gt;</span> getUser <span class="fu">:&lt;|&gt;</span> createUser <span class="fu">:&lt;|&gt;</span> updateUser <span class="fu">:&lt;|&gt;</span> destroyUser <span class="fu">=</span>
+  client (<span class="dt">Proxy</span><span class="ot"> ::</span> <span class="dt">Proxy</span> <span class="dt">UserAPI</span>) (<span class="dt">BaseUrl</span> <span class="dt">Http</span> <span class="st">&quot;localhost&quot;</span> <span class="dv">5000</span>)</code></pre></div>
+<p>With these client functions defined and assuming you have a user service instance running on port 5000 we can test this code out with <code>stack ghci servant-server servant-client --resolver=lts-3.14</code></p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">-- &gt; :load Main.hs</span>
+
+<span class="co">-- to get a specific user</span>
+run <span class="fu">$</span> getUser <span class="dv">10001035</span>
+
+<span class="co">-- to query on an attribute</span>
+run <span class="fu">$</span> getUsers <span class="dt">Nothing</span> (<span class="dt">Just</span> <span class="st">&quot;garybusey@example.com&quot;</span>)</code></pre></div>
+<p>The only thing to add for production-ready status is a header with auth-tokens, but it really goes to show the ease of generating clients with Servant.</p>
+
+      </div>
+    </section>
+    <footer>
+      <hr />
+      <p class="left">Site generated with <a href="http://jaspervdj.be/hakyll">Hakyll</a></p>
+
+      <p class="right"><a href="mailto:brady@andand.co">Work with me</a></p>
+    </footer>
+  <script src="../assets/javascripts/scale.fix.js"></script>
+  </body>
+</html>

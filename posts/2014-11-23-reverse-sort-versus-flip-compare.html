@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Brady Ouren (Tippenein)</title>
+
+    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/default.css">
+    <link rel="stylesheet" href="../css/syntax.css">
+    <link rel="alternate" type="application/rss+xml" title="BrdyOrn.com" href="brdyorn.com/feed.xml">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <header class="profile row">
+      <div class="col-sm-6">
+        <p class="name"><a class="header-link" href="../">Brady Ouren</a></p>
+      </div>
+      <div class="col-sm-6">
+        <ul class="social list-inline">
+          <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
+          <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
+          <li><a class="header-link" href="../feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
+        </ul>
+      </div>
+    </header>
+    <section>
+      <div class="content">
+        <div class="info">
+  <!-- Posted on Nov 23, 2014 -->
+  
+</div>
+
+<h3 id="comparing-flip-compare">Comparing flip compare</h3>
+<p>GHCmod-vim hinted at an improvement in some code I was writing:</p>
+<p><code>reverse $ sort</code> why not <code>sortBy (flip compare)</code></p>
+<p>So I looked at the type signatures for each of these.</p>
+<pre><code>λ &gt; :t reverse $ sort
+λ &gt; Ord a =&gt; [a] -&gt; [a]
+
+λ &gt; :t sortBy
+λ &gt; (a -&gt; a -&gt; Ordering) -&gt; [a] -&gt; [a]
+
+λ &gt; :t (flip compare)
+λ &gt; Ord b =&gt; b -&gt; b -&gt; Ordering</code></pre>
+<p><code>flip</code> is just <code>f x y = f y x</code></p>
+<p>A little reminder of how <code>compare</code> works:</p>
+<pre><code>λ &gt; compare 1 2
+λ &gt; LT
+λ &gt; flip compare 1 2
+λ &gt; GT</code></pre>
+<p>This is the part that wasn’t obvious to me; that by simply flipping the comparison we’re reversing the resulting sorted list. At that point we can see that <code>sortBy</code> is traversing the list once whereas <code>reverse $ sort</code> is running through the list twice.</p>
+
+      </div>
+    </section>
+    <footer>
+      <hr />
+      <p class="left">Site generated with <a href="http://jaspervdj.be/hakyll">Hakyll</a></p>
+
+      <p class="right"><a href="mailto:brady@andand.co">Work with me</a></p>
+    </footer>
+  <script src="../assets/javascripts/scale.fix.js"></script>
+  </body>
+</html>

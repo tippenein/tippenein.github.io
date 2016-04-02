@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Brady Ouren (Tippenein)</title>
+
+    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/default.css">
+    <link rel="stylesheet" href="../css/syntax.css">
+    <link rel="alternate" type="application/rss+xml" title="BrdyOrn.com" href="brdyorn.com/feed.xml">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <header class="profile row">
+      <div class="col-sm-6">
+        <p class="name"><a class="header-link" href="../">Brady Ouren</a></p>
+      </div>
+      <div class="col-sm-6">
+        <ul class="social list-inline">
+          <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
+          <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
+          <li><a class="header-link" href="../feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
+        </ul>
+      </div>
+    </header>
+    <section>
+      <div class="content">
+        <div class="info">
+  <!-- Posted on Mar 27, 2016 -->
+  
+</div>
+
+<h3 id="prt2">P▲rT2</h3>
+<p>In the <a href="../2016/03/26/parser-combinators">previous post</a> I showed how to use <a href="https://www.stackage.org/package/parsec">parsec</a> to parse data in a format like this:</p>
+<p><code>&quot;1%400:3.2 6%some_description|100:1&quot;</code></p>
+<h3 id="why-not-regex">Why not regex?</h3>
+<p>I certainly could’ve used a regex pattern like <code>\d\%(\w*\|)?(\d+):(\d+\.?\d?)</code></p>
+<p>…but, there are some scenarios where this falls apart quite quickly:</p>
+<ul>
+<li>if we learn about other formats of data that can be included</li>
+<li>if we have other parsing tasks that need similar matchers?</li>
+<li>if we need to morph the data in some way before matching</li>
+<li>if the list of possible separators are very large. (<code>\d\%|\$$|\&amp;|...</code>)</li>
+</ul>
+<h3 id="an-example-to-prove-im-not-making-this-up">An example to prove I’m not making this up</h3>
+<p>I had never encountered the acronym FFR until I started working in financial software. It stands for Fixed Format Response, but that’s not really important. The important part is that the FFR we’re dealing with has ~100 different signals which indicate a specific type of data.</p>
+<p>So, we’ll create a data type deriving <code>Enum</code> to describe how we expect to split the data up.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="kw">data</span> <span class="dt">Signal</span>
+  <span class="fu">=</span> <span class="dt">AD02</span> <span class="fu">|</span> <span class="dt">AD11</span> <span class="fu">|</span> <span class="dt">AH11</span> <span class="fu">|</span> <span class="dt">AM01</span> <span class="fu">|</span>
+    <span class="dt">AO01</span> <span class="fu">|</span> <span class="dt">AR01</span> <span class="fu">|</span> <span class="dt">AS01</span> <span class="fu">|</span> <span class="dt">AT11</span> <span class="fu">|</span> <span class="dt">BR01</span> <span class="fu">|</span>
+    <span class="co">-- ... more of these removed for reading clarity</span>
+    <span class="dt">UA11</span> <span class="fu">|</span> <span class="dt">UF11</span> <span class="fu">|</span> <span class="dt">VH01</span> <span class="fu">|</span> <span class="dt">VS01</span> <span class="fu">|</span> <span class="dt">WS01</span> <span class="fu">|</span>
+    <span class="dt">YI01</span> <span class="fu">|</span> <span class="dt">ZC01</span>
+  <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Enum</span>, <span class="dt">Ord</span>, <span class="dt">Eq</span>, <span class="dt">Read</span>)
+
+<span class="ot">allSignals ::</span> [<span class="dt">String</span>]
+allSignals <span class="fu">=</span> map show [<span class="dt">AD02</span> <span class="fu">..</span>]</code></pre></div>
+<p>Note: The syntax for <code>allSignals</code> is just enumerating all the constructors. (The space is significant <code>[YourFirstEnum ..]</code>)</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">-- notice we're reusing this from the previous parser</span>
+anythingUntil p <span class="fu">=</span> manyTill anyToken p
+
+<span class="ot">anySignal ::</span> <span class="dt">Parser</span> (<span class="dt">Signal</span>, <span class="dt">String</span>)
+anySignal <span class="fu">=</span> <span class="kw">do</span>
+  signal <span class="ot">&lt;-</span> signalParser
+  content <span class="ot">&lt;-</span> anythingUntil (endOfLineOrInput <span class="fu">&lt;|&gt;</span> signalLookahead)
+  return (toSignal signal, content)
+
+signalLookahead <span class="fu">=</span> lookAhead signalParser <span class="fu">*&gt;</span> return ()
+
+<span class="ot">signalParser ::</span> <span class="dt">Parser</span> <span class="dt">String</span>
+signalParser <span class="fu">=</span> choice <span class="fu">$</span> fmap try <span class="fu">$</span> string <span class="fu">&lt;$&gt;</span> allSignals</code></pre></div>
+<p>We’re going to use the <code>anySignal</code> parser to pull out many pieces of content from a string, but the interesting part is the <code>signalParser</code> itself. <code>choice</code> and <code>&lt;|&gt;</code> are the same, but we need to choose between <em>all</em> the signals so we pass a list of Parsers. If it helps, it looks a bit like this if you were to expand it:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">choice [(try <span class="fu">$</span> string <span class="st">&quot;AD02&quot;</span>), (try <span class="fu">$</span> string <span class="st">&quot;AD11&quot;</span>), <span class="fu">...</span>]</code></pre></div>
+<p>Another thing to note is the <code>signalLookahead</code>. We need to avoid eating up the next signal and just use it to signal the end of input.</p>
+<p>Once again, there’s a freeze of the jupyter notebook if you’d like to see it in the full context (<a href="../slides/ffrparse">here</a>)</p>
+<h3 id="further-processing">Further processing</h3>
+<p>There are many more things we can do with our data in this format, but the first thing I would do is consume the data into some Map like this:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">SignalMap</span> <span class="fu">=</span> <span class="dt">Map.Map</span> <span class="dt">Signal</span> <span class="dt">String</span></code></pre></div>
+<p>From here we’d want to inspect what each signal has inside of it, so we can take from this <code>Map</code> and further parse the string content.</p>
+<h3 id="credit">Credit</h3>
+<p>Thanks a bunch to both of these resources (which are far both better and more comprehensive than this):</p>
+<ul>
+<li><a href="https://github.com/JakeWheat/intro_to_parsing" class="uri">https://github.com/JakeWheat/intro_to_parsing</a></li>
+<li><a href="http://unbui.lt/#!/post/haskell-parsec-basics/" class="uri">http://unbui.lt/#!/post/haskell-parsec-basics/</a></li>
+</ul>
+
+      </div>
+    </section>
+    <footer>
+      <hr />
+      <p class="left">Site generated with <a href="http://jaspervdj.be/hakyll">Hakyll</a></p>
+
+      <p class="right"><a href="mailto:brady@andand.co">Work with me</a></p>
+    </footer>
+  <script src="../assets/javascripts/scale.fix.js"></script>
+  </body>
+</html>

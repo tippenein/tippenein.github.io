@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Brady Ouren (Tippenein)</title>
+
+    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/default.css">
+    <link rel="stylesheet" href="../css/syntax.css">
+    <link rel="alternate" type="application/rss+xml" title="BrdyOrn.com" href="brdyorn.com/feed.xml">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <header class="profile row">
+      <div class="col-sm-6">
+        <p class="name"><a class="header-link" href="../">Brady Ouren</a></p>
+      </div>
+      <div class="col-sm-6">
+        <ul class="social list-inline">
+          <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
+          <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
+          <li><a class="header-link" href="../feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
+        </ul>
+      </div>
+    </header>
+    <section>
+      <div class="content">
+        <div class="info">
+  <!-- Posted on Mar 26, 2016 -->
+  
+</div>
+
+<h3 id="the-value-of-composable-parts">The value of composable parts</h3>
+<p>I’ve found myself in some strange parsing tasks lately. This is a new thing for me, so don’t take this post as an example of the best practices for parsing. However, FWIW, all the parsers <em>work</em>.</p>
+<h3 id="the-setup">The Setup</h3>
+<p>Say we have data that looks something like:</p>
+<p><code>&quot;1%400:3.2 6%some_description|100:1&quot;</code></p>
+<p>First we decide what we’re trying to pull out of this. These values happen to be space separated so we can just use the Prelude’s <code>words</code></p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">words theString
+<span class="fu">&gt;</span> [<span class="st">&quot;1%400:3.2&quot;</span>, <span class="st">&quot;6%some_description|100:1&quot;</span>]</code></pre></div>
+<p>Each string in this list we’ll call a <code>Feature</code> so we write a data type for it:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Feature</span>
+  <span class="fu">=</span> <span class="dt">Feature</span>
+  {<span class="ot"> row        ::</span> <span class="dt">String</span>
+  ,<span class="ot"> col        ::</span> <span class="dt">String</span>
+  ,<span class="ot"> value      ::</span> <span class="dt">String</span>
+  ,<span class="ot"> descriptor ::</span> <span class="dt">Maybe</span> <span class="dt">String</span>
+  } <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre></div>
+<p>Notice that we’re just reading this in as String data at the moment, but we can easily change that once we get the parsing structure down.</p>
+<p>Anyway, almost done with the easy stuff. We need to pull the garbage data out somehow. That’s cool, we’ll just write out our signal matchers.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">breakSep <span class="fu">=</span> string <span class="st">&quot;%&quot;</span>
+kvSep <span class="fu">=</span> string <span class="st">&quot;:&quot;</span>
+descriptionSep <span class="fu">=</span> string <span class="st">&quot;|&quot;</span></code></pre></div>
+<h3 id="the-actual-parsing">The Actual Parsing</h3>
+<p>Since we’ll be slurping up data until we hit one of the above defined separators, we’ll make a parser to do just that:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">anythingUntil ::</span> <span class="dt">Parser</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Parser</span> <span class="dt">String</span>
+anythingUntil p <span class="fu">=</span> manyTill anyToken (p <span class="fu">*&gt;</span> return ())</code></pre></div>
+<p>This function eats up any type of input until it hits one of our separators and returns everything before it.</p>
+<p>The way we’ll use this is pretty simple</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="ot">featureP ::</span> <span class="dt">Parser</span> <span class="dt">Feature</span>
+featureP <span class="fu">=</span> <span class="kw">do</span>
+  row <span class="ot">&lt;-</span> anythingUntil breakSep
+  desc <span class="ot">&lt;-</span> descriptorP
+  col <span class="ot">&lt;-</span> anythingUntil kvSep
+  value <span class="ot">&lt;-</span> manyTill anyToken eof <span class="co">-- get the remaining</span>
+  return <span class="fu">$</span> <span class="dt">Feature</span> row col value desc</code></pre></div>
+<p>Now we need to fill in the optional <code>descriptor</code> parser</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">descriptorP ::</span> <span class="dt">Parser</span> (<span class="dt">Maybe</span> <span class="dt">String</span>)
+descriptorP <span class="fu">=</span> optionMaybe <span class="fu">$</span> try <span class="fu">$</span> anythingUntil descSep</code></pre></div>
+<p><code>optionMaybe</code> allows us to optionally consume some data and return a Maybe value.</p>
+<p>Since the the anythingUntil parser <em>can</em> fail in this case, we need to use <code>try</code> to save us from erroring out.</p>
+<h3 id="the-benefit-over-x">The Benefit over X</h3>
+<p>Personally, I find this easier to reason about than a regex or generic string functions. The point here is that I can easily expand on this and add new detailed parsers (This will be covered in <a href="../2016/03/27/parser-combinators2">part 2</a>)</p>
+<p>I’ve included a snapshot of the ihaskell session I was working in for full context <a href="../slides/features_ipynb.html">here</a></p>
+
+      </div>
+    </section>
+    <footer>
+      <hr />
+      <p class="left">Site generated with <a href="http://jaspervdj.be/hakyll">Hakyll</a></p>
+
+      <p class="right"><a href="mailto:brady@andand.co">Work with me</a></p>
+    </footer>
+  <script src="../assets/javascripts/scale.fix.js"></script>
+  </body>
+</html>

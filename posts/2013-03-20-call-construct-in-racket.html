@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Brady Ouren (Tippenein)</title>
+
+    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/default.css">
+    <link rel="stylesheet" href="../css/syntax.css">
+    <link rel="alternate" type="application/rss+xml" title="BrdyOrn.com" href="brdyorn.com/feed.xml">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <header class="profile row">
+      <div class="col-sm-6">
+        <p class="name"><a class="header-link" href="../">Brady Ouren</a></p>
+      </div>
+      <div class="col-sm-6">
+        <ul class="social list-inline">
+          <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
+          <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
+          <li><a class="header-link" href="../feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
+        </ul>
+      </div>
+    </header>
+    <section>
+      <div class="content">
+        <div class="info">
+  <!-- Posted on Mar 20, 2013 -->
+  
+</div>
+
+<h3 id="grokking-the-call-construct">Grokking the ‘call’ construct</h3>
+<p>While implementing the MUPL (Made Up Programming Language) for a programming languages course I found call to be interesting. I’ll underline some of the implementation here.</p>
+<p>Now, call isn’t necessarily a difficult concept. It’s used all the time in jQuery and javascript to alter the <code>this</code> of a function call and here we’ll do a similar thing, but it seems more fun because you’re also using lexical scope and closure environment within the call implementation. It’s easier if I just show some of the code.</p>
+<!--more-->
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(<span class="kw">define</span><span class="fu"> </span>(eval-exp e)
+    (eval-under-env e '())) <span class="co">;; start with an empty list environment</span></code></pre></div>
+<p>This is what’s called from within our language. Each expression has an environment which in this case is just a list of pairs of expressions. Briefly, when you create a struct you get helper function for checking an expression and the equivalent of getters. ex. <code>(struct add (e1 e2))</code> will allow you to test any expression with <code>(add? e)</code> and get <code>(+ add-e1 add-e2)</code> etc. These are the structs we care about here:</p>
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(struct call (funexp actual) #:transparent)
+(struct closure (env fun) #:transparent)</code></pre></div>
+<h3 id="eval-within-a-specific-environment">eval within a specific environment</h3>
+<p>The fun comes with defining <code>eval-under-env</code>. This is the given spec for implementing call.</p>
+<blockquote>
+<p>A call evaluates its first and second subexpressions to values. If the first is not a closure, it is an error. Else, it evaluates the closure’s function’s body in the closure’s environment <strong>extended to map the function’s name to the closure</strong> (unless the name field is #f) and the functions argument to the result of the second subexpression.</p>
+</blockquote>
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(<span class="kw">define</span><span class="fu"> </span>(eval-under-env e env)
+    (<span class="kw">cond</span>   [(var? e) (envlookup env (var-string e))]
+            <span class="co">;; ...more expression checking</span>
+            [(call? e)</code></pre></div>
+<p>eval-under-env is a large <code>cond</code> checking the given expression (<code>e</code>) within the given environment (<code>env</code>). The following is how we evaluate <code>call</code> expressions:</p>
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(<span class="kw">let</span> ([v1 (eval-under-env (call-funexp e) env)]
+      [v2 (eval-under-env (call-actual e) env)])
+    (<span class="kw">if</span> (closure? v1) <span class="co">;; make sure first expression is a closure</span>
+        (<span class="kw">let*</span> [carg1 (closure-fun v1)]
+              [carg2 (closure-env v1)]
+              [cname (<span class="kw">cons</span> (fun-nameopt carg1) v1)]
+              [cfunc (<span class="kw">cons</span> (fun-formal carg2) v2)])</code></pre></div>
+<p>The <code>let*</code> is basically allowing contiguous use of bindings within the same let binding (ex. <code>carg1</code> is used within the <code>cname</code> binding). After the args are set to cname and cfunc respectively, the function is evaluated within the specified closure-env (<code>carg2</code>) but we have to construct that environment.</p>
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(eval-under-env (fun-body carg1)
+      (<span class="kw">if</span> (<span class="kw">eq?</span> (<span class="kw">car</span> cname) <span class="dv">#f</span>)
+          (<span class="kw">cons</span> cfunc carg2)
+          (<span class="kw">cons</span> cfunc (<span class="kw">cons</span> cname carg2))))</code></pre></div>
+<p>I’ve posted more of the MUPL implementation <a href="https://gist.github.com/tippenein/5229968">here</a> if seeing the full bit of code would be helpful.</p>
+
+      </div>
+    </section>
+    <footer>
+      <hr />
+      <p class="left">Site generated with <a href="http://jaspervdj.be/hakyll">Hakyll</a></p>
+
+      <p class="right"><a href="mailto:brady@andand.co">Work with me</a></p>
+    </footer>
+  <script src="../assets/javascripts/scale.fix.js"></script>
+  </body>
+</html>
