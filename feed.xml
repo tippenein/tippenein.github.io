@@ -17,7 +17,7 @@
 </div>
 
 <h3 id="prt2">P▲rT2</h3>
-<p>In the <a href="/2016/03/26/parser-combinators">previous post</a> I showed how to use <a href="https://www.stackage.org/package/parsec">parsec</a> to parse data in a format like this:</p>
+<p>In the <a href="/posts/2016-03-26-parser-combinators.html">previous post</a> I showed how to use <a href="https://www.stackage.org/package/parsec">parsec</a> to parse data in a format like this:</p>
 <p><code>&quot;1%400:3.2 6%some_description|100:1&quot;</code></p>
 <h3 id="why-not-regex">Why not regex?</h3>
 <p>I certainly could’ve used a regex pattern like <code>\d\%(\w*\|)?(\d+):(\d+\.?\d?)</code></p>
@@ -124,7 +124,7 @@ descriptorP <span class="fu">=</span> optionMaybe <span class="fu">$</span> try 
 <p><code>optionMaybe</code> allows us to optionally consume some data and return a Maybe value.</p>
 <p>Since the the anythingUntil parser <em>can</em> fail in this case, we need to use <code>try</code> to save us from erroring out.</p>
 <h3 id="the-benefit-over-x">The Benefit over X</h3>
-<p>Personally, I find this easier to reason about than a regex or generic string functions. The point here is that I can easily expand on this and add new detailed parsers (This will be covered in <a href="/2016/03/27/parser-combinators2">part 2</a>)</p>
+<p>Personally, I find this easier to reason about than a regex or generic string functions. The point here is that I can easily expand on this and add new detailed parsers (This will be covered in <a href="/posts/2016-03-27-parser-combinators2.html">part 2</a>)</p>
 <p>I’ve included a snapshot of the ihaskell session I was working in for full context <a href="/slides/features_ipynb.html">here</a></p>
 ]]></description>
     <pubDate>Sat, 26 Mar 2016 00:00:00 UT</pubDate>
