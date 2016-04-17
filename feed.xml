@@ -122,7 +122,7 @@ featureP <span class="fu">=</span> <span class="kw">do</span>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">descriptorP ::</span> <span class="dt">Parser</span> (<span class="dt">Maybe</span> <span class="dt">String</span>)
 descriptorP <span class="fu">=</span> optionMaybe <span class="fu">$</span> try <span class="fu">$</span> anythingUntil descSep</code></pre></div>
 <p><code>optionMaybe</code> allows us to optionally consume some data and return a Maybe value.</p>
-<p>Since the the anythingUntil parser <em>can</em> fail in this case, we need to use <code>try</code> to save us from erroring out.</p>
+<p>Since the anythingUntil parser <em>can</em> fail in this case, we need to use <code>try</code> to save us from erroring out.</p>
 <h3 id="the-benefit-over-x">The Benefit over X</h3>
 <p>Personally, I find this easier to reason about than a regex or generic string functions. The point here is that I can easily expand on this and add new detailed parsers (This will be covered in <a href="/posts/2016-03-27-parser-combinators2.html">part 2</a>)</p>
 <p>I’ve included a snapshot of the ihaskell session I was working in for full context <a href="/slides/features_ipynb.html">here</a></p>
