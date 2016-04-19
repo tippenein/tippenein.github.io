@@ -44,13 +44,15 @@
 <span class="kw">import </span><span class="dt">Language.Haskell.TH</span>
 
 <span class="ot">declareAnimals ::</span> [<span class="dt">String</span>] <span class="ot">-&gt;</span> <span class="dt">Q</span> [<span class="dt">Dec</span>]
-declareAnimals animals <span class="fu">=</span> return [<span class="dt">DataD</span> constraints name vars cons derives] <span class="kw">where</span>
-  constraints <span class="fu">=</span> []
-  name        <span class="fu">=</span> mkName <span class="st">&quot;Animal&quot;</span>
-  vars        <span class="fu">=</span> []
-  cons        <span class="fu">=</span> map (\a <span class="ot">-&gt;</span> <span class="dt">NormalC</span> (mkName a) fields) animals
-  fields      <span class="fu">=</span> []
-  derives     <span class="fu">=</span> [<span class="ch">''</span><span class="dt">Show</span>, <span class="ch">''</span><span class="dt">Eq</span>, <span class="ch">''</span><span class="dt">Ord</span>, <span class="ch">''</span><span class="dt">Enum</span>, <span class="ch">''</span><span class="dt">Read</span>]</code></pre></div>
+declareAnimals animals <span class="fu">=</span>
+  return [<span class="dt">DataD</span> constraints name vars cons derives]
+    <span class="kw">where</span>
+      constraints <span class="fu">=</span> []
+      name        <span class="fu">=</span> mkName <span class="st">&quot;Animal&quot;</span>
+      vars        <span class="fu">=</span> []
+      cons        <span class="fu">=</span> map (\a <span class="ot">-&gt;</span> <span class="dt">NormalC</span> (mkName a) fields) animals
+      fields      <span class="fu">=</span> []
+      derives     <span class="fu">=</span> [<span class="ch">''</span><span class="dt">Show</span>, <span class="ch">''</span><span class="dt">Eq</span>, <span class="ch">''</span><span class="dt">Ord</span>, <span class="ch">''</span><span class="dt">Enum</span>, <span class="ch">''</span><span class="dt">Read</span>]</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">animals <span class="fu">=</span> [<span class="st">&quot;Aardvark&quot;</span>, <span class="st">&quot;Bobcat&quot;</span>, <span class="st">&quot;Quokka&quot;</span>]
 <span class="fu">$</span>(declareAnimals animals)
 
