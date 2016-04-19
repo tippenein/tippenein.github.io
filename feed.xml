@@ -7,8 +7,57 @@
         <description><![CDATA[Brady Ouren's home page feed.]]></description>
         <atom:link href="http://brdyorn.com/feed.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sun, 27 Mar 2016 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Mon, 18 Apr 2016 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Using Template Haskell to generate an Enum</title>
+    <link>http://brdyorn.com/posts/2016-04-18-simple-enum-generation.html</link>
+    <description><![CDATA[<div class="info">
+  <!-- Posted on Apr 18, 2016 -->
+  
+</div>
+
+<h3 id="a-simple-useful-case-for-template-haskell">A simple useful case for Template Haskell</h3>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE TemplateHaskell #-}</span>
+
+<span class="kw">import </span><span class="dt">Language.Haskell.TH</span>
+
+<span class="ot">declareAnimals ::</span> [<span class="dt">String</span>] <span class="ot">-&gt;</span> <span class="dt">Q</span> [<span class="dt">Dec</span>]
+declareAnimals animals <span class="fu">=</span> return [<span class="dt">DataD</span> constraints name vars cons derives] <span class="kw">where</span>
+  constraints <span class="fu">=</span> []
+  name        <span class="fu">=</span> mkName <span class="st">&quot;Animal&quot;</span>
+  vars        <span class="fu">=</span> []
+  cons        <span class="fu">=</span> map (\a <span class="ot">-&gt;</span> <span class="dt">NormalC</span> (mkName a) fields) animals
+  fields      <span class="fu">=</span> []
+  derives     <span class="fu">=</span> [<span class="ch">&#39;&#39;</span><span class="dt">Show</span>, <span class="ch">&#39;&#39;</span><span class="dt">Eq</span>, <span class="ch">&#39;&#39;</span><span class="dt">Ord</span>, <span class="ch">&#39;&#39;</span><span class="dt">Enum</span>, <span class="ch">&#39;&#39;</span><span class="dt">Read</span>]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">animals <span class="fu">=</span> [<span class="st">&quot;Aardvark&quot;</span>, <span class="st">&quot;Bobcat&quot;</span>, <span class="st">&quot;Quokka&quot;</span>]
+<span class="fu">$</span>(declareAnimals animals)
+
+<span class="co">-- data Signal = Aardvark | Bobcat | Quokka</span></code></pre></div>
+<p>If you only cared about getting an enum type, this is where you can jump off.</p>
+<h3 id="digging-into-the-types">Digging into the types</h3>
+<p>If we look further at the types involved here, we can learn more about what this is doing.</p>
+<p>At a high level, we’re simply building a haskell AST and introducing it into our code-base. You can think of this as meta-programming but if you ask me it’s more like playing with legos.</p>
+<p>We construct a <code>data</code> declaration with <code>DataD</code></p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">DataD</span><span class="ot"> ::</span> <span class="dt">Cxt</span> <span class="ot">-&gt;</span> <span class="dt">Name</span> <span class="ot">-&gt;</span> [<span class="dt">TyVarBndr</span>] <span class="ot">-&gt;</span> [<span class="dt">Con</span>] <span class="ot">-&gt;</span> [<span class="dt">Name</span>] <span class="ot">-&gt;</span> <span class="dt">Dec</span></code></pre></div>
+<p>or if we spread this out and document each piece.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">DataD</span><span class="ot"> ::</span> <span class="dt">Cxt</span>          <span class="co">-- constraints (eg. Num a =&gt; a -&gt; a)</span>
+      <span class="ot">-&gt;</span> <span class="dt">Name</span>         <span class="co">-- the type name</span>
+      <span class="ot">-&gt;</span> [<span class="dt">TyVarBndr</span>]  <span class="co">-- type variable bindings</span>
+      <span class="ot">-&gt;</span> [<span class="dt">Con</span>]        <span class="co">-- constructors</span>
+      <span class="ot">-&gt;</span> [<span class="dt">Name</span>]       <span class="co">-- deriving types (eg. Eq, Ord, etc)</span>
+      <span class="ot">-&gt;</span> <span class="dt">Dec</span></code></pre></div>
+<p>simple <code>Name</code> constructor</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">mkName ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Name</span></code></pre></div>
+<p>build a normal Constructor</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">NormalC</span><span class="ot"> ::</span> <span class="dt">Name</span> <span class="ot">-&gt;</span> [<span class="dt">StrictType</span>] <span class="ot">-&gt;</span> <span class="dt">Con</span></code></pre></div>
+<p>The <code>derives</code> need to have the double-tick in order to be read as a syntax builder rather than an actual deriving statement. The same goes for type constraints and such.</p>
+<p>You can look at all this documentation on the <a href="https://hackage.haskell.org/package/template-haskell-2.10.0.0/docs/Language-Haskell-TH-Syntax.html">Language.Haskell.TH</a> page</p>
+]]></description>
+    <pubDate>Mon, 18 Apr 2016 00:00:00 UT</pubDate>
+    <guid>http://brdyorn.com/posts/2016-04-18-simple-enum-generation.html</guid>
+    <dc:creator>Brady Ouren</dc:creator>
+</item>
+<item>
     <title>Parser Combinatorz part2</title>
     <link>http://brdyorn.com/posts/2016-03-27-parser-combinators2.html</link>
     <description><![CDATA[<div class="info">
@@ -444,42 +493,6 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
 ]]></description>
     <pubDate>Fri, 12 Jul 2013 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2013-07-12-postgres_savepoint.html</guid>
-    <dc:creator>Brady Ouren</dc:creator>
-</item>
-<item>
-    <title>Natural Language and Computer Language</title>
-    <link>http://brdyorn.com/posts/2013-04-19-natural-and-computer-languages.html</link>
-    <description><![CDATA[<div class="info">
-  <!-- Posted on Apr 19, 2013 -->
-  
-</div>
-
-<h3 id="language---objects-or-objects---language">Language -&gt; Objects or Objects -&gt; Language</h3>
-<p>I’m interested in this idea of mapping thoughts to language and language to thoughts. I guess anyone who’s thought about how the mind works will naturally wonder along these lines. Does the language you know affect the ideas you’re able to communicate? This quote from the wikipedia entry on <a href="http://en.wikipedia.org/wiki/Linguistic_relativity">linguistic relativity</a> seems to sum the question up nicely. &gt; Philosophers also vary in the question of whether language is basically a tool for representing and referring to objects in the world, or whether it is a system used to construct mental representations of the world that can be shared and circulated between people.</p>
-<!--more-->
-<p>There’s continuity between natural language and computer language enough that we can use linguistic theory to analyze the same idea in programming languages. Essentially, the question is whether the language you use determines how you write and reason about code.</p>
-<ol style="list-style-type: decimal">
-<li>Is your thought process structured in a specific language?</li>
-<li>Are some languages more apt at certain problems than others? or is it the person weilding the language who determines the effectiveness.</li>
-</ol>
-<h3 id="semantics-and-idioms">Semantics and Idioms</h3>
-<p>In programming languages, a certain language may have the semantics that another language requires an idiom to achieve. This is the same as natural language in a way. Consider a Brazilian trying to explain the look of snow. It might take them a paragraph to do it, whereas an Eskimo would have 1 word to encapsulate the look accurately.</p>
-<p>Two well known examples are these quotes by <em>esr</em> and <em>Paul Graham</em> (both referring to the benefits of using Lisp).</p>
-<p><strong>Eric Raymond</strong></p>
-<blockquote>
-<p>Lisp is worth learning for the profound enlightenment experience you will have when you finally get it; that experience will make you a better programmer for the rest of your days, even if you never actually use Lisp itself a lot.</p>
-</blockquote>
-<p><strong>Paul Graham</strong></p>
-<blockquote>
-<p>Languages less powerful than <a href="http://www.paulgraham.com/avg.html">Blub</a> are obviously less powerful. But when our hypothetical Blub programmer looks in the other direction, up the power continuum, he doesn’t realize he’s looking up. What he sees are merely weird languages. Blub is good enough for him, because he thinks in Blub.</p>
-</blockquote>
-<p>If you’ve never read the Paul Graham post and need context, it’s <a href="http://www.paulgraham.com/avg.html">here</a>.</p>
-<p>Paraphrasing a bit of La Rouchfoucald; “No one would fall in love if they hadn’t read about it.” This is an interesting idea. Relating this back to programming languages; if your language has no notion of recursion would it even exist in your mind? Is that a problem? Arguably yes.</p>
-<p>One last quote from Ludwig Wittgenstein’s ‘Philosophical Investigations’ - “language is a form of life, not outside of it”</p>
-<p>I’m still thinking about this question and I plan on revisiting this idea often because it seems to me the question “Do objects define a language or do languages define objects” is one which takes a lot of pondering to grasp.</p>
-]]></description>
-    <pubDate>Fri, 19 Apr 2013 00:00:00 UT</pubDate>
-    <guid>http://brdyorn.com/posts/2013-04-19-natural-and-computer-languages.html</guid>
     <dc:creator>Brady Ouren</dc:creator>
 </item>
 

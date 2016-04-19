@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Brady Ouren (Tippenein)</title>
+
+    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/default.css">
+    <link rel="stylesheet" href="../css/syntax.css">
+    <link rel="alternate" type="application/rss+xml" title="BrdyOrn.com" href="brdyorn.com/feed.xml">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <header class="profile row">
+      <div class="col-sm-6">
+        <p class="name"><a class="header-link" href="../">Brady Ouren</a></p>
+      </div>
+      <div class="col-sm-6">
+        <ul class="social list-inline">
+          <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
+          <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
+          <li><a class="header-link" href="../feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
+        </ul>
+      </div>
+    </header>
+    <section>
+      <div class="content">
+        <div class="info">
+  <!-- Posted on Apr 18, 2016 -->
+  
+</div>
+
+<h3 id="a-simple-useful-case-for-template-haskell">A simple useful case for Template Haskell</h3>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE TemplateHaskell #-}</span>
+
+<span class="kw">import </span><span class="dt">Language.Haskell.TH</span>
+
+<span class="ot">declareAnimals ::</span> [<span class="dt">String</span>] <span class="ot">-&gt;</span> <span class="dt">Q</span> [<span class="dt">Dec</span>]
+declareAnimals animals <span class="fu">=</span> return [<span class="dt">DataD</span> constraints name vars cons derives] <span class="kw">where</span>
+  constraints <span class="fu">=</span> []
+  name        <span class="fu">=</span> mkName <span class="st">&quot;Animal&quot;</span>
+  vars        <span class="fu">=</span> []
+  cons        <span class="fu">=</span> map (\a <span class="ot">-&gt;</span> <span class="dt">NormalC</span> (mkName a) fields) animals
+  fields      <span class="fu">=</span> []
+  derives     <span class="fu">=</span> [<span class="ch">''</span><span class="dt">Show</span>, <span class="ch">''</span><span class="dt">Eq</span>, <span class="ch">''</span><span class="dt">Ord</span>, <span class="ch">''</span><span class="dt">Enum</span>, <span class="ch">''</span><span class="dt">Read</span>]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">animals <span class="fu">=</span> [<span class="st">&quot;Aardvark&quot;</span>, <span class="st">&quot;Bobcat&quot;</span>, <span class="st">&quot;Quokka&quot;</span>]
+<span class="fu">$</span>(declareAnimals animals)
+
+<span class="co">-- data Signal = Aardvark | Bobcat | Quokka</span></code></pre></div>
+<p>If you only cared about getting an enum type, this is where you can jump off.</p>
+<h3 id="digging-into-the-types">Digging into the types</h3>
+<p>If we look further at the types involved here, we can learn more about what this is doing.</p>
+<p>At a high level, we’re simply building a haskell AST and introducing it into our code-base. You can think of this as meta-programming but if you ask me it’s more like playing with legos.</p>
+<p>We construct a <code>data</code> declaration with <code>DataD</code></p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">DataD</span><span class="ot"> ::</span> <span class="dt">Cxt</span> <span class="ot">-&gt;</span> <span class="dt">Name</span> <span class="ot">-&gt;</span> [<span class="dt">TyVarBndr</span>] <span class="ot">-&gt;</span> [<span class="dt">Con</span>] <span class="ot">-&gt;</span> [<span class="dt">Name</span>] <span class="ot">-&gt;</span> <span class="dt">Dec</span></code></pre></div>
+<p>or if we spread this out and document each piece.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">DataD</span><span class="ot"> ::</span> <span class="dt">Cxt</span>          <span class="co">-- constraints (eg. Num a =&gt; a -&gt; a)</span>
+      <span class="ot">-&gt;</span> <span class="dt">Name</span>         <span class="co">-- the type name</span>
+      <span class="ot">-&gt;</span> [<span class="dt">TyVarBndr</span>]  <span class="co">-- type variable bindings</span>
+      <span class="ot">-&gt;</span> [<span class="dt">Con</span>]        <span class="co">-- constructors</span>
+      <span class="ot">-&gt;</span> [<span class="dt">Name</span>]       <span class="co">-- deriving types (eg. Eq, Ord, etc)</span>
+      <span class="ot">-&gt;</span> <span class="dt">Dec</span></code></pre></div>
+<p>simple <code>Name</code> constructor</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">mkName ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Name</span></code></pre></div>
+<p>build a normal Constructor</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">NormalC</span><span class="ot"> ::</span> <span class="dt">Name</span> <span class="ot">-&gt;</span> [<span class="dt">StrictType</span>] <span class="ot">-&gt;</span> <span class="dt">Con</span></code></pre></div>
+<p>The <code>derives</code> need to have the double-tick in order to be read as a syntax builder rather than an actual deriving statement. The same goes for type constraints and such.</p>
+<p>You can look at all this documentation on the <a href="https://hackage.haskell.org/package/template-haskell-2.10.0.0/docs/Language-Haskell-TH-Syntax.html">Language.Haskell.TH</a> page</p>
+
+      </div>
+    </section>
+    <footer>
+      <hr />
+      <p class="left">Site generated with <a href="http://jaspervdj.be/hakyll">Hakyll</a></p>
+
+      <p class="right"><a href="mailto:brady@andand.co">Work with me</a></p>
+    </footer>
+  <script src="../assets/javascripts/scale.fix.js"></script>
+  </body>
+</html>
