@@ -16,6 +16,10 @@
   
 </div>
 
+<div class="post-meta">
+  <em class="post-date pull-right"> - Apr 18, 2016</em>
+  <h2 class="post-title">Using Template Haskell to generate an Enum</h2>
+</div>
 <h3 id="a-simple-useful-case-for-template-haskell">A simple useful case for Template Haskell</h3>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE TemplateHaskell #-}</span>
 
@@ -67,6 +71,10 @@ declareAnimals animals <span class="fu">=</span>
   
 </div>
 
+<div class="post-meta">
+  <em class="post-date pull-right"> - Mar 27, 2016</em>
+  <h2 class="post-title">Parser Combinatorz part2</h2>
+</div>
 <h3 id="prt2">P▲rT2</h3>
 <p>In the <a href="/posts/2016-03-26-parser-combinators.html">previous post</a> I showed how to use <a href="https://www.stackage.org/package/parsec">parsec</a> to parse data in a format like this:</p>
 <p><code>&quot;1%400:3.2 6%some_description|100:1&quot;</code></p>
@@ -134,6 +142,10 @@ signalParser <span class="fu">=</span> choice <span class="fu">$</span> fmap try
   
 </div>
 
+<div class="post-meta">
+  <em class="post-date pull-right"> - Mar 26, 2016</em>
+  <h2 class="post-title">Parser Combinatorz part1</h2>
+</div>
 <h3 id="the-value-of-composable-parts">The value of composable parts</h3>
 <p>I’ve found myself in some strange parsing tasks lately. This is a new thing for me, so don’t take this post as an example of the best practices for parsing. However, FWIW, all the parsers <em>work</em>.</p>
 <h3 id="the-setup">The Setup</h3>
@@ -190,6 +202,10 @@ descriptorP <span class="fu">=</span> optionMaybe <span class="fu">$</span> try 
   
 </div>
 
+<div class="post-meta">
+  <em class="post-date pull-right"> - Dec 12, 2015</em>
+  <h2 class="post-title">Servant Patterns for Clients</h2>
+</div>
 <h3 id="clients-for-free">Clients for Free</h3>
 <p>The unfortunate reality of many of our day jobs is that we are <em>not</em> able to replace existing services with haskell. However, don’t despair! We can still write services which consume our existing services quite easily with <a href="https://github.com/haskell-servant/servant">Servant</a>.</p>
 <p>I’ve picked up some patterns for writing clean haskell code from <a href="https://github.com/tfausak/factory">tfausak</a> and they’ve all come together in a working user client.</p>
@@ -265,6 +281,10 @@ run <span class="fu">$</span> getUsers <span class="dt">Nothing</span> (<span cl
   
 </div>
 
+<div class="post-meta">
+  <em class="post-date pull-right"> - Jun  4, 2015</em>
+  <h2 class="post-title">Partial Application for real</h2>
+</div>
 <h3 id="intuitive-solutions">Intuitive Solutions</h3>
 <p>While working on <a href="http://github.com/tippenein/BankHoliday">a library</a> recently, I came across an elegant use of partial application.</p>
 <p>How would we model the first monday in any given month. Firstly I needed a way of passing around the concept of a <code>month</code> which ends up being simply <code>fromGregorian</code> applied to a year and month index.</p>
@@ -305,6 +325,10 @@ weekendHolidayFrom d <span class="fu">=</span> <span class="kw">case</span> week
   
 </div>
 
+<div class="post-meta">
+  <em class="post-date pull-right"> - Dec 10, 2014</em>
+  <h2 class="post-title">rspec pattern for testing permissions</h2>
+</div>
 <h3 id="a-problem-youre-bound-to-face">A problem you’re bound to face</h3>
 <p>Most projects will run into the problem of testing multiple levels of permissions with rspec at some point. The project I was on came up with what I take to be the most sane way of tackling permission testing with rspec.</p>
 <p>For example, say you’re trying to test success and failure of 3 different authorization settings. You might try this to accomplish permission testing on each controller action:</p>
@@ -377,6 +401,10 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
   
 </div>
 
+<div class="post-meta">
+  <em class="post-date pull-right"> - Nov 23, 2014</em>
+  <h2 class="post-title">Comparing reverse sort and flip compare</h2>
+</div>
 <h3 id="comparing-flip-compare">Comparing flip compare</h3>
 <p>GHCmod-vim hinted at an improvement in some code I was writing:</p>
 <p><code>reverse $ sort</code> why not <code>sortBy (flip compare)</code></p>
@@ -409,6 +437,10 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
   
 </div>
 
+<div class="post-meta">
+  <em class="post-date pull-right"> - Aug 20, 2013</em>
+  <h2 class="post-title">Let's play 'Feature or Defect!'</h2>
+</div>
 <h3 id="lolwhut">Lolwhut?!</h3>
 <p>Sometimes you run into programming language “features” that make you wonder if that was the intended effect. This particular one involves python and a mutable default function argument. Here’s a quick example:</p>
 <!--more-->
@@ -438,6 +470,10 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
   
 </div>
 
+<div class="post-meta">
+  <em class="post-date pull-right"> - Jul 25, 2013</em>
+  <h2 class="post-title">REST exception handling with decorators</h2>
+</div>
 <h3 id="raising-rest-exceptions">Raising REST exceptions</h3>
 <p>I can’t decide if this is the “right” way of doing this, but it seems relatively succinct, so I’ll attempt to describe how I handled exceptions for a REST api in django.</p>
 <p>Say you need to return user info and the info given for user lookup fails.</p>
@@ -484,6 +520,10 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
   
 </div>
 
+<div class="post-meta">
+  <em class="post-date pull-right"> - Jul 12, 2013</em>
+  <h2 class="post-title">Postgres savepoint</h2>
+</div>
 <h3 id="postgres-savepoint-and-trycatch">Postgres savepoint and try/catch</h3>
 <p>I ran into a simple, but necessary bit of postgres knowledge this week while using a bloom filter to purge outdated database entries. The problem I encountered was within a try/catch block. I was catching a <code>ForeignKeyError</code> if the deletion of a row failed. Since I was doing this transaction within a cursor, I would get an error along the lines of: <code>&quot;Current transaction is aborted, commands ignored until end of transaction block&quot;</code></p>
 <!--more-->
