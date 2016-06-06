@@ -7,8 +7,93 @@
         <description><![CDATA[Brady Ouren's home page feed.]]></description>
         <atom:link href="http://brdyorn.com/feed.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Mon, 18 Apr 2016 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sun, 05 Jun 2016 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Exploring monoids for sum averages</title>
+    <link>http://brdyorn.com/posts/2016-06-05-monoidal-sum.html</link>
+    <description><![CDATA[<div class="info">
+  <!-- Posted on Jun  5, 2016 -->
+  
+</div>
+
+<div class="post-meta">
+  <em class="post-date pull-right"> - Jun  5, 2016</em>
+  <h2 class="post-title">Exploring monoids for sum averages</h2>
+</div>
+<p>In <a href="https://www.youtube.com/watch?v=cMY1KVrJk0w">a talk</a> by Avi Bryant about practical systems for Analytics or Aggregation he drew comparisons to Monoids and Abelian Groups. I thought it would be helpful to work through what he was explaining with haskell, so here we go.</p>
+<p>The first thing discussed is a simple summing with a monoid. We need implementations for: - mempty: somewhere to start; something that won’t affect the outcome of the sum. - mappend: a way of combining 2 instances together, (we’ll use the infix notation or <code>&lt;&gt;</code>) - mconcat: a way of combining a list of instances together down into a single instance (a fold)</p>
+<p>The point of this abstraction is to easily allow a fold (reduce) of any data type into itself. It doesn’t <em>have</em> to be commutative, but these monoid instances happen to be. (Abelian groups however, <em>have</em> to be commutative)</p>
+<h3 id="part-1---a-simple-sum">Part 1 - A simple Sum</h3>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Collection</span> <span class="fu">=</span> <span class="dt">Collection</span> {<span class="ot"> theSum ::</span> <span class="dt">Integer</span> }
+<span class="kw">instance</span> <span class="dt">Monoid</span> <span class="dt">Collection</span> <span class="kw">where</span>
+  mempty <span class="fu">=</span> <span class="dt">Collection</span> <span class="dv">0</span>
+  <span class="dt">Collection</span> sum1 <span class="ot">`mappend`</span> <span class="dt">Collection</span> sum2 <span class="fu">=</span> <span class="dt">Collection</span> (sum1 <span class="fu">+</span> sum2)
+  mconcat <span class="fu">=</span> foldl&#39; mconcat mempty</code></pre></div>
+<p>That isn’t an astounding monoid instance by any means, but it allows us to do simple summing:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">mconcat [<span class="dt">Collection</span> <span class="dv">1</span>, <span class="dt">Collection</span> <span class="dv">10</span>, <span class="dt">Collection</span> <span class="dv">20</span>] <span class="co">-- Collection {theSum = 31}</span>
+
+<span class="co">-- &lt;&gt; is just an operator equivalent to mappend</span>
+<span class="dt">Collection</span> <span class="dv">1</span> <span class="fu">&lt;&gt;</span> <span class="dt">Collection</span> <span class="dv">2</span> <span class="co">-- Collection { theSum = 3 }</span></code></pre></div>
+<h3 id="part-2---a-simple-averaging-aggregation">Part 2 - A simple Averaging aggregation</h3>
+<p>The next step is to average the sum as we go.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Collection</span> <span class="fu">=</span> <span class="dt">Collection</span> {<span class="ot"> theSum ::</span> <span class="dt">Integer</span>,<span class="ot"> avg ::</span> <span class="dt">Maybe</span> <span class="dt">Double</span> }</code></pre></div>
+<p>What we’d expect with this is <code>Collection 1 1 &lt;&gt; Collection 10 10</code> to equal <code>Collection {sum = 11, avg = 5.5 }</code></p>
+<p>Later on we might want to subtract a Collection from this aggregation or weight the averages. These scenarios can be handled by storing a <code>count</code> of <code>Collections</code> seen so far. Ideally we would have an implicit count instead of a repetitive explicit argument, but for now let’s just add count to the data type and write a quickcheck property for counting:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">-- btw, the data type now looks like:</span>
+<span class="co">-- data Collection = Collection { theSum :: Integer, count :: Integer, avg :: Maybe Double }</span>
+it <span class="st">&quot;counts consistently&quot;</span> <span class="fu">$</span> property <span class="fu">$</span> \n <span class="ot">-&gt;</span>
+  count (mconcat <span class="fu">$</span> replicate n justOnes) <span class="ot">`shouldEqual`</span> n</code></pre></div>
+<p>QuickCheck will tell us one error that we probably didn’t consider: What if the count is negative? We shouldn’t allow that, but for now we’re just going to take the absolute value of what quickcheck inputs and test all the positive values of <code>count</code>.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">count (mconcat <span class="fu">$</span> replicate (abs n) justOnes) <span class="ot">`shouldBe`</span> abs n</code></pre></div>
+<p>(I’m fighting the urge to tangent on QuickCheck, but I promise to tackle it in a different post)</p>
+<p>Now for the instance definition of our new averaging sum-thingy! I’ll skip over the more trivial parts, but the example repo will be available for a complete look <a href="https://github.com/tippenein/commutative-monoid-example">here</a></p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="co">-- The only thing changing here is the mappend definition</span>
+<span class="kw">instance</span> <span class="dt">Monoid</span> <span class="dt">Collection</span> <span class="kw">where</span>
+  mempty <span class="fu">=</span> <span class="dt">Collection</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dt">Nothing</span>
+  <span class="co">-- The cases where average is Nothing are omitted</span>
+  (<span class="dt">Collection</span> sum1 count1 (<span class="dt">Just</span> avg1)) <span class="ot">`mappend`</span> (<span class="dt">Collection</span> sum2 count2 (<span class="dt">Just</span> avg2)) <span class="fu">=</span>
+    <span class="dt">Collection</span> (sum1 <span class="fu">+</span> sum2) (count1 <span class="fu">+</span> count2) average
+    <span class="kw">where</span>
+      average <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span>
+        ((avg1 <span class="fu">*</span> fromInteger count1) <span class="fu">+</span> (avg2 <span class="fu">*</span> fromInteger count2)) <span class="fu">/</span>
+          (fromInteger count1 <span class="fu">+</span> fromInteger count2)
+  mconcat <span class="fu">=</span> foldl&#39; mconcat mempty</code></pre></div>
+<p>You might say “That’s just some grade-school weighted average stuff.. childs play!”, and you’d be right!</p>
+<h3 id="part-3---the-beauty-of-this-abstraction">Part 3 - The beauty of this abstraction</h3>
+<p>Ok, the weighted average is fine.. but what if we also wanted a top 10 aggregation. It turns out we still only need to change a few things to get this aggregation to work.</p>
+<p>We might as well drive the implementation with specs since the intention is well defined.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">-- I usually write the intended data type first then use that interface to build specs.</span>
+<span class="co">-- so here&#39;s our new data type for top10 collections</span>
+<span class="co">-- data CollectionTops = CollectionTops { aSum :: Integer, tops :: [Integer] }</span>
+
+topsCollection1 <span class="fu">=</span> <span class="dt">CollectionTops</span> <span class="dv">1</span> (reverse [<span class="dv">1</span><span class="fu">..</span><span class="dv">10</span>])
+
+it <span class="st">&quot;collects the top10&quot;</span> <span class="fu">$</span>
+  topsCollection1 <span class="fu">&lt;&gt;</span> mempty <span class="ot">`shouldBe`</span> topsCollection1
+
+it <span class="st">&quot;collects the top10&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+  <span class="kw">let</span> cs <span class="fu">=</span> topsCollection1 <span class="fu">&lt;&gt;</span> <span class="dt">CollectionTops</span> <span class="dv">3000</span> negativeInfinities
+  head (tops cs) <span class="ot">`shouldBe`</span> <span class="dv">3000</span>
+  (<span class="dv">1</span> <span class="ot">`elem`</span> tops cs) <span class="ot">`shouldBe`</span> <span class="dt">False</span> <span class="co">-- it knocks 1 out of the list</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">negativeInfinities <span class="fu">=</span> replicate <span class="dv">10</span> (<span class="fu">-</span><span class="dv">1</span>)
+revSort <span class="fu">=</span> sortBy (flip compare)
+
+<span class="kw">instance</span> <span class="dt">Monoid</span> <span class="dt">CollectionTops</span> <span class="kw">where</span>
+  mempty <span class="fu">=</span> <span class="dt">CollectionTops</span> <span class="dv">0</span> negativeInfinities
+  <span class="dt">CollectionTops</span> s1 tops1 <span class="ot">`mappend`</span> <span class="dt">CollectionTops</span> s2 tops2 <span class="fu">=</span>
+    <span class="dt">CollectionTops</span> (s1 <span class="fu">+</span> s2) (take <span class="dv">10</span> <span class="fu">$</span> revSort ([s1] <span class="fu">++</span> [s2] <span class="fu">++</span> tops1 <span class="fu">++</span> tops2))
+  mconcat <span class="fu">=</span> foldl&#39; mappend mempty</code></pre></div>
+<h3 id="part-4---sum-up-no-pun-intended">Part 4 - Sum up (no pun intended)</h3>
+<p>In his talk, Avi obviously goes further than this, however, this post is already becoming too long, but a few of the other uses hinted at are <a href="https://en.wikipedia.org/wiki/Skewness">skewness</a>, <a href="https://en.wikipedia.org/wiki/Kurtosis">kurtosis</a>, histograms, and unique visitors. The above implementations are intended to give an intuition about commutative monoids as a tool for aggregation.</p>
+<p>To sum up… - we need 3 functions for a monoid instance: mempty, mappend, and mconcat. - If you can define mappend, the other 2 should be easy (I’ve noticed that mconcat is mostly just used to provide a faster implementation of the standard <code>foldr mappend mempty</code>). - The monoid laws ensure associativity, but we have to be explicit about our commutative intentions.</p>
+<p>I hope this calms your nerves about monoids and perhaps provides a bit of intuition about what <em>is</em> or <em>could be</em> a monoid.</p>
+]]></description>
+    <pubDate>Sun, 05 Jun 2016 00:00:00 UT</pubDate>
+    <guid>http://brdyorn.com/posts/2016-06-05-monoidal-sum.html</guid>
+    <dc:creator>Brady Ouren</dc:creator>
+</item>
+<item>
     <title>Using Template Haskell to generate an Enum</title>
     <link>http://brdyorn.com/posts/2016-04-18-simple-enum-generation.html</link>
     <description><![CDATA[<div class="info">
@@ -206,6 +291,7 @@ descriptorP <span class="fu">=</span> optionMaybe <span class="fu">$</span> try 
   <em class="post-date pull-right"> - Dec 12, 2015</em>
   <h2 class="post-title">Servant Patterns for Clients</h2>
 </div>
+<p>Edit: I believe Servant has changed its Client api; I’ll link to an update when one exists.</p>
 <h3 id="clients-for-free">Clients for Free</h3>
 <p>The unfortunate reality of many of our day jobs is that we are <em>not</em> able to replace existing services with haskell. However, don’t despair! We can still write services which consume our existing services quite easily with <a href="https://github.com/haskell-servant/servant">Servant</a>.</p>
 <p>I’ve picked up some patterns for writing clean haskell code from <a href="https://github.com/tfausak/factory">tfausak</a> and they’ve all come together in a working user client.</p>
@@ -510,31 +596,6 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
 ]]></description>
     <pubDate>Thu, 25 Jul 2013 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2013-07-25-rest-exceptions-with-decorators.html</guid>
-    <dc:creator>Brady Ouren</dc:creator>
-</item>
-<item>
-    <title>Postgres savepoint</title>
-    <link>http://brdyorn.com/posts/2013-07-12-postgres_savepoint.html</link>
-    <description><![CDATA[<div class="info">
-  <!-- Posted on Jul 12, 2013 -->
-  
-</div>
-
-<div class="post-meta">
-  <em class="post-date pull-right"> - Jul 12, 2013</em>
-  <h2 class="post-title">Postgres savepoint</h2>
-</div>
-<h3 id="postgres-savepoint-and-trycatch">Postgres savepoint and try/catch</h3>
-<p>I ran into a simple, but necessary bit of postgres knowledge this week while using a bloom filter to purge outdated database entries. The problem I encountered was within a try/catch block. I was catching a <code>ForeignKeyError</code> if the deletion of a row failed. Since I was doing this transaction within a cursor, I would get an error along the lines of: <code>&quot;Current transaction is aborted, commands ignored until end of transaction block&quot;</code></p>
-<!--more-->
-<h3 id="the-fix">The fix</h3>
-<p>Fortunately, to fix this you just add a savepoint within the try block to rollback to in case of an exception. I’ll give a bit of an example.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">query <span class="op">=</span> <span class="st">&#39;declare myc cursor for select * from tableToCheck&#39;</span></code></pre></div>
-<p>You need to declare a cursor name (in this case ‘myc’) for the transaction to use.</p>
-<script src="https://gist.github.com/tippenein/5986823.js"></script>
-]]></description>
-    <pubDate>Fri, 12 Jul 2013 00:00:00 UT</pubDate>
-    <guid>http://brdyorn.com/posts/2013-07-12-postgres_savepoint.html</guid>
     <dc:creator>Brady Ouren</dc:creator>
 </item>
 
