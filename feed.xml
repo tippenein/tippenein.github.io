@@ -78,6 +78,24 @@ getRecentPath <span class="fu">=</span> <span class="kw">do</span>
 <p>At the end of all this, we can screen cap and pop over to a terminal:</p>
 <pre class="shell"><code>imgup --screenshot | pbcopy</code></pre>
 <p>Now we have an imgur link in our copy buffer which (for me) completely replaces monosnap’s functionality.</p>
+
+  <div class="pager">
+    <ul class="list-unstyled list-inline">
+      
+        <li class="previous left">
+          <a class="button" href="/posts/2016-06-05-monoidal-sum.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
+        </li>
+      
+
+      
+        <li class="next right">
+          <a class="button" href="" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+        </li>
+      
+    </ul>
+  </div>
+  <br>
+  <br>
 </div>
 ]]></description>
     <pubDate>Fri, 29 Jul 2016 00:00:00 UT</pubDate>
@@ -181,6 +199,24 @@ revSort <span class="fu">=</span> sortBy (flip compare)
 <li>The monoid laws ensure associativity, but we have to be explicit about our commutative intentions.</li>
 </ul>
 <p>I hope this calms your nerves about monoids and perhaps provides a bit of intuition about what <em>is</em> or <em>could be</em> a monoid.</p>
+
+  <div class="pager">
+    <ul class="list-unstyled list-inline">
+      
+        <li class="previous left">
+          <a class="button" href="/posts/2016-04-18-simple-enum-generation.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
+        </li>
+      
+
+      
+        <li class="next right">
+          <a class="button" href="/posts/2016-07-29-simple-client-with-wreq.html" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+        </li>
+      
+    </ul>
+  </div>
+  <br>
+  <br>
 </div>
 ]]></description>
     <pubDate>Sun, 05 Jun 2016 00:00:00 UT</pubDate>
@@ -238,6 +274,24 @@ declareAnimals animals <span class="fu">=</span>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">NormalC</span><span class="ot"> ::</span> <span class="dt">Name</span> <span class="ot">-&gt;</span> [<span class="dt">StrictType</span>] <span class="ot">-&gt;</span> <span class="dt">Con</span></code></pre></div>
 <p>The <code>derives</code> need to have the double-tick in order to be read as a syntax builder rather than an actual deriving statement. The same goes for type constraints and such.</p>
 <p>You can look at all this documentation on the <a href="https://hackage.haskell.org/package/template-haskell-2.10.0.0/docs/Language-Haskell-TH-Syntax.html">Language.Haskell.TH</a> page</p>
+
+  <div class="pager">
+    <ul class="list-unstyled list-inline">
+      
+        <li class="previous left">
+          <a class="button" href="/posts/2016-03-27-parser-combinators2.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
+        </li>
+      
+
+      
+        <li class="next right">
+          <a class="button" href="/posts/2016-06-05-monoidal-sum.html" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+        </li>
+      
+    </ul>
+  </div>
+  <br>
+  <br>
 </div>
 ]]></description>
     <pubDate>Mon, 18 Apr 2016 00:00:00 UT</pubDate>
@@ -311,6 +365,24 @@ signalParser <span class="fu">=</span> choice <span class="fu">$</span> fmap try
 <li><a href="https://github.com/JakeWheat/intro_to_parsing" class="uri">https://github.com/JakeWheat/intro_to_parsing</a></li>
 <li><a href="http://unbui.lt/#!/post/haskell-parsec-basics/" class="uri">http://unbui.lt/#!/post/haskell-parsec-basics/</a></li>
 </ul>
+
+  <div class="pager">
+    <ul class="list-unstyled list-inline">
+      
+        <li class="previous left">
+          <a class="button" href="/posts/2016-03-26-parser-combinators.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
+        </li>
+      
+
+      
+        <li class="next right">
+          <a class="button" href="/posts/2016-04-18-simple-enum-generation.html" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+        </li>
+      
+    </ul>
+  </div>
+  <br>
+  <br>
 </div>
 ]]></description>
     <pubDate>Sun, 27 Mar 2016 00:00:00 UT</pubDate>
@@ -373,6 +445,24 @@ descriptorP <span class="fu">=</span> optionMaybe <span class="fu">$</span> try 
 <h3 id="the-benefit-over-x">The Benefit over X</h3>
 <p>Personally, I find this easier to reason about than a regex or generic string functions. The point here is that I can easily expand on this and add new detailed parsers (This will be covered in <a href="/posts/2016-03-27-parser-combinators2.html">part 2</a>)</p>
 <p>I’ve included a snapshot of the ihaskell session I was working in for full context <a href="/slides/features_ipynb.html">here</a></p>
+
+  <div class="pager">
+    <ul class="list-unstyled list-inline">
+      
+        <li class="previous left">
+          <a class="button" href="/posts/2015-12-12-servant-patterns-for-clients.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
+        </li>
+      
+
+      
+        <li class="next right">
+          <a class="button" href="/posts/2016-03-27-parser-combinators2.html" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+        </li>
+      
+    </ul>
+  </div>
+  <br>
+  <br>
 </div>
 ]]></description>
     <pubDate>Sat, 26 Mar 2016 00:00:00 UT</pubDate>
@@ -455,6 +545,24 @@ run <span class="fu">$</span> getUser <span class="dv">10001035</span>
 <span class="co">-- to query on an attribute</span>
 run <span class="fu">$</span> getUsers <span class="dt">Nothing</span> (<span class="dt">Just</span> <span class="st">&quot;garybusey@example.com&quot;</span>)</code></pre></div>
 <p>The only thing to add for production-ready status is a header with auth-tokens, but it really goes to show the ease of generating clients with Servant.</p>
+
+  <div class="pager">
+    <ul class="list-unstyled list-inline">
+      
+        <li class="previous left">
+          <a class="button" href="/posts/2015-06-04-partial-application.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
+        </li>
+      
+
+      
+        <li class="next right">
+          <a class="button" href="/posts/2016-03-26-parser-combinators.html" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+        </li>
+      
+    </ul>
+  </div>
+  <br>
+  <br>
 </div>
 ]]></description>
     <pubDate>Sat, 12 Dec 2015 00:00:00 UT</pubDate>
@@ -501,6 +609,24 @@ weekendHolidayFrom d <span class="fu">=</span> <span class="kw">case</span> week
 <h3 id="the-subtle-benefit">The subtle benefit</h3>
 <p>There is plenty said about the benefits of partial application or the lack thereof, but this isn’t really about that. It’s about the ease of prototyping this sort of solution. From what I can tell, the equivalent ruby solution would not have been as clean, <em>because</em> of the lack of first class partial application.</p>
 <p>I’m also amused by this application because most other cases I read have seemingly contrived examples whereas this seems natural to me</p>
+
+  <div class="pager">
+    <ul class="list-unstyled list-inline">
+      
+        <li class="previous left">
+          <a class="button" href="/posts/2014-12-10-rspec-pattern-for-testing-permissions.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
+        </li>
+      
+
+      
+        <li class="next right">
+          <a class="button" href="/posts/2015-12-12-servant-patterns-for-clients.html" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+        </li>
+      
+    </ul>
+  </div>
+  <br>
+  <br>
 </div>
 ]]></description>
     <pubDate>Thu, 04 Jun 2015 00:00:00 UT</pubDate>
@@ -579,6 +705,24 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
 <span class="kw">end</span></code></pre></div>
 <p>This to me makes it very explicit what permission spec is being tested for each case and if stubbing methods change, you have one central location to change.</p>
 <p>Shoutout to <a href="http://chrisarcand.com">chris arcand</a> for this solution to organizing permissions testing.</p>
+
+  <div class="pager">
+    <ul class="list-unstyled list-inline">
+      
+        <li class="previous left">
+          <a class="button" href="/posts/2014-11-23-reverse-sort-versus-flip-compare.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
+        </li>
+      
+
+      
+        <li class="next right">
+          <a class="button" href="/posts/2015-06-04-partial-application.html" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+        </li>
+      
+    </ul>
+  </div>
+  <br>
+  <br>
 </div>
 ]]></description>
     <pubDate>Wed, 10 Dec 2014 00:00:00 UT</pubDate>
@@ -617,6 +761,24 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
 λ &gt; flip compare 1 2
 λ &gt; GT</code></pre>
 <p>This is the part that wasn’t obvious to me; that by simply flipping the comparison we’re reversing the resulting sorted list. At that point we can see that <code>sortBy</code> is traversing the list once whereas <code>reverse $ sort</code> is running through the list twice.</p>
+
+  <div class="pager">
+    <ul class="list-unstyled list-inline">
+      
+        <li class="previous left">
+          <a class="button" href="/posts/2013-08-20-feature_or_defect_p1.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
+        </li>
+      
+
+      
+        <li class="next right">
+          <a class="button" href="/posts/2014-12-10-rspec-pattern-for-testing-permissions.html" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+        </li>
+      
+    </ul>
+  </div>
+  <br>
+  <br>
 </div>
 ]]></description>
     <pubDate>Sun, 23 Nov 2014 00:00:00 UT</pubDate>
@@ -652,6 +814,24 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
 &gt;&gt;&gt; foo()
 [1, 1, 1, 1]</code></pre>
 <p>On the one hand, this can be used as a weird little way of caching items. Since <code>a</code> is mutable, it acts as a global variable. To me, this is counterintuitive. If I say, <code>def foo(a=[]):</code> I expect <code>a</code> to be an empty list every time I run that function unless I tell it otherwise.</p>
+
+  <div class="pager">
+    <ul class="list-unstyled list-inline">
+      
+        <li class="previous left">
+          <a class="button" href="/posts/2013-07-25-rest-exceptions-with-decorators.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
+        </li>
+      
+
+      
+        <li class="next right">
+          <a class="button" href="/posts/2014-11-23-reverse-sort-versus-flip-compare.html" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+        </li>
+      
+    </ul>
+  </div>
+  <br>
+  <br>
 </div>
 ]]></description>
     <pubDate>Tue, 20 Aug 2013 00:00:00 UT</pubDate>
