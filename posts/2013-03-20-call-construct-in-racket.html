@@ -6,9 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Brady Ouren (Tippenein)</title>
 
-    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"> 
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="../css/default.css">
     <link rel="stylesheet" href="../css/syntax.css">
@@ -20,11 +19,11 @@
   </head>
   <body>
     <header class="profile row">
-      <div class="col-sm-6">
+      <div class="six columns">
         <p class="name"><a class="header-link" href="../">Brady Ouren</a></p>
       </div>
-      <div class="col-sm-6">
-        <ul class="social list-inline">
+      <div class="six columns">
+        <ul class="social list-inline list-unstyled">
           <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
           <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
           <li><a class="header-link" href="../feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
@@ -38,11 +37,12 @@
   
 </div>
 
-<div class="post-meta">
-  <em class="post-date pull-right"> - Mar 20, 2013</em>
-  <h2 class="post-title">Structure of 'call' in a programming language</h2>
-</div>
-<h3 id="grokking-the-call-construct">Grokking the ‘call’ construct</h3>
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Mar 20, 2013</em>
+    <h2 class="post-title">Structure of 'call' in a programming language</h2>
+  </div>
+  <h3 id="grokking-the-call-construct">Grokking the ‘call’ construct</h3>
 <p>While implementing the MUPL (Made Up Programming Language) for a programming languages course I found call to be interesting. I’ll underline some of the implementation here.</p>
 <p>Now, call isn’t necessarily a difficult concept. It’s used all the time in jQuery and javascript to alter the <code>this</code> of a function call and here we’ll do a similar thing, but it seems more fun because you’re also using lexical scope and closure environment within the call implementation. It’s easier if I just show some of the code.</p>
 <!--more-->
@@ -74,6 +74,7 @@
           (<span class="kw">cons</span> cfunc carg2)
           (<span class="kw">cons</span> cfunc (<span class="kw">cons</span> cname carg2))))</code></pre></div>
 <p>I’ve posted more of the MUPL implementation <a href="https://gist.github.com/tippenein/5229968">here</a> if seeing the full bit of code would be helpful.</p>
+</div>
 
       </div>
     </section>
@@ -83,6 +84,5 @@
 
       <p class="right"><a href="mailto:brady@andand.co">Work with me</a></p>
     </footer>
-  <script src="../assets/javascripts/scale.fix.js"></script>
   </body>
 </html>

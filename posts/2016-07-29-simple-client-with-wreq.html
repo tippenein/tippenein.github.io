@@ -6,9 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Brady Ouren (Tippenein)</title>
 
-    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"> 
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="../css/default.css">
     <link rel="stylesheet" href="../css/syntax.css">
@@ -20,11 +19,11 @@
   </head>
   <body>
     <header class="profile row">
-      <div class="col-sm-6">
+      <div class="six columns">
         <p class="name"><a class="header-link" href="../">Brady Ouren</a></p>
       </div>
-      <div class="col-sm-6">
-        <ul class="social list-inline">
+      <div class="six columns">
+        <ul class="social list-inline list-unstyled">
           <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
           <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
           <li><a class="header-link" href="../feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
@@ -38,11 +37,12 @@
   
 </div>
 
-<div class="post-meta">
-  <em class="post-date pull-right"> - Jul 29, 2016</em>
-  <h2 class="post-title">Writing a simple cli with Wreq</h2>
-</div>
-<h3 id="starter-project">Starter project</h3>
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Jul 29, 2016</em>
+    <h2 class="post-title">Writing a simple cli with Wreq</h2>
+  </div>
+  <h3 id="starter-project">Starter project</h3>
 <p>I remember when I started programming in python. I looked for anything I could write as a CLI or automate in some way, so in the spirit of that, I decided to write a bit about doing the same using haskell libraries.</p>
 <p>I replaced monosnap functionality (sharing screenshots) with this script awhile back. It’s generically useful and <a href="https://github.com/tippenein/imgup/blob/master/lib/Imgup.hs">here is the whole of it</a> if you’re only interested in the source.</p>
 <p>Also, there’s a deeper dive into Wreq <a href="http://www.serpentine.com/wreq/tutorial.html">here</a> if you find this cursory intro lacking</p>
@@ -76,7 +76,7 @@ uploadAndReturnUrl <span class="fu">=</span> <span class="kw">do</span>
 <div class="sourceCode"><pre class="sourceCode ruby"><code class="sourceCode ruby">defaults = {<span class="st">:params</span> =&gt; [], <span class="st">:headers</span> =&gt; []}
 defaults[<span class="st">:headers</span>].merge({ <span class="st">:Authorization</span> =&gt; <span class="st">&quot;Client-ID </span><span class="ot">#{</span>cid<span class="ot">}</span><span class="st">&quot;</span> })</code></pre></div>
 <p>Fortunately, our code using Lens’ is much more fail-safe. (you could read more <a href="http://lens.github.io/tutorial.html">here</a> or one of the plethora of other lens tutorials online)</p>
-<p>the actual post is pretty self explanatory if you know what <code>authHeader</code> and <code>payload</code> are, but here’s the type sig anyway:</p>
+<p>The actual post is pretty self explanatory if you know what <code>authHeader</code> and <code>payload</code> are, but here’s the type sig anyway:</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">postWith ::</span> <span class="dt">Postable</span> a <span class="ot">=&gt;</span> <span class="dt">Options</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Response</span> <span class="dt">ByteString</span>)</code></pre></div>
 <p>The <code>Postable</code> typeclass refers to our <code>[Part]</code> which we constructed in the payload declaration, nbd.</p>
 <h3 id="the-response">The Response</h3>
@@ -98,7 +98,8 @@ getRecentPath <span class="fu">=</span> <span class="kw">do</span>
 <p>This could be improved by returning an <code>Either String FilePath</code> instead of raising an error, but if we stopped and optimized every chance we had in haskell we’d never finish writing what we started.</p>
 <p>At the end of all this, we can screen cap and pop over to a terminal:</p>
 <pre class="shell"><code>imgup --screenshot | pbcopy</code></pre>
-<p>Now we have a imgur link in our copy buffer which (for me) completely replaces monosnap’s functionality.</p>
+<p>Now we have an imgur link in our copy buffer which (for me) completely replaces monosnap’s functionality.</p>
+</div>
 
       </div>
     </section>
@@ -108,6 +109,5 @@ getRecentPath <span class="fu">=</span> <span class="kw">do</span>
 
       <p class="right"><a href="mailto:brady@andand.co">Work with me</a></p>
     </footer>
-  <script src="../assets/javascripts/scale.fix.js"></script>
   </body>
 </html>

@@ -16,11 +16,12 @@
   
 </div>
 
-<div class="post-meta">
-  <em class="post-date pull-right"> - Jul 29, 2016</em>
-  <h2 class="post-title">Writing a simple cli with Wreq</h2>
-</div>
-<h3 id="starter-project">Starter project</h3>
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Jul 29, 2016</em>
+    <h2 class="post-title">Writing a simple cli with Wreq</h2>
+  </div>
+  <h3 id="starter-project">Starter project</h3>
 <p>I remember when I started programming in python. I looked for anything I could write as a CLI or automate in some way, so in the spirit of that, I decided to write a bit about doing the same using haskell libraries.</p>
 <p>I replaced monosnap functionality (sharing screenshots) with this script awhile back. It’s generically useful and <a href="https://github.com/tippenein/imgup/blob/master/lib/Imgup.hs">here is the whole of it</a> if you’re only interested in the source.</p>
 <p>Also, there’s a deeper dive into Wreq <a href="http://www.serpentine.com/wreq/tutorial.html">here</a> if you find this cursory intro lacking</p>
@@ -54,7 +55,7 @@ uploadAndReturnUrl <span class="fu">=</span> <span class="kw">do</span>
 <div class="sourceCode"><pre class="sourceCode ruby"><code class="sourceCode ruby">defaults = {<span class="st">:params</span> =&gt; [], <span class="st">:headers</span> =&gt; []}
 defaults[<span class="st">:headers</span>].merge({ <span class="st">:Authorization</span> =&gt; <span class="st">&quot;Client-ID </span><span class="ot">#{</span>cid<span class="ot">}</span><span class="st">&quot;</span> })</code></pre></div>
 <p>Fortunately, our code using Lens’ is much more fail-safe. (you could read more <a href="http://lens.github.io/tutorial.html">here</a> or one of the plethora of other lens tutorials online)</p>
-<p>the actual post is pretty self explanatory if you know what <code>authHeader</code> and <code>payload</code> are, but here’s the type sig anyway:</p>
+<p>The actual post is pretty self explanatory if you know what <code>authHeader</code> and <code>payload</code> are, but here’s the type sig anyway:</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">postWith ::</span> <span class="dt">Postable</span> a <span class="ot">=&gt;</span> <span class="dt">Options</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Response</span> <span class="dt">ByteString</span>)</code></pre></div>
 <p>The <code>Postable</code> typeclass refers to our <code>[Part]</code> which we constructed in the payload declaration, nbd.</p>
 <h3 id="the-response">The Response</h3>
@@ -76,7 +77,8 @@ getRecentPath <span class="fu">=</span> <span class="kw">do</span>
 <p>This could be improved by returning an <code>Either String FilePath</code> instead of raising an error, but if we stopped and optimized every chance we had in haskell we’d never finish writing what we started.</p>
 <p>At the end of all this, we can screen cap and pop over to a terminal:</p>
 <pre class="shell"><code>imgup --screenshot | pbcopy</code></pre>
-<p>Now we have a imgur link in our copy buffer which (for me) completely replaces monosnap’s functionality.</p>
+<p>Now we have an imgur link in our copy buffer which (for me) completely replaces monosnap’s functionality.</p>
+</div>
 ]]></description>
     <pubDate>Fri, 29 Jul 2016 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2016-07-29-simple-client-with-wreq.html</guid>
@@ -90,11 +92,12 @@ getRecentPath <span class="fu">=</span> <span class="kw">do</span>
   
 </div>
 
-<div class="post-meta">
-  <em class="post-date pull-right"> - Jun  5, 2016</em>
-  <h2 class="post-title">Exploring monoids for sum averages</h2>
-</div>
-<p>In <a href="https://www.youtube.com/watch?v=cMY1KVrJk0w">a talk</a> by Avi Bryant about practical systems for Analytics or Aggregation he drew comparisons to Monoids and Abelian Groups. I thought it would be helpful to work through what he was explaining with haskell, so here we go.</p>
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Jun  5, 2016</em>
+    <h2 class="post-title">Exploring monoids for sum averages</h2>
+  </div>
+  <p>In <a href="https://www.youtube.com/watch?v=cMY1KVrJk0w">a talk</a> by Avi Bryant about practical systems for Analytics or Aggregation he drew comparisons to Monoids and Abelian Groups. I thought it would be helpful to work through what he was explaining with haskell, so here we go.</p>
 <p>The first thing discussed is a simple summing with a monoid. We need implementations for:</p>
 <ul>
 <li>mempty: somewhere to start; something that won’t affect the outcome of the sum.</li>
@@ -178,6 +181,7 @@ revSort <span class="fu">=</span> sortBy (flip compare)
 <li>The monoid laws ensure associativity, but we have to be explicit about our commutative intentions.</li>
 </ul>
 <p>I hope this calms your nerves about monoids and perhaps provides a bit of intuition about what <em>is</em> or <em>could be</em> a monoid.</p>
+</div>
 ]]></description>
     <pubDate>Sun, 05 Jun 2016 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2016-06-05-monoidal-sum.html</guid>
@@ -191,11 +195,12 @@ revSort <span class="fu">=</span> sortBy (flip compare)
   
 </div>
 
-<div class="post-meta">
-  <em class="post-date pull-right"> - Apr 18, 2016</em>
-  <h2 class="post-title">Using Template Haskell to generate an Enum</h2>
-</div>
-<h3 id="a-simple-useful-case-for-template-haskell">A simple useful case for Template Haskell</h3>
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Apr 18, 2016</em>
+    <h2 class="post-title">Using Template Haskell to generate an Enum</h2>
+  </div>
+  <h3 id="a-simple-useful-case-for-template-haskell">A simple useful case for Template Haskell</h3>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE TemplateHaskell #-}</span>
 
 <span class="kw">import </span><span class="dt">Language.Haskell.TH</span>
@@ -233,6 +238,7 @@ declareAnimals animals <span class="fu">=</span>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">NormalC</span><span class="ot"> ::</span> <span class="dt">Name</span> <span class="ot">-&gt;</span> [<span class="dt">StrictType</span>] <span class="ot">-&gt;</span> <span class="dt">Con</span></code></pre></div>
 <p>The <code>derives</code> need to have the double-tick in order to be read as a syntax builder rather than an actual deriving statement. The same goes for type constraints and such.</p>
 <p>You can look at all this documentation on the <a href="https://hackage.haskell.org/package/template-haskell-2.10.0.0/docs/Language-Haskell-TH-Syntax.html">Language.Haskell.TH</a> page</p>
+</div>
 ]]></description>
     <pubDate>Mon, 18 Apr 2016 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2016-04-18-simple-enum-generation.html</guid>
@@ -246,11 +252,12 @@ declareAnimals animals <span class="fu">=</span>
   
 </div>
 
-<div class="post-meta">
-  <em class="post-date pull-right"> - Mar 27, 2016</em>
-  <h2 class="post-title">Parser Combinatorz part2</h2>
-</div>
-<h3 id="prt2">P▲rT2</h3>
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Mar 27, 2016</em>
+    <h2 class="post-title">Parser Combinatorz part2</h2>
+  </div>
+  <h3 id="prt2">P▲rT2</h3>
 <p>In the <a href="/posts/2016-03-26-parser-combinators.html">previous post</a> I showed how to use <a href="https://www.stackage.org/package/parsec">parsec</a> to parse data in a format like this:</p>
 <p><code>&quot;1%400:3.2 6%some_description|100:1&quot;</code></p>
 <h3 id="why-not-regex">Why not regex?</h3>
@@ -304,6 +311,7 @@ signalParser <span class="fu">=</span> choice <span class="fu">$</span> fmap try
 <li><a href="https://github.com/JakeWheat/intro_to_parsing" class="uri">https://github.com/JakeWheat/intro_to_parsing</a></li>
 <li><a href="http://unbui.lt/#!/post/haskell-parsec-basics/" class="uri">http://unbui.lt/#!/post/haskell-parsec-basics/</a></li>
 </ul>
+</div>
 ]]></description>
     <pubDate>Sun, 27 Mar 2016 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2016-03-27-parser-combinators2.html</guid>
@@ -317,11 +325,12 @@ signalParser <span class="fu">=</span> choice <span class="fu">$</span> fmap try
   
 </div>
 
-<div class="post-meta">
-  <em class="post-date pull-right"> - Mar 26, 2016</em>
-  <h2 class="post-title">Parser Combinatorz part1</h2>
-</div>
-<h3 id="the-value-of-composable-parts">The value of composable parts</h3>
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Mar 26, 2016</em>
+    <h2 class="post-title">Parser Combinatorz part1</h2>
+  </div>
+  <h3 id="the-value-of-composable-parts">The value of composable parts</h3>
 <p>I’ve found myself in some strange parsing tasks lately. This is a new thing for me, so don’t take this post as an example of the best practices for parsing. However, FWIW, all the parsers <em>work</em>.</p>
 <h3 id="the-setup">The Setup</h3>
 <p>Say we have data that looks something like:</p>
@@ -364,6 +373,7 @@ descriptorP <span class="fu">=</span> optionMaybe <span class="fu">$</span> try 
 <h3 id="the-benefit-over-x">The Benefit over X</h3>
 <p>Personally, I find this easier to reason about than a regex or generic string functions. The point here is that I can easily expand on this and add new detailed parsers (This will be covered in <a href="/posts/2016-03-27-parser-combinators2.html">part 2</a>)</p>
 <p>I’ve included a snapshot of the ihaskell session I was working in for full context <a href="/slides/features_ipynb.html">here</a></p>
+</div>
 ]]></description>
     <pubDate>Sat, 26 Mar 2016 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2016-03-26-parser-combinators.html</guid>
@@ -377,11 +387,12 @@ descriptorP <span class="fu">=</span> optionMaybe <span class="fu">$</span> try 
   
 </div>
 
-<div class="post-meta">
-  <em class="post-date pull-right"> - Dec 12, 2015</em>
-  <h2 class="post-title">Servant Patterns for Clients</h2>
-</div>
-<p>Edit: I believe Servant has changed its Client api; I’ll link to an update when one exists.</p>
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Dec 12, 2015</em>
+    <h2 class="post-title">Servant Patterns for Clients</h2>
+  </div>
+  <p>Edit: I believe Servant has changed its Client api; I’ll link to an update when one exists.</p>
 <h3 id="clients-for-free">Clients for Free</h3>
 <p>The unfortunate reality of many of our day jobs is that we are <em>not</em> able to replace existing services with haskell. However, don’t despair! We can still write services which consume our existing services quite easily with <a href="https://github.com/haskell-servant/servant">Servant</a>.</p>
 <p>I’ve picked up some patterns for writing clean haskell code from <a href="https://github.com/tfausak/factory">tfausak</a> and they’ve all come together in a working user client.</p>
@@ -444,6 +455,7 @@ run <span class="fu">$</span> getUser <span class="dv">10001035</span>
 <span class="co">-- to query on an attribute</span>
 run <span class="fu">$</span> getUsers <span class="dt">Nothing</span> (<span class="dt">Just</span> <span class="st">&quot;garybusey@example.com&quot;</span>)</code></pre></div>
 <p>The only thing to add for production-ready status is a header with auth-tokens, but it really goes to show the ease of generating clients with Servant.</p>
+</div>
 ]]></description>
     <pubDate>Sat, 12 Dec 2015 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2015-12-12-servant-patterns-for-clients.html</guid>
@@ -457,11 +469,12 @@ run <span class="fu">$</span> getUsers <span class="dt">Nothing</span> (<span cl
   
 </div>
 
-<div class="post-meta">
-  <em class="post-date pull-right"> - Jun  4, 2015</em>
-  <h2 class="post-title">Partial Application for real</h2>
-</div>
-<h3 id="intuitive-solutions">Intuitive Solutions</h3>
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Jun  4, 2015</em>
+    <h2 class="post-title">Partial Application for real</h2>
+  </div>
+  <h3 id="intuitive-solutions">Intuitive Solutions</h3>
 <p>While working on <a href="http://github.com/tippenein/BankHoliday">a library</a> recently, I came across an elegant use of partial application.</p>
 <p>How would we model the first monday in any given month. Firstly I needed a way of passing around the concept of a <code>month</code> which ends up being simply <code>fromGregorian</code> applied to a year and month index.</p>
 <p>The type signature being: <code>fromGregorian :: Integer -&gt; Int -&gt; Int -&gt; Day</code></p>
@@ -488,6 +501,7 @@ weekendHolidayFrom d <span class="fu">=</span> <span class="kw">case</span> week
 <h3 id="the-subtle-benefit">The subtle benefit</h3>
 <p>There is plenty said about the benefits of partial application or the lack thereof, but this isn’t really about that. It’s about the ease of prototyping this sort of solution. From what I can tell, the equivalent ruby solution would not have been as clean, <em>because</em> of the lack of first class partial application.</p>
 <p>I’m also amused by this application because most other cases I read have seemingly contrived examples whereas this seems natural to me</p>
+</div>
 ]]></description>
     <pubDate>Thu, 04 Jun 2015 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2015-06-04-partial-application.html</guid>
@@ -501,11 +515,12 @@ weekendHolidayFrom d <span class="fu">=</span> <span class="kw">case</span> week
   
 </div>
 
-<div class="post-meta">
-  <em class="post-date pull-right"> - Dec 10, 2014</em>
-  <h2 class="post-title">rspec pattern for testing permissions</h2>
-</div>
-<h3 id="a-problem-youre-bound-to-face">A problem you’re bound to face</h3>
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Dec 10, 2014</em>
+    <h2 class="post-title">rspec pattern for testing permissions</h2>
+  </div>
+  <h3 id="a-problem-youre-bound-to-face">A problem you’re bound to face</h3>
 <p>Most projects will run into the problem of testing multiple levels of permissions with rspec at some point. The project I was on came up with what I take to be the most sane way of tackling permission testing with rspec.</p>
 <p>For example, say you’re trying to test success and failure of 3 different authorization settings. You might try this to accomplish permission testing on each controller action:</p>
 <div class="sourceCode"><pre class="sourceCode ruby"><code class="sourceCode ruby">before <span class="kw">do</span>
@@ -564,6 +579,7 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
 <span class="kw">end</span></code></pre></div>
 <p>This to me makes it very explicit what permission spec is being tested for each case and if stubbing methods change, you have one central location to change.</p>
 <p>Shoutout to <a href="http://chrisarcand.com">chris arcand</a> for this solution to organizing permissions testing.</p>
+</div>
 ]]></description>
     <pubDate>Wed, 10 Dec 2014 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2014-12-10-rspec-pattern-for-testing-permissions.html</guid>
@@ -577,11 +593,12 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
   
 </div>
 
-<div class="post-meta">
-  <em class="post-date pull-right"> - Nov 23, 2014</em>
-  <h2 class="post-title">Comparing reverse sort and flip compare</h2>
-</div>
-<h3 id="comparing-flip-compare">Comparing flip compare</h3>
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Nov 23, 2014</em>
+    <h2 class="post-title">Comparing reverse sort and flip compare</h2>
+  </div>
+  <h3 id="comparing-flip-compare">Comparing flip compare</h3>
 <p>GHCmod-vim hinted at an improvement in some code I was writing:</p>
 <p><code>reverse $ sort</code> why not <code>sortBy (flip compare)</code></p>
 <p>So I looked at the type signatures for each of these.</p>
@@ -600,6 +617,7 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
 λ &gt; flip compare 1 2
 λ &gt; GT</code></pre>
 <p>This is the part that wasn’t obvious to me; that by simply flipping the comparison we’re reversing the resulting sorted list. At that point we can see that <code>sortBy</code> is traversing the list once whereas <code>reverse $ sort</code> is running through the list twice.</p>
+</div>
 ]]></description>
     <pubDate>Sun, 23 Nov 2014 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2014-11-23-reverse-sort-versus-flip-compare.html</guid>
@@ -613,11 +631,12 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
   
 </div>
 
-<div class="post-meta">
-  <em class="post-date pull-right"> - Aug 20, 2013</em>
-  <h2 class="post-title">Let's play 'Feature or Defect!'</h2>
-</div>
-<h3 id="lolwhut">Lolwhut?!</h3>
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Aug 20, 2013</em>
+    <h2 class="post-title">Let's play 'Feature or Defect!'</h2>
+  </div>
+  <h3 id="lolwhut">Lolwhut?!</h3>
 <p>Sometimes you run into programming language “features” that make you wonder if that was the intended effect. This particular one involves python and a mutable default function argument. Here’s a quick example:</p>
 <!--more-->
 <pre><code>&gt;&gt;&gt; def foo(a=[]):
@@ -633,6 +652,7 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
 &gt;&gt;&gt; foo()
 [1, 1, 1, 1]</code></pre>
 <p>On the one hand, this can be used as a weird little way of caching items. Since <code>a</code> is mutable, it acts as a global variable. To me, this is counterintuitive. If I say, <code>def foo(a=[]):</code> I expect <code>a</code> to be an empty list every time I run that function unless I tell it otherwise.</p>
+</div>
 ]]></description>
     <pubDate>Tue, 20 Aug 2013 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2013-08-20-feature_or_defect_p1.html</guid>

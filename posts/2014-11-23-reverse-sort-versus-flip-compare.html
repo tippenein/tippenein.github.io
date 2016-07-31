@@ -6,9 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Brady Ouren (Tippenein)</title>
 
-    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"> 
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="../css/default.css">
     <link rel="stylesheet" href="../css/syntax.css">
@@ -20,11 +19,11 @@
   </head>
   <body>
     <header class="profile row">
-      <div class="col-sm-6">
+      <div class="six columns">
         <p class="name"><a class="header-link" href="../">Brady Ouren</a></p>
       </div>
-      <div class="col-sm-6">
-        <ul class="social list-inline">
+      <div class="six columns">
+        <ul class="social list-inline list-unstyled">
           <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
           <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
           <li><a class="header-link" href="../feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
@@ -38,11 +37,12 @@
   
 </div>
 
-<div class="post-meta">
-  <em class="post-date pull-right"> - Nov 23, 2014</em>
-  <h2 class="post-title">Comparing reverse sort and flip compare</h2>
-</div>
-<h3 id="comparing-flip-compare">Comparing flip compare</h3>
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Nov 23, 2014</em>
+    <h2 class="post-title">Comparing reverse sort and flip compare</h2>
+  </div>
+  <h3 id="comparing-flip-compare">Comparing flip compare</h3>
 <p>GHCmod-vim hinted at an improvement in some code I was writing:</p>
 <p><code>reverse $ sort</code> why not <code>sortBy (flip compare)</code></p>
 <p>So I looked at the type signatures for each of these.</p>
@@ -61,6 +61,7 @@
 λ &gt; flip compare 1 2
 λ &gt; GT</code></pre>
 <p>This is the part that wasn’t obvious to me; that by simply flipping the comparison we’re reversing the resulting sorted list. At that point we can see that <code>sortBy</code> is traversing the list once whereas <code>reverse $ sort</code> is running through the list twice.</p>
+</div>
 
       </div>
     </section>
@@ -70,6 +71,5 @@
 
       <p class="right"><a href="mailto:brady@andand.co">Work with me</a></p>
     </footer>
-  <script src="../assets/javascripts/scale.fix.js"></script>
   </body>
 </html>

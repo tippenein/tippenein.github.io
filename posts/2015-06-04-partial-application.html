@@ -6,9 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Brady Ouren (Tippenein)</title>
 
-    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"> 
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="../css/default.css">
     <link rel="stylesheet" href="../css/syntax.css">
@@ -20,11 +19,11 @@
   </head>
   <body>
     <header class="profile row">
-      <div class="col-sm-6">
+      <div class="six columns">
         <p class="name"><a class="header-link" href="../">Brady Ouren</a></p>
       </div>
-      <div class="col-sm-6">
-        <ul class="social list-inline">
+      <div class="six columns">
+        <ul class="social list-inline list-unstyled">
           <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
           <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
           <li><a class="header-link" href="../feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
@@ -38,11 +37,12 @@
   
 </div>
 
-<div class="post-meta">
-  <em class="post-date pull-right"> - Jun  4, 2015</em>
-  <h2 class="post-title">Partial Application for real</h2>
-</div>
-<h3 id="intuitive-solutions">Intuitive Solutions</h3>
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Jun  4, 2015</em>
+    <h2 class="post-title">Partial Application for real</h2>
+  </div>
+  <h3 id="intuitive-solutions">Intuitive Solutions</h3>
 <p>While working on <a href="http://github.com/tippenein/BankHoliday">a library</a> recently, I came across an elegant use of partial application.</p>
 <p>How would we model the first monday in any given month. Firstly I needed a way of passing around the concept of a <code>month</code> which ends up being simply <code>fromGregorian</code> applied to a year and month index.</p>
 <p>The type signature being: <code>fromGregorian :: Integer -&gt; Int -&gt; Int -&gt; Day</code></p>
@@ -69,6 +69,7 @@ weekendHolidayFrom d <span class="fu">=</span> <span class="kw">case</span> week
 <h3 id="the-subtle-benefit">The subtle benefit</h3>
 <p>There is plenty said about the benefits of partial application or the lack thereof, but this isn’t really about that. It’s about the ease of prototyping this sort of solution. From what I can tell, the equivalent ruby solution would not have been as clean, <em>because</em> of the lack of first class partial application.</p>
 <p>I’m also amused by this application because most other cases I read have seemingly contrived examples whereas this seems natural to me</p>
+</div>
 
       </div>
     </section>
@@ -78,6 +79,5 @@ weekendHolidayFrom d <span class="fu">=</span> <span class="kw">case</span> week
 
       <p class="right"><a href="mailto:brady@andand.co">Work with me</a></p>
     </footer>
-  <script src="../assets/javascripts/scale.fix.js"></script>
   </body>
 </html>

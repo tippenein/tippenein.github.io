@@ -6,9 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Brady Ouren (Tippenein)</title>
 
-    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"> 
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="../css/default.css">
     <link rel="stylesheet" href="../css/syntax.css">
@@ -20,11 +19,11 @@
   </head>
   <body>
     <header class="profile row">
-      <div class="col-sm-6">
+      <div class="six columns">
         <p class="name"><a class="header-link" href="../">Brady Ouren</a></p>
       </div>
-      <div class="col-sm-6">
-        <ul class="social list-inline">
+      <div class="six columns">
+        <ul class="social list-inline list-unstyled">
           <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
           <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
           <li><a class="header-link" href="../feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
@@ -38,11 +37,12 @@
   
 </div>
 
-<div class="post-meta">
-  <em class="post-date pull-right"> - Dec 12, 2015</em>
-  <h2 class="post-title">Servant Patterns for Clients</h2>
-</div>
-<p>Edit: I believe Servant has changed its Client api; I’ll link to an update when one exists.</p>
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Dec 12, 2015</em>
+    <h2 class="post-title">Servant Patterns for Clients</h2>
+  </div>
+  <p>Edit: I believe Servant has changed its Client api; I’ll link to an update when one exists.</p>
 <h3 id="clients-for-free">Clients for Free</h3>
 <p>The unfortunate reality of many of our day jobs is that we are <em>not</em> able to replace existing services with haskell. However, don’t despair! We can still write services which consume our existing services quite easily with <a href="https://github.com/haskell-servant/servant">Servant</a>.</p>
 <p>I’ve picked up some patterns for writing clean haskell code from <a href="https://github.com/tfausak/factory">tfausak</a> and they’ve all come together in a working user client.</p>
@@ -105,6 +105,7 @@ run <span class="fu">$</span> getUser <span class="dv">10001035</span>
 <span class="co">-- to query on an attribute</span>
 run <span class="fu">$</span> getUsers <span class="dt">Nothing</span> (<span class="dt">Just</span> <span class="st">&quot;garybusey@example.com&quot;</span>)</code></pre></div>
 <p>The only thing to add for production-ready status is a header with auth-tokens, but it really goes to show the ease of generating clients with Servant.</p>
+</div>
 
       </div>
     </section>
@@ -114,6 +115,5 @@ run <span class="fu">$</span> getUsers <span class="dt">Nothing</span> (<span cl
 
       <p class="right"><a href="mailto:brady@andand.co">Work with me</a></p>
     </footer>
-  <script src="../assets/javascripts/scale.fix.js"></script>
   </body>
 </html>

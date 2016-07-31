@@ -6,9 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Brady Ouren (Tippenein)</title>
 
-    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"> 
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="../css/default.css">
     <link rel="stylesheet" href="../css/syntax.css">
@@ -20,11 +19,11 @@
   </head>
   <body>
     <header class="profile row">
-      <div class="col-sm-6">
+      <div class="six columns">
         <p class="name"><a class="header-link" href="../">Brady Ouren</a></p>
       </div>
-      <div class="col-sm-6">
-        <ul class="social list-inline">
+      <div class="six columns">
+        <ul class="social list-inline list-unstyled">
           <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
           <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
           <li><a class="header-link" href="../feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
@@ -38,11 +37,12 @@
   
 </div>
 
-<div class="post-meta">
-  <em class="post-date pull-right"> - Mar 26, 2016</em>
-  <h2 class="post-title">Parser Combinatorz part1</h2>
-</div>
-<h3 id="the-value-of-composable-parts">The value of composable parts</h3>
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Mar 26, 2016</em>
+    <h2 class="post-title">Parser Combinatorz part1</h2>
+  </div>
+  <h3 id="the-value-of-composable-parts">The value of composable parts</h3>
 <p>I’ve found myself in some strange parsing tasks lately. This is a new thing for me, so don’t take this post as an example of the best practices for parsing. However, FWIW, all the parsers <em>work</em>.</p>
 <h3 id="the-setup">The Setup</h3>
 <p>Say we have data that looks something like:</p>
@@ -85,6 +85,7 @@ descriptorP <span class="fu">=</span> optionMaybe <span class="fu">$</span> try 
 <h3 id="the-benefit-over-x">The Benefit over X</h3>
 <p>Personally, I find this easier to reason about than a regex or generic string functions. The point here is that I can easily expand on this and add new detailed parsers (This will be covered in <a href="../posts/2016-03-27-parser-combinators2.html">part 2</a>)</p>
 <p>I’ve included a snapshot of the ihaskell session I was working in for full context <a href="../slides/features_ipynb.html">here</a></p>
+</div>
 
       </div>
     </section>
@@ -94,6 +95,5 @@ descriptorP <span class="fu">=</span> optionMaybe <span class="fu">$</span> try 
 
       <p class="right"><a href="mailto:brady@andand.co">Work with me</a></p>
     </footer>
-  <script src="../assets/javascripts/scale.fix.js"></script>
   </body>
 </html>
