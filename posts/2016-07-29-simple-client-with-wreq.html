@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Brady Ouren (Tippenein)</title>
+
+    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/default.css">
+    <link rel="stylesheet" href="../css/syntax.css">
+    <link rel="alternate" type="application/rss+xml" title="BrdyOrn.com" href="brdyorn.com/feed.xml">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <header class="profile row">
+      <div class="col-sm-6">
+        <p class="name"><a class="header-link" href="../">Brady Ouren</a></p>
+      </div>
+      <div class="col-sm-6">
+        <ul class="social list-inline">
+          <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
+          <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
+          <li><a class="header-link" href="../feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
+        </ul>
+      </div>
+    </header>
+    <section>
+      <div class="content">
+        <div class="info">
+  <!-- Posted on Jul 29, 2016 -->
+  
+</div>
+
+<div class="post-meta">
+  <em class="post-date pull-right"> - Jul 29, 2016</em>
+  <h2 class="post-title">Writing a simple cli with Wreq</h2>
+</div>
+<h3 id="starter-project">Starter project</h3>
+<p>I remember when I started programming in python. I looked for anything I could write as a CLI or automate in some way, so in the spirit of that, I decided to write a bit about doing the same using haskell libraries.</p>
+<p>I replaced monosnap functionality (sharing screenshots) with this script awhile back. It’s generically useful and <a href="https://github.com/tippenein/imgup/blob/master/lib/Imgup.hs">here is the whole of it</a> if you’re only interested in the source.</p>
+<p>Also, there’s a deeper dive into Wreq <a href="http://www.serpentine.com/wreq/tutorial.html">here</a> if you find this cursory intro lacking</p>
+<h3 id="bam-some-code">Bam! Some code</h3>
+<p>The important imports:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Data.Monoid</span> ((&lt;&gt;)) <span class="co">-- just for glueing together Text's</span>
+<span class="kw">import </span><span class="dt">Network.Wreq</span>       <span class="co">-- the request library</span>
+<span class="kw">import </span><span class="dt">Control.Lens</span>       <span class="co">-- setting and getting params/headers/etc</span>
+<span class="kw">import </span><span class="dt">Data.Aeson.Lens</span>    <span class="co">-- same</span></code></pre></div>
+<p>Since the main thing this script does is upload a photo anonymously to imgur, we’ll start with that function.</p>
+<h3 id="the-request">The Request</h3>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">uploadAndReturnUrl ::</span> <span class="dt">IO</span> <span class="dt">String</span>
+uploadAndReturnUrl <span class="fu">=</span> <span class="kw">do</span>
+  imagePath <span class="ot">&lt;-</span> parseArgs
+  cid <span class="ot">&lt;-</span> clientId
+  <span class="kw">let</span> authHeader <span class="fu">=</span> defaults <span class="fu">&amp;</span> header <span class="st">&quot;Authorization&quot;</span> <span class="fu">.~</span> [<span class="st">&quot;Client-ID&quot;</span> <span class="fu">&lt;&gt;</span> <span class="st">&quot; &quot;</span> <span class="fu">&lt;&gt;</span> cid]
+  <span class="kw">let</span> payload <span class="fu">=</span> [ partText <span class="st">&quot;type&quot;</span> <span class="st">&quot;file&quot;</span>
+                , partFile <span class="st">&quot;image&quot;</span> imagePath
+                ]
+                                  
+  res <span class="ot">&lt;-</span> postWith authHeader <span class="st">&quot;https://api.imgur.com/3/image.json&quot;</span> payload
+  <span class="kw">let</span> guid <span class="fu">=</span> res <span class="fu">^.</span> responseBody <span class="fu">.</span> key <span class="st">&quot;data&quot;</span> <span class="fu">.</span> key <span class="st">&quot;id&quot;</span> <span class="fu">.</span> _<span class="dt">String</span>
+  return <span class="fu">$</span> <span class="st">&quot;http://imgur.com/&quot;</span> <span class="fu">++</span> T.unpack guid</code></pre></div>
+<p>Let’s talk about what might be confusing here. The declaration of <code>authHeader</code>; what is that?</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">-- in this context, simply a merge </span>
+<span class="ot">(&amp;) ::</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> b
+
+<span class="co">-- build the header to combine with the defaults :: Options</span>
+<span class="ot">header ::</span> <span class="dt">HeaderName</span> <span class="ot">-&gt;</span> ([<span class="dt">ByteString</span>] <span class="ot">-&gt;</span> f [<span class="dt">ByteString</span>]) <span class="ot">-&gt;</span> <span class="dt">Options</span> <span class="ot">-&gt;</span> <span class="dt">Options</span></code></pre></div>
+<p>If you wanted to, you could think of this as an equivalent to the ruby code:</p>
+<div class="sourceCode"><pre class="sourceCode ruby"><code class="sourceCode ruby">defaults = {<span class="st">:params</span> =&gt; [], <span class="st">:headers</span> =&gt; []}
+defaults[<span class="st">:headers</span>].merge({ <span class="st">:Authorization</span> =&gt; <span class="st">&quot;Client-ID </span><span class="ot">#{</span>cid<span class="ot">}</span><span class="st">&quot;</span> })</code></pre></div>
+<p>Fortunately, our code using Lens’ is much more fail-safe. (you could read more <a href="http://lens.github.io/tutorial.html">here</a> or one of the plethora of other lens tutorials online)</p>
+<p>the actual post is pretty self explanatory if you know what <code>authHeader</code> and <code>payload</code> are, but here’s the type sig anyway:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">postWith ::</span> <span class="dt">Postable</span> a <span class="ot">=&gt;</span> <span class="dt">Options</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Response</span> <span class="dt">ByteString</span>)</code></pre></div>
+<p>The <code>Postable</code> typeclass refers to our <code>[Part]</code> which we constructed in the payload declaration, nbd.</p>
+<h3 id="the-response">The Response</h3>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">res <span class="fu">^.</span> responseBody <span class="fu">.</span> key <span class="st">&quot;data&quot;</span> <span class="fu">.</span> key <span class="st">&quot;id&quot;</span> <span class="fu">.</span> _<span class="dt">String</span></code></pre></div>
+<p>We use <code>^.</code> to pull out the image id returned from imgur. Unfortunately, lens’ compose left to right, unlike normal functions in haskell so this is <code>responseBody.data.id</code></p>
+<p>The equivalent ruby code might be something like:</p>
+<div class="sourceCode"><pre class="sourceCode ruby"><code class="sourceCode ruby">response.body[<span class="st">:data</span>][<span class="st">:id</span>]</code></pre></div>
+<p>Again, ours is a bit safer.</p>
+<h3 id="wrap-up">Wrap Up</h3>
+<p>There’s one other piece which grabs the most recent screenshot.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">getRecentPath ::</span> <span class="dt">IO</span> FilePath
+getRecentPath <span class="fu">=</span> <span class="kw">do</span>
+  home <span class="ot">&lt;-</span> getHomeDirectory
+  d <span class="ot">&lt;-</span> return (joinPath [home, <span class="st">&quot;Desktop&quot;</span>])
+  files <span class="ot">&lt;-</span> globDir1 (compile <span class="st">&quot;Screen Shot*&quot;</span>) d
+  <span class="kw">case</span> headMaybe (reverse (sort files)) <span class="kw">of</span> 
+    <span class="dt">Nothing</span> <span class="ot">-&gt;</span> error <span class="st">&quot;no recent screenshots&quot;</span>
+    <span class="dt">Just</span> a <span class="ot">-&gt;</span> return a</code></pre></div>
+<p>This could be improved by returning an <code>Either String FilePath</code> instead of raising an error, but if we stopped and optimized every chance we had in haskell we’d never finish writing what we started.</p>
+
+      </div>
+    </section>
+    <footer>
+      <hr />
+      <p class="left">Site generated with <a href="http://jaspervdj.be/hakyll">Hakyll</a></p>
+
+      <p class="right"><a href="mailto:brady@andand.co">Work with me</a></p>
+    </footer>
+  <script src="../assets/javascripts/scale.fix.js"></script>
+  </body>
+</html>

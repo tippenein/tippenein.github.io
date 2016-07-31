@@ -7,8 +7,79 @@
         <description><![CDATA[Brady Ouren's home page feed.]]></description>
         <atom:link href="http://brdyorn.com/feed.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sun, 05 Jun 2016 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Fri, 29 Jul 2016 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Writing a simple cli with Wreq</title>
+    <link>http://brdyorn.com/posts/2016-07-29-simple-client-with-wreq.html</link>
+    <description><![CDATA[<div class="info">
+  <!-- Posted on Jul 29, 2016 -->
+  
+</div>
+
+<div class="post-meta">
+  <em class="post-date pull-right"> - Jul 29, 2016</em>
+  <h2 class="post-title">Writing a simple cli with Wreq</h2>
+</div>
+<h3 id="starter-project">Starter project</h3>
+<p>I remember when I started programming in python. I looked for anything I could write as a CLI or automate in some way, so in the spirit of that, I decided to write a bit about doing the same using haskell libraries.</p>
+<p>I replaced monosnap functionality (sharing screenshots) with this script awhile back. It’s generically useful and <a href="https://github.com/tippenein/imgup/blob/master/lib/Imgup.hs">here is the whole of it</a> if you’re only interested in the source.</p>
+<p>Also, there’s a deeper dive into Wreq <a href="http://www.serpentine.com/wreq/tutorial.html">here</a> if you find this cursory intro lacking</p>
+<h3 id="bam-some-code">Bam! Some code</h3>
+<p>The important imports:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Data.Monoid</span> ((&lt;&gt;)) <span class="co">-- just for glueing together Text&#39;s</span>
+<span class="kw">import </span><span class="dt">Network.Wreq</span>       <span class="co">-- the request library</span>
+<span class="kw">import </span><span class="dt">Control.Lens</span>       <span class="co">-- setting and getting params/headers/etc</span>
+<span class="kw">import </span><span class="dt">Data.Aeson.Lens</span>    <span class="co">-- same</span></code></pre></div>
+<p>Since the main thing this script does is upload a photo anonymously to imgur, we’ll start with that function.</p>
+<h3 id="the-request">The Request</h3>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">uploadAndReturnUrl ::</span> <span class="dt">IO</span> <span class="dt">String</span>
+uploadAndReturnUrl <span class="fu">=</span> <span class="kw">do</span>
+  imagePath <span class="ot">&lt;-</span> parseArgs
+  cid <span class="ot">&lt;-</span> clientId
+  <span class="kw">let</span> authHeader <span class="fu">=</span> defaults <span class="fu">&amp;</span> header <span class="st">&quot;Authorization&quot;</span> <span class="fu">.~</span> [<span class="st">&quot;Client-ID&quot;</span> <span class="fu">&lt;&gt;</span> <span class="st">&quot; &quot;</span> <span class="fu">&lt;&gt;</span> cid]
+  <span class="kw">let</span> payload <span class="fu">=</span> [ partText <span class="st">&quot;type&quot;</span> <span class="st">&quot;file&quot;</span>
+                , partFile <span class="st">&quot;image&quot;</span> imagePath
+                ]
+                                  
+  res <span class="ot">&lt;-</span> postWith authHeader <span class="st">&quot;https://api.imgur.com/3/image.json&quot;</span> payload
+  <span class="kw">let</span> guid <span class="fu">=</span> res <span class="fu">^.</span> responseBody <span class="fu">.</span> key <span class="st">&quot;data&quot;</span> <span class="fu">.</span> key <span class="st">&quot;id&quot;</span> <span class="fu">.</span> _<span class="dt">String</span>
+  return <span class="fu">$</span> <span class="st">&quot;http://imgur.com/&quot;</span> <span class="fu">++</span> T.unpack guid</code></pre></div>
+<p>Let’s talk about what might be confusing here. The declaration of <code>authHeader</code>; what is that?</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">-- in this context, simply a merge </span>
+<span class="ot">(&amp;) ::</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> b
+
+<span class="co">-- build the header to combine with the defaults :: Options</span>
+<span class="ot">header ::</span> <span class="dt">HeaderName</span> <span class="ot">-&gt;</span> ([<span class="dt">ByteString</span>] <span class="ot">-&gt;</span> f [<span class="dt">ByteString</span>]) <span class="ot">-&gt;</span> <span class="dt">Options</span> <span class="ot">-&gt;</span> <span class="dt">Options</span></code></pre></div>
+<p>If you wanted to, you could think of this as an equivalent to the ruby code:</p>
+<div class="sourceCode"><pre class="sourceCode ruby"><code class="sourceCode ruby">defaults = {<span class="st">:params</span> =&gt; [], <span class="st">:headers</span> =&gt; []}
+defaults[<span class="st">:headers</span>].merge({ <span class="st">:Authorization</span> =&gt; <span class="st">&quot;Client-ID </span><span class="ot">#{</span>cid<span class="ot">}</span><span class="st">&quot;</span> })</code></pre></div>
+<p>Fortunately, our code using Lens’ is much more fail-safe. (you could read more <a href="http://lens.github.io/tutorial.html">here</a> or one of the plethora of other lens tutorials online)</p>
+<p>the actual post is pretty self explanatory if you know what <code>authHeader</code> and <code>payload</code> are, but here’s the type sig anyway:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">postWith ::</span> <span class="dt">Postable</span> a <span class="ot">=&gt;</span> <span class="dt">Options</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Response</span> <span class="dt">ByteString</span>)</code></pre></div>
+<p>The <code>Postable</code> typeclass refers to our <code>[Part]</code> which we constructed in the payload declaration, nbd.</p>
+<h3 id="the-response">The Response</h3>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">res <span class="fu">^.</span> responseBody <span class="fu">.</span> key <span class="st">&quot;data&quot;</span> <span class="fu">.</span> key <span class="st">&quot;id&quot;</span> <span class="fu">.</span> _<span class="dt">String</span></code></pre></div>
+<p>We use <code>^.</code> to pull out the image id returned from imgur. Unfortunately, lens’ compose left to right, unlike normal functions in haskell so this is <code>responseBody.data.id</code></p>
+<p>The equivalent ruby code might be something like:</p>
+<div class="sourceCode"><pre class="sourceCode ruby"><code class="sourceCode ruby">response.body[<span class="st">:data</span>][<span class="st">:id</span>]</code></pre></div>
+<p>Again, ours is a bit safer.</p>
+<h3 id="wrap-up">Wrap Up</h3>
+<p>There’s one other piece which grabs the most recent screenshot.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">getRecentPath ::</span> <span class="dt">IO</span> FilePath
+getRecentPath <span class="fu">=</span> <span class="kw">do</span>
+  home <span class="ot">&lt;-</span> getHomeDirectory
+  d <span class="ot">&lt;-</span> return (joinPath [home, <span class="st">&quot;Desktop&quot;</span>])
+  files <span class="ot">&lt;-</span> globDir1 (compile <span class="st">&quot;Screen Shot*&quot;</span>) d
+  <span class="kw">case</span> headMaybe (reverse (sort files)) <span class="kw">of</span> 
+    <span class="dt">Nothing</span> <span class="ot">-&gt;</span> error <span class="st">&quot;no recent screenshots&quot;</span>
+    <span class="dt">Just</span> a <span class="ot">-&gt;</span> return a</code></pre></div>
+<p>This could be improved by returning an <code>Either String FilePath</code> instead of raising an error, but if we stopped and optimized every chance we had in haskell we’d never finish writing what we started.</p>
+]]></description>
+    <pubDate>Fri, 29 Jul 2016 00:00:00 UT</pubDate>
+    <guid>http://brdyorn.com/posts/2016-07-29-simple-client-with-wreq.html</guid>
+    <dc:creator>Brady Ouren</dc:creator>
+</item>
+<item>
     <title>Exploring monoids for sum averages</title>
     <link>http://brdyorn.com/posts/2016-06-05-monoidal-sum.html</link>
     <description><![CDATA[<div class="info">
@@ -562,56 +633,6 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
 ]]></description>
     <pubDate>Tue, 20 Aug 2013 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2013-08-20-feature_or_defect_p1.html</guid>
-    <dc:creator>Brady Ouren</dc:creator>
-</item>
-<item>
-    <title>REST exception handling with decorators</title>
-    <link>http://brdyorn.com/posts/2013-07-25-rest-exceptions-with-decorators.html</link>
-    <description><![CDATA[<div class="info">
-  <!-- Posted on Jul 25, 2013 -->
-  
-</div>
-
-<div class="post-meta">
-  <em class="post-date pull-right"> - Jul 25, 2013</em>
-  <h2 class="post-title">REST exception handling with decorators</h2>
-</div>
-<h3 id="raising-rest-exceptions">Raising REST exceptions</h3>
-<p>I can’t decide if this is the “right” way of doing this, but it seems relatively succinct, so I’ll attempt to describe how I handled exceptions for a REST api in django.</p>
-<p>Say you need to return user info and the info given for user lookup fails.</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> users
-<span class="im">import</span> exceptions
-<span class="im">import</span> rest_exceptions <span class="im">as</span> rest_excs
-<span class="im">import</span> decorators.rest <span class="im">as</span> rest
-
-<span class="at">@rest.exceptions</span>
-<span class="kw">def</span> get_user_info(input_name):
-<span class="cf">try</span>:
-    user <span class="op">=</span> users.get_user(input_name)
-<span class="cf">except</span> exceptions.NoSuchUser
-    <span class="cf">raise</span> rest_exc.NoSuchUser</code></pre></div>
-<ul>
-<li>The <code>exceptions</code> import is for general error catching and it allows you to collect all your exception definitions for specific modules.</li>
-<li><code>decorators.rest</code> holds… well, decorator functions specific to REST stuff. You don’t need a separate directory <code>decorators</code> but I happened to have more decorator types than were sensible to put in the main modules dir..</li>
-<li><code>rest_exceptions</code> is similar to exceptions but these will need to define a status code to return and inherit from a exception class we define called <code>RestException</code></li>
-</ul>
-<h3 id="exception-decorator">Exception Decorator</h3>
-<p>So, catch the general exception, raise the REST exception… but then what? This is where the decorator comes in. It handles when a rest exception is raised and returns an appropriate response.</p>
-<script src="https://gist.github.com/tippenein/6188769.js"></script>
-<p>You’d define the base exception class, <code>RestException</code> as:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> RestException(<span class="pp">Exception</span>):
-    code <span class="op">=</span> <span class="dv">500</span>
-    message <span class="op">=</span> {<span class="st">&quot;reason&quot;</span> : <span class="st">&quot;failed&quot;</span>}
-    response <span class="op">=</span> <span class="va">None</span></code></pre></div>
-<p>Define all the specific exceptions with this as the base class (ex. <code>PermissionDenied(RestException)</code>). This way you can specify the status code and response for each type of exception.</p>
-<p>The JSONResponse object:</p>
-<script src="https://gist.github.com/tippenein/6188792.js"></script>
-<p>Basically just returning an HttpResponse encoded properly as json. You’d want to check kwargs for a status as well.</p>
-<p>If multiple modules have a REST api this would help to generalize the exception handling. I’m sure there are other/better ways of doing this and I’d love to know what they are. Even if it is a crap way of doing it, maybe you can use the idea to implement something else.</p>
-<h3 id="bottom-line-decorators-are-fun">Bottom line: Decorators are fun</h3>
-]]></description>
-    <pubDate>Thu, 25 Jul 2013 00:00:00 UT</pubDate>
-    <guid>http://brdyorn.com/posts/2013-07-25-rest-exceptions-with-decorators.html</guid>
     <dc:creator>Brady Ouren</dc:creator>
 </item>
 
