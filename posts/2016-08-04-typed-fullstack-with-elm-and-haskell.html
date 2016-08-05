@@ -68,50 +68,51 @@
 <h3 id="maintainability">Maintainability</h3>
 <p>Instead of writing a whole lot of tests (which also need maintenance) to ensure the proper manipulation of data between components, let’s encode this information in the types. This way, we’ll know how to fix something before we even write specs.</p>
 <p><em>PSA: To be clear, I’m not saying “don’t write tests”; I’m saying “We can get away with far fewer!”</em></p>
-<p>When you make changes to an Api, you should feel comfortable updating the frontend to match those changes.</p>
-<p>We can use type inference to forego specifying types while we prototype in <em>both</em> languages and still get the benefit of compiler aided debugging.</p>
+<p>When you make changes to an Api, you should feel comfortable updating the frontend to match those changes. Types should help not hinder in this regard. For more context I like <a href="https://www.well-typed.com/blog/2014/04/haskell-gets-static-typing-right/">this</a> sum-up from Well-Typed.</p>
+<blockquote>
+<p>If you give your program precise types and follow systematic design principles, your program almost writes itself.</p>
+</blockquote>
 <p>As an example of using a compiler to guide feature implementation, let’s look at actions in Hasken’s interface:</p>
-<pre class="elm"><code>type Action
-  = FetchDocuments
-  | ErrorOccurred String
-  | DocumentsFetched (List Document)</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Action</span>
+  <span class="fu">=</span> <span class="dt">FetchDocuments</span>
+  <span class="fu">|</span> <span class="dt">ErrorOccurred</span> <span class="dt">String</span>
+  <span class="fu">|</span> <span class="dt">DocumentsFetched</span> (<span class="dt">List</span> <span class="dt">Document</span>)</code></pre></div>
 <p>This encodes every possible state our app can be in. This is <em>huge</em>! The compiler will force us to deal with every case.</p>
 <p>Our <code>model</code> holds the data which we’re trying to represent.</p>
-<pre class="elm"><code>model : Model
-model =
-  { documents = Right []
-  , queryString = &quot;&quot;
-  }</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">model <span class="fu">:</span> <span class="dt">Model</span>
+model <span class="fu">=</span>
+  { documents <span class="fu">=</span> <span class="dt">Right</span> []
+  , queryString <span class="fu">=</span> <span class="st">&quot;&quot;</span>
+  }</code></pre></div>
 <p>At this point you might be thinking.. Isn’t this just redux? Yes! Reactive Programming is just a way of thinking about data flows. That fact isn’t as important as the way we can develop programs in Elm though.</p>
 <h3 id="an-example-adding-search">An Example: Adding Search</h3>
 <p>The ease of developing this interface shows with an example of adding a feature. Let’s add search.</p>
 <p>First we add an Action union-type <code>Search String</code> which just means there is an action which supplies a string and represents “searching”. That’s all we know at the moment, but we want our app to represent this in some way. Now we look to the compiler.</p>
 <p>It tells us that our <code>update</code> function doesn’t handle the <code>Search</code> action case.. So we must write it!</p>
 <p>Our current update looks something like this:</p>
-<pre class="elm"><code>update : Action -&gt; Model -&gt; (Model, Cmd Action)
-update action model =
-  case action of
-    FetchDocuments -&gt;
-      model ! [fetchDocuments]
-    ErrorOccurred errorMessage -&gt;
-      { model | documents = Left(&quot;Oops! An error occurred: &quot; ++ errorMessage) } ! []
-    DocumentsFetched documents -&gt;
-      { model | documents = Right(documents) } ! []
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">update <span class="fu">:</span> <span class="dt">Action</span> <span class="ot">-&gt;</span> <span class="dt">Model</span> <span class="ot">-&gt;</span> (<span class="dt">Model</span>, <span class="dt">Cmd</span> <span class="dt">Action</span>)
+update action model <span class="fu">=</span>
+  <span class="kw">case</span> action <span class="kw">of</span>
+    <span class="dt">FetchDocuments</span> <span class="ot">-&gt;</span>
+      model <span class="fu">!</span> [fetchDocuments]
+    <span class="dt">ErrorOccurred</span> errorMessage <span class="ot">-&gt;</span>
+      { model <span class="fu">|</span> documents <span class="fu">=</span> <span class="dt">Left</span>(<span class="st">&quot;Oops! An error occurred: &quot;</span> <span class="fu">++</span> errorMessage) } <span class="fu">!</span> []
+    <span class="dt">DocumentsFetched</span> documents <span class="ot">-&gt;</span>
+      { model <span class="fu">|</span> documents <span class="fu">=</span> <span class="dt">Right</span>(documents) } <span class="fu">!</span> []
 
--- Syntax tip: `model ! [fetchDocuments]` is syntactic sugar for `(model, fetchDocuments)`
--- Type tip: `Right` and `Left` are encoding success and failure. This is called the `Either` type.
-</code></pre>
+<span class="co">-- Syntax tip: `model ! [fetchDocuments]` is syntactic sugar for `(model, fetchDocuments)`</span>
+<span class="co">-- Type tip: `Right` and `Left` are encoding success and failure. This is called the `Either` type.</span></code></pre></div>
 <p>This method returns an updated model with some possible <code>Cmd Action</code>. If we’re going to fix the compilation error, we need to pattern match <code>Search term</code> and tell it how to react.</p>
-<pre class="elm"><code>Search term -&gt; model ! [searchDocs term]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">Search</span> term <span class="ot">-&gt;</span> model <span class="fu">!</span> [searchDocs term]</code></pre></div>
 <p>Now we define the function to fetch documents:</p>
-<pre class="elm"><code>getDocs : Maybe (List (String, String)) -&gt; Cmd Action
-getDocs mquery_params =
-    let url = Http.url docUrl (fromMaybe [] q)
-        docUrl = baseUrl ++ &quot;/documents&quot;
-    in
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">getDocs <span class="fu">:</span> <span class="dt">Maybe</span> (<span class="dt">List</span> (<span class="dt">String</span>, <span class="dt">String</span>)) <span class="ot">-&gt;</span> <span class="dt">Cmd</span> <span class="dt">Action</span>
+getDocs mquery_params <span class="fu">=</span>
+    <span class="kw">let</span> url <span class="fu">=</span> Http.url docUrl (fromMaybe [] q)
+        docUrl <span class="fu">=</span> baseUrl <span class="fu">++</span> <span class="st">&quot;/documents&quot;</span>
+    <span class="kw">in</span>
       Http.get (Json.list jdecDocument) url
-        |&gt; Task.mapError toString
-        |&gt; Task.perform ErrorOccurred DocumentsFetched</code></pre>
+        <span class="fu">|&gt;</span> Task.mapError toString
+        <span class="fu">|&gt;</span> Task.perform <span class="dt">ErrorOccurred</span> <span class="dt">DocumentsFetched</span></code></pre></div>
 <ol style="list-style-type: decimal">
 <li>our chaining of tasks <code>|&gt; ... |&gt; ...</code> deals with encoding the result of the http requests into our action types (<code>ErrorOccured</code> &amp; <code>DocumentsFetched</code>)</li>
 <li><code>jdecDocument</code> is the json decoder that was defined in our typed-wire-generated module; we expect a list of those.</li>
@@ -119,14 +120,14 @@ getDocs mquery_params =
 </ol>
 <h3 id="the-view">The view</h3>
 <p>The next compiler error will tell us that we don’t have an interface component to <em>trigger</em> the <code>Search</code> action. We’ll be able to succinctly express this in our interface via the <code>view</code> function.</p>
-<pre class="elm"><code>view : Model -&gt; Html Action
-view model =
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">view <span class="fu">:</span> <span class="dt">Model</span> <span class="ot">-&gt;</span> <span class="dt">Html</span> <span class="dt">Action</span>
+view model <span class="fu">=</span>
   div []
     [
-      statusMessage model.documents
-    , searchBox model Search  --- a function to generate markdown for a search box
-    , documentList model.documents
-    ]</code></pre>
+      statusMessage model<span class="fu">.</span>documents
+    , searchBox model <span class="dt">Search</span>  <span class="fu">---</span> a function to generate markdown for a search box
+    , documentList model<span class="fu">.</span>documents
+    ]</code></pre></div>
 <p>From a high level, this is a very useful abstraction. We can modularize our view “partials” as we see fit and it helps us think about the best way to organize our components.</p>
 <p>Now it will compile! We’ve successfully added a feature that we know works.</p>
 <h3 id="what-next">What next?</h3>
