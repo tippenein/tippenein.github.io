@@ -7,8 +7,155 @@
         <description><![CDATA[Brady Ouren's home page feed.]]></description>
         <atom:link href="http://brdyorn.com/feed.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Fri, 29 Jul 2016 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Thu, 04 Aug 2016 00:00:00 UT</lastBuildDate>
         <item>
+    <title>A Typed Fullstack With Elm & Haskell</title>
+    <link>http://brdyorn.com/posts/2016-08-04-typed-fullstack-with-elm-and-haskell.html</link>
+    <description><![CDATA[<div class="info">
+  <!-- Posted on Aug  4, 2016 -->
+  
+</div>
+
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Aug  4, 2016</em>
+    <h2 class="post-title">A Typed Fullstack With Elm & Haskell</h2>
+  </div>
+  <h3 id="hard-choices">Hard Choices</h3>
+<p>Everytime you make a design decision about a system, you have to (or should) consider the possible maintenance implications. Personally, I think typed languages make this much more manageable. We’ll use Haskell and Elm to illustrate this case via a project called <a href="https://github.com/tippenein/hasken">hasken</a>.</p>
+<p>This started as a simple CLI communicating with an API, but as is so common, we now want a frontend to display the resources on the web.</p>
+<h3 id="what-we-want">What we want</h3>
+<p>We want a few reasonable things:</p>
+<ol style="list-style-type: decimal">
+<li>Our entities should be synchronized between the frontend and backend.</li>
+<li>Changes won’t break any existing functionality.</li>
+<li>No way of leaving out edge cases</li>
+</ol>
+<h3 id="synchronizing-changes-between-api-and-frontend">Synchronizing changes between Api and Frontend</h3>
+<p>When we have a change or addition to the representation of data, we’ll have to change both back- and frontend. There are a few possible solutions, but I’ve chosen to use <a href="https://github.com/typed-wire/typed-wire">typed-wire</a> which provides us with an intermediate language to define the common entities in.</p>
+<pre><code>type Document{
+  id : Int;
+  title : String;
+  content : String;
+  tags : List&lt;String&gt;;
+}</code></pre>
+<p>When we’ve defined our entity, we can generate the code we need to produce and consume this data.</p>
+<pre><code>twirec -e Document -i . --elm-out src/Gen --elm-version 0.17</code></pre>
+<p>At the moment of this writing, typed wire can also generate a Spock api and json encodings, however, <em>hasken</em> already has a solid <a href="http://haskell-servant.readthedocs.io/en/stable/">servant</a> api defined, so we’ll be discussing how to use the generated elm bindings to have type-safe communication between them.</p>
+<p>Note: The Servant side of things will be discussed in a separate post, but the same design principles and ensuing safety will be the same as we’ll see with Elm soon.</p>
+<h3 id="maintainability">Maintainability</h3>
+<p>Instead of writing a whole lot of tests (which also need maintenance) to ensure the proper manipulation of data between components, let’s encode this information in the types. This way, we’ll know how to fix something before we even write specs.</p>
+<p><em>PSA: To be clear, I’m not saying “don’t write tests”; I’m saying “We can get away with far fewer!”</em></p>
+<p>When you make changes to an Api, you should feel comfortable updating the frontend to match those changes.</p>
+<p>We can use type inference to forego specifying types while we prototype in <em>both</em> languages and still get the benefit of compiler aided debugging.</p>
+<p>As an example of using a compiler to guide feature implementation, let’s look at actions in Hasken’s interface:</p>
+<pre class="elm"><code>type Action
+  = FetchDocuments
+  | ErrorOccurred String
+  | DocumentsFetched (List Document)</code></pre>
+<p>This encodes every possible state our app can be in. This is <em>huge</em>! The compiler will force us to deal with every case.</p>
+<p>Our <code>model</code> holds the data which we’re trying to represent.</p>
+<pre class="elm"><code>model : Model
+model =
+  { documents = Right []
+  , queryString = &quot;&quot;
+  }</code></pre>
+<p>At this point you might be thinking.. Isn’t this just redux? Yes! Reactive Programming is just a way of thinking about data flows. That fact isn’t as important as the way we can develop programs in Elm though.</p>
+<h3 id="an-example-adding-search">An Example: Adding Search</h3>
+<p>The ease of developing this interface shows with an example of adding a feature. Let’s add search.</p>
+<p>First we add an Action union-type <code>Search String</code> which just means there is an action which supplies a string and represents “searching”. That’s all we know at the moment, but we want our app to represent this in some way. Now we look to the compiler.</p>
+<p>It tells us that our <code>update</code> function doesn’t handle the <code>Search</code> action case.. So we must write it!</p>
+<p>Our current update looks something like this:</p>
+<pre class="elm"><code>update : Action -&gt; Model -&gt; (Model, Cmd Action)
+update action model =
+  case action of
+    FetchDocuments -&gt;
+      model ! [fetchDocuments]
+    ErrorOccurred errorMessage -&gt;
+      { model | documents = Left(&quot;Oops! An error occurred: &quot; ++ errorMessage) } ! []
+    DocumentsFetched documents -&gt;
+      { model | documents = Right(documents) } ! []
+
+-- Syntax tip: `model ! [fetchDocuments]` is syntactic sugar for `(model, fetchDocuments)`
+-- Type tip: `Right` and `Left` are encoding success and failure. This is called the `Either` type.
+</code></pre>
+<p>This method returns an updated model with some possible <code>Cmd Action</code>. If we’re going to fix the compilation error, we need to pattern match <code>Search term</code> and tell it how to react.</p>
+<pre class="elm"><code>Search term -&gt; model ! [searchDocs term]</code></pre>
+<p>Now we define the function to fetch documents:</p>
+<pre class="elm"><code>getDocs : Maybe (List (String, String)) -&gt; Cmd Action
+getDocs mquery_params =
+    let url = Http.url docUrl (fromMaybe [] q)
+        docUrl = baseUrl ++ &quot;/documents&quot;
+    in
+      Http.get (Json.list jdecDocument) url
+        |&gt; Task.mapError toString
+        |&gt; Task.perform ErrorOccurred DocumentsFetched</code></pre>
+<ol style="list-style-type: decimal">
+<li>our chaining of tasks <code>|&gt; ... |&gt; ...</code> deals with encoding the result of the http requests into our action types (<code>ErrorOccured</code> &amp; <code>DocumentsFetched</code>)</li>
+<li><code>jdecDocument</code> is the json decoder that was defined in our typed-wire-generated module; we expect a list of those.</li>
+<li>query params might be empty, so we deal with that case via a <code>Maybe</code> and our <code>fromMaybe</code> defaults to <code>[]</code> if none are passed.</li>
+</ol>
+<h3 id="the-view">The view</h3>
+<p>The next compiler error will tell us that we don’t have an interface component to <em>trigger</em> the <code>Search</code> action. We’ll be able to succinctly express this in our interface via the <code>view</code> function.</p>
+<pre class="elm"><code>view : Model -&gt; Html Action
+view model =
+  div []
+    [
+      statusMessage model.documents
+    , searchBox model Search  --- a function to generate markdown for a search box
+    , documentList model.documents
+    ]</code></pre>
+<p>From a high level, this is a very useful abstraction. We can modularize our view “partials” as we see fit and it helps us think about the best way to organize our components.</p>
+<p>Now it will compile! We’ve successfully added a feature that we know works.</p>
+<h3 id="what-next">What next?</h3>
+<p>In the follow up we’ll talk about deploying all this in a sane way, but for now we can plan out the build steps.</p>
+<p>I’ve just used a <code>Makefile</code> for now and it looks like:</p>
+<pre><code>all:
+    gen
+    build
+    js
+
+gen:
+	twirec -e Document -i . --elm-out src/Gen --elm-version 0.17
+
+build:
+	elm package install
+
+js:
+	elm make src/Main.elm --output=elm.js
+</code></pre>
+<p>After running this, we’ll have the json encoding module (in <code>src/Gen/</code>) along with a compiled elm.js which we can simply attach to an html node in our index:</p>
+<div class="sourceCode"><pre class="sourceCode html"><code class="sourceCode html"><span class="kw">&lt;script</span><span class="ot"> src=</span><span class="st">&quot;./elm.js&quot;</span><span class="ot"> type=</span><span class="st">&quot;text/javascript&quot;</span><span class="kw">&gt;&lt;/script&gt;</span>
+<span class="kw">&lt;script&gt;</span>
+    <span class="kw">var</span> node <span class="op">=</span> <span class="va">document</span>.<span class="at">getElementById</span>(<span class="st">&#39;content&#39;</span>)<span class="op">;</span>
+    <span class="kw">var</span> app <span class="op">=</span> <span class="va">Elm</span>.<span class="va">Main</span>.<span class="at">embed</span>(node)<span class="op">;</span>
+<span class="op">&lt;</span><span class="ss">/script&gt;</span></code></pre></div>
+<p>Since these steps won’t work on your machine unless you gather all the dependencies (typed-wire, ghc, elm, etc.), in the next step we’ll put this all in a docker container and show how to deploy it using whichever docker service you’d like.</p>
+
+  <div class="pager">
+    <ul class="list-unstyled list-inline">
+      
+        <li class="previous left">
+          <a class="button" href="/posts/2016-07-29-simple-client-with-wreq.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
+        </li>
+      
+
+      
+        <li class="next right">
+          <a class="button" href="" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+        </li>
+      
+    </ul>
+  </div>
+  <br>
+  <br>
+</div>
+]]></description>
+    <pubDate>Thu, 04 Aug 2016 00:00:00 UT</pubDate>
+    <guid>http://brdyorn.com/posts/2016-08-04-typed-fullstack-with-elm-and-haskell.html</guid>
+    <dc:creator>Brady Ouren</dc:creator>
+</item>
+<item>
     <title>Writing a simple cli with Wreq</title>
     <link>http://brdyorn.com/posts/2016-07-29-simple-client-with-wreq.html</link>
     <description><![CDATA[<div class="info">
@@ -89,7 +236,7 @@ getRecentPath <span class="fu">=</span> <span class="kw">do</span>
 
       
         <li class="next right">
-          <a class="button" href="" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+          <a class="button" href="/posts/2016-08-04-typed-fullstack-with-elm-and-haskell.html" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
         </li>
       
     </ul>
@@ -783,59 +930,6 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
 ]]></description>
     <pubDate>Sun, 23 Nov 2014 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2014-11-23-reverse-sort-versus-flip-compare.html</guid>
-    <dc:creator>Brady Ouren</dc:creator>
-</item>
-<item>
-    <title>Let's play 'Feature or Defect!'</title>
-    <link>http://brdyorn.com/posts/2013-08-20-feature_or_defect_p1.html</link>
-    <description><![CDATA[<div class="info">
-  <!-- Posted on Aug 20, 2013 -->
-  
-</div>
-
-<div class="post-body">
-  <div class="post-meta">
-    <em class="post-date pull-right"> - Aug 20, 2013</em>
-    <h2 class="post-title">Let's play 'Feature or Defect!'</h2>
-  </div>
-  <h3 id="lolwhut">Lolwhut?!</h3>
-<p>Sometimes you run into programming language “features” that make you wonder if that was the intended effect. This particular one involves python and a mutable default function argument. Here’s a quick example:</p>
-<!--more-->
-<pre><code>&gt;&gt;&gt; def foo(a=[]):
-...   a.append(1)
-...   return a
-... 
-&gt;&gt;&gt; foo()
-[1]
-&gt;&gt;&gt; foo()
-[1, 1]
-&gt;&gt;&gt; foo()
-[1, 1, 1]
-&gt;&gt;&gt; foo()
-[1, 1, 1, 1]</code></pre>
-<p>On the one hand, this can be used as a weird little way of caching items. Since <code>a</code> is mutable, it acts as a global variable. To me, this is counterintuitive. If I say, <code>def foo(a=[]):</code> I expect <code>a</code> to be an empty list every time I run that function unless I tell it otherwise.</p>
-
-  <div class="pager">
-    <ul class="list-unstyled list-inline">
-      
-        <li class="previous left">
-          <a class="button" href="/posts/2013-07-25-rest-exceptions-with-decorators.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
-        </li>
-      
-
-      
-        <li class="next right">
-          <a class="button" href="/posts/2014-11-23-reverse-sort-versus-flip-compare.html" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
-        </li>
-      
-    </ul>
-  </div>
-  <br>
-  <br>
-</div>
-]]></description>
-    <pubDate>Tue, 20 Aug 2013 00:00:00 UT</pubDate>
-    <guid>http://brdyorn.com/posts/2013-08-20-feature_or_defect_p1.html</guid>
     <dc:creator>Brady Ouren</dc:creator>
 </item>
 
