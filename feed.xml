@@ -23,16 +23,18 @@
   </div>
   <p>A few things have changed with Servant’s client deriving between <code>0.4</code> and <code>0.7</code>. I’ll document here what I did to upgrade.</p>
 <h3 id="follow-the-types">Follow the types</h3>
-<p>First thing you’ll notice after</p>
+<p>First thing you’ll notice after building your project with the 0.7 version of servant client is some failing functions. Let’s follow the types and do what they tell us.</p>
+<p>The first error is that BaseUrl takes an extra “path” argument. It’s just a string; ghc tells us this.</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">makeBaseUrl <span class="fu">=</span> <span class="kw">do</span>
   h <span class="ot">&lt;-</span> Config.domain <span class="fu">&lt;$&gt;</span> Config.remoteConfig
   p <span class="ot">&lt;-</span> Config.port <span class="fu">&lt;$&gt;</span> Config.remoteConfig
   <span class="co">-- BaseUrl has 1 extra argument</span>
   <span class="co">-- used to be: pure $ BaseUrl Http h p</span>
   pure <span class="fu">$</span> <span class="dt">BaseUrl</span> <span class="dt">Http</span> h p <span class="st">&quot;&quot;</span></code></pre></div>
-<p>Now we use ExceptT instead of EitherT. It’s better</p>
+<p>Now we use ExceptT instead of EitherT. It’s better, and ghc tells us that’s what it’s expecting.</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Action</span> a <span class="fu">=</span> <span class="dt">ExceptT</span> <span class="dt">ServantError</span> <span class="dt">IO</span> a</code></pre></div>
 <p>This type alias has existed as <code>ClientM</code> and <code>Handler</code> (see <a href="https://github.com/haskell-servant/servant/issues/467">this</a> and <a href="https://github.com/haskell-servant/servant/issues/434">this</a>) but I prefer to write this explicitly and forego all the changes that might happen in servant.</p>
+<p>The next compiler error says something about an expected Manager argument to one of our bound client functions.</p>
 <h3 id="http-manager">Http manager</h3>
 <p>There is a new dependency on http-client. Luckily I had structured my code to use this generic <code>run</code> function, so I only had to make manager updates here.</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">run action <span class="fu">=</span> <span class="kw">do</span>
@@ -42,8 +44,8 @@
   <span class="kw">case</span> result <span class="kw">of</span>
     <span class="dt">Left</span> message <span class="ot">-&gt;</span> error (show message)
     <span class="dt">Right</span> x <span class="ot">-&gt;</span> pure x</code></pre></div>
-<p>Essentially we only needed to pass 2 new arguments to the action (the derived functions from <code>client</code>) and run them inside <code>runExceptT</code> instead of <code>runEitherT</code>.</p>
-<p>The last compiler error you’ll get is an extra argument to <code>client</code> which is just a remnant you can delete.</p>
+<p>Essentially we only needed to pass 2 new arguments to the action (the derived functions from <code>client</code>) and run them inside <code>runExceptT</code>.</p>
+<p>The last compiler error you’ll get is an extra argument to <code>client</code> which is just a remnant you can delete. It was previously the BaseUrl argument, but we’ve already moved that to the <code>run</code> function.</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">listDocuments&#39; <span class="fu">:&lt;|&gt;</span> createDocument&#39; <span class="fu">=</span>
   <span class="co">-- we no longer pass the url into the `client` deriving function.</span>
   client documentAPI</code></pre></div>
@@ -849,7 +851,7 @@ descriptorP <span class="fu">=</span> optionMaybe <span class="fu">$</span> try 
     <em class="post-date pull-right"> - Dec 12, 2015</em>
     <h2 class="post-title">Servant Patterns for Clients</h2>
   </div>
-  <p>Edit: Servant has changed its Client api, but <a href="/posts/2016-08-06-upgrading-servant-client-from-zero-four.md">this</a> is a post about how to migrate to the new way of deriving clients.</p>
+  <p>Edit: Servant has changed its Client api, but <a href="/posts/2016-08-06-upgrading-servant-client-from-zero-four.html">this</a> is a post about how to migrate to the new way of deriving clients.</p>
 <h3 id="clients-for-free">Clients for Free</h3>
 <p>The unfortunate reality of many of our day jobs is that we are <em>not</em> able to replace existing services with haskell. However, don’t despair! We can still write services which consume our existing services quite easily with <a href="https://github.com/haskell-servant/servant">Servant</a>.</p>
 <p>I’ve picked up some patterns for writing clean haskell code from <a href="https://github.com/tfausak/factory">tfausak</a> and they’ve all come together in a working user client.</p>
