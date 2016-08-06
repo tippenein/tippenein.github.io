@@ -43,7 +43,7 @@
     <em class="post-date pull-right"> - Dec 12, 2015</em>
     <h2 class="post-title">Servant Patterns for Clients</h2>
   </div>
-  <p>Edit: I believe Servant has changed its Client api; I’ll link to an update when one exists.</p>
+  <p>Edit: Servant has changed its Client api, but <a href="../posts/2016-08-06-upgrading-servant-client-from-zero-four.md">this</a> is a post about how to migrate to the new way of deriving clients.</p>
 <h3 id="clients-for-free">Clients for Free</h3>
 <p>The unfortunate reality of many of our day jobs is that we are <em>not</em> able to replace existing services with haskell. However, don’t despair! We can still write services which consume our existing services quite easily with <a href="https://github.com/haskell-servant/servant">Servant</a>.</p>
 <p>I’ve picked up some patterns for writing clean haskell code from <a href="https://github.com/tfausak/factory">tfausak</a> and they’ve all come together in a working user client.</p>

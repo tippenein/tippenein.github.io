@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Brady Ouren (Tippenein)</title>
+
+    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"> 
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/default.css">
+    <link rel="stylesheet" href="../css/syntax.css">
+    <link rel="alternate" type="application/rss+xml" title="BrdyOrn.com" href="brdyorn.com/feed.xml">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <header class="profile row">
+      <div class="six columns">
+        <p class="name"><a class="header-link" href="../">Brady Ouren</a></p>
+      </div>
+      <div class="six columns">
+        <ul class="social list-inline list-unstyled">
+          <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
+          <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
+          <li><a class="header-link" href="../feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
+        </ul>
+      </div>
+    </header>
+    <section>
+      <div class="content">
+        <div class="info">
+  <!-- Posted on Aug  6, 2016 -->
+  
+</div>
+
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Aug  6, 2016</em>
+    <h2 class="post-title">Upgrading Servant Clients</h2>
+  </div>
+  <p>A few things have changed with Servant’s client deriving between <code>0.4</code> and <code>0.7</code>. I’ll document here what I did to upgrade.</p>
+<h3 id="follow-the-types">Follow the types</h3>
+<p>First thing you’ll notice after</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">makeBaseUrl <span class="fu">=</span> <span class="kw">do</span>
+  h <span class="ot">&lt;-</span> Config.domain <span class="fu">&lt;$&gt;</span> Config.remoteConfig
+  p <span class="ot">&lt;-</span> Config.port <span class="fu">&lt;$&gt;</span> Config.remoteConfig
+  <span class="co">-- BaseUrl has 1 extra argument</span>
+  <span class="co">-- used to be: pure $ BaseUrl Http h p</span>
+  pure <span class="fu">$</span> <span class="dt">BaseUrl</span> <span class="dt">Http</span> h p <span class="st">&quot;&quot;</span></code></pre></div>
+<p>Now we use ExceptT instead of EitherT. It’s better</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Action</span> a <span class="fu">=</span> <span class="dt">ExceptT</span> <span class="dt">ServantError</span> <span class="dt">IO</span> a</code></pre></div>
+<p>This type alias has existed as <code>ClientM</code> and <code>Handler</code> (see <a href="https://github.com/haskell-servant/servant/issues/467">this</a> and <a href="https://github.com/haskell-servant/servant/issues/434">this</a>) but I prefer to write this explicitly and forego all the changes that might happen in servant.</p>
+<h3 id="http-manager">Http manager</h3>
+<p>There is a new dependency on http-client. Luckily I had structured my code to use this generic <code>run</code> function, so I only had to make manager updates here.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">run action <span class="fu">=</span> <span class="kw">do</span>
+  baseUrl <span class="ot">&lt;-</span> makeBaseUrl
+  manager <span class="ot">&lt;-</span> newManager defaultManagerSettings
+  result <span class="ot">&lt;-</span> runExceptT <span class="fu">$</span> action manager baseUrl
+  <span class="kw">case</span> result <span class="kw">of</span>
+    <span class="dt">Left</span> message <span class="ot">-&gt;</span> error (show message)
+    <span class="dt">Right</span> x <span class="ot">-&gt;</span> pure x</code></pre></div>
+<p>Essentially we only needed to pass 2 new arguments to the action (the derived functions from <code>client</code>) and run them inside <code>runExceptT</code> instead of <code>runEitherT</code>.</p>
+<p>The last compiler error you’ll get is an extra argument to <code>client</code> which is just a remnant you can delete.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">listDocuments' <span class="fu">:&lt;|&gt;</span> createDocument' <span class="fu">=</span>
+  <span class="co">-- we no longer pass the url into the `client` deriving function.</span>
+  client documentAPI</code></pre></div>
+<p>That’s pretty much it. I didn’t really have to look anything up. The compiler didn’t <em>directly</em> tell me how to fix it, but it <em>did</em> tell me which parts of my code had strange arguments, which were then easy to correct.</p>
+<p>Matter of fact, the commit where I recently did this is <a href="https://github.com/tippenein/hasken/commit/c3cb78197f0b470f944789a3b0552a42fd369aca#diff-1d9ebc04df2ac4beb0ee8681f4f13c4cR23">here</a> if that’s your sort of thing.</p>
+
+  <div class="pager">
+    <ul class="list-unstyled list-inline">
+      
+        <li class="previous left">
+          <a class="button" href="../posts/2016-08-04-typed-fullstack-with-elm-and-haskell.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
+        </li>
+      
+
+      
+        <li class="next right">
+          <a class="button" href data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+        </li>
+      
+    </ul>
+  </div>
+  <br>
+  <br>
+</div>
+
+      </div>
+    </section>
+    <footer>
+      <hr />
+      <p class="left">Site generated with <a href="http://jaspervdj.be/hakyll">Hakyll</a></p>
+
+      <p class="right"><a href="mailto:brady@andand.co">Work with me</a></p>
+    </footer>
+  </body>
+</html>

@@ -7,8 +7,73 @@
         <description><![CDATA[Brady Ouren's home page feed.]]></description>
         <atom:link href="http://brdyorn.com/feed.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Thu, 04 Aug 2016 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sat, 06 Aug 2016 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Upgrading Servant Clients</title>
+    <link>http://brdyorn.com/posts/2016-08-06-upgrading-servant-client-from-zero-four.html</link>
+    <description><![CDATA[<div class="info">
+  <!-- Posted on Aug  6, 2016 -->
+  
+</div>
+
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Aug  6, 2016</em>
+    <h2 class="post-title">Upgrading Servant Clients</h2>
+  </div>
+  <p>A few things have changed with Servant’s client deriving between <code>0.4</code> and <code>0.7</code>. I’ll document here what I did to upgrade.</p>
+<h3 id="follow-the-types">Follow the types</h3>
+<p>First thing you’ll notice after</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">makeBaseUrl <span class="fu">=</span> <span class="kw">do</span>
+  h <span class="ot">&lt;-</span> Config.domain <span class="fu">&lt;$&gt;</span> Config.remoteConfig
+  p <span class="ot">&lt;-</span> Config.port <span class="fu">&lt;$&gt;</span> Config.remoteConfig
+  <span class="co">-- BaseUrl has 1 extra argument</span>
+  <span class="co">-- used to be: pure $ BaseUrl Http h p</span>
+  pure <span class="fu">$</span> <span class="dt">BaseUrl</span> <span class="dt">Http</span> h p <span class="st">&quot;&quot;</span></code></pre></div>
+<p>Now we use ExceptT instead of EitherT. It’s better</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Action</span> a <span class="fu">=</span> <span class="dt">ExceptT</span> <span class="dt">ServantError</span> <span class="dt">IO</span> a</code></pre></div>
+<p>This type alias has existed as <code>ClientM</code> and <code>Handler</code> (see <a href="https://github.com/haskell-servant/servant/issues/467">this</a> and <a href="https://github.com/haskell-servant/servant/issues/434">this</a>) but I prefer to write this explicitly and forego all the changes that might happen in servant.</p>
+<h3 id="http-manager">Http manager</h3>
+<p>There is a new dependency on http-client. Luckily I had structured my code to use this generic <code>run</code> function, so I only had to make manager updates here.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">run action <span class="fu">=</span> <span class="kw">do</span>
+  baseUrl <span class="ot">&lt;-</span> makeBaseUrl
+  manager <span class="ot">&lt;-</span> newManager defaultManagerSettings
+  result <span class="ot">&lt;-</span> runExceptT <span class="fu">$</span> action manager baseUrl
+  <span class="kw">case</span> result <span class="kw">of</span>
+    <span class="dt">Left</span> message <span class="ot">-&gt;</span> error (show message)
+    <span class="dt">Right</span> x <span class="ot">-&gt;</span> pure x</code></pre></div>
+<p>Essentially we only needed to pass 2 new arguments to the action (the derived functions from <code>client</code>) and run them inside <code>runExceptT</code> instead of <code>runEitherT</code>.</p>
+<p>The last compiler error you’ll get is an extra argument to <code>client</code> which is just a remnant you can delete.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">listDocuments&#39; <span class="fu">:&lt;|&gt;</span> createDocument&#39; <span class="fu">=</span>
+  <span class="co">-- we no longer pass the url into the `client` deriving function.</span>
+  client documentAPI</code></pre></div>
+<p>That’s pretty much it. I didn’t really have to look anything up. The compiler didn’t <em>directly</em> tell me how to fix it, but it <em>did</em> tell me which parts of my code had strange arguments, which were then easy to correct.</p>
+<p>Matter of fact, the commit where I recently did this is <a href="https://github.com/tippenein/hasken/commit/c3cb78197f0b470f944789a3b0552a42fd369aca#diff-1d9ebc04df2ac4beb0ee8681f4f13c4cR23">here</a> if that’s your sort of thing.</p>
+
+  <div class="pager">
+    <ul class="list-unstyled list-inline">
+      
+        <li class="previous left">
+          <a class="button" href="/posts/2016-08-04-typed-fullstack-with-elm-and-haskell.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
+        </li>
+      
+
+      
+        <li class="next right">
+          <a class="button" href="" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+        </li>
+      
+    </ul>
+  </div>
+  <br>
+  <br>
+</div>
+]]></description>
+    <pubDate>Sat, 06 Aug 2016 00:00:00 UT</pubDate>
+    <guid>http://brdyorn.com/posts/2016-08-06-upgrading-servant-client-from-zero-four.html</guid>
+    <dc:creator>Brady Ouren</dc:creator>
+</item>
+<item>
     <title>A Typed Fullstack With Elm & Haskell</title>
     <link>http://brdyorn.com/posts/2016-08-04-typed-fullstack-with-elm-and-haskell.html</link>
     <description><![CDATA[<div class="info">
@@ -143,7 +208,7 @@ js:
 
       
         <li class="next right">
-          <a class="button" href="" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+          <a class="button" href="/posts/2016-08-06-upgrading-servant-client-from-zero-four.html" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
         </li>
       
     </ul>
@@ -630,7 +695,7 @@ descriptorP <span class="fu">=</span> optionMaybe <span class="fu">$</span> try 
     <em class="post-date pull-right"> - Dec 12, 2015</em>
     <h2 class="post-title">Servant Patterns for Clients</h2>
   </div>
-  <p>Edit: I believe Servant has changed its Client api; I’ll link to an update when one exists.</p>
+  <p>Edit: Servant has changed its Client api, but <a href="/posts/2016-08-06-upgrading-servant-client-from-zero-four.md">this</a> is a post about how to migrate to the new way of deriving clients.</p>
 <h3 id="clients-for-free">Clients for Free</h3>
 <p>The unfortunate reality of many of our day jobs is that we are <em>not</em> able to replace existing services with haskell. However, don’t despair! We can still write services which consume our existing services quite easily with <a href="https://github.com/haskell-servant/servant">Servant</a>.</p>
 <p>I’ve picked up some patterns for writing clean haskell code from <a href="https://github.com/tfausak/factory">tfausak</a> and they’ve all come together in a working user client.</p>
@@ -875,62 +940,6 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
 ]]></description>
     <pubDate>Wed, 10 Dec 2014 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2014-12-10-rspec-pattern-for-testing-permissions.html</guid>
-    <dc:creator>Brady Ouren</dc:creator>
-</item>
-<item>
-    <title>Comparing reverse sort and flip compare</title>
-    <link>http://brdyorn.com/posts/2014-11-23-reverse-sort-versus-flip-compare.html</link>
-    <description><![CDATA[<div class="info">
-  <!-- Posted on Nov 23, 2014 -->
-  
-</div>
-
-<div class="post-body">
-  <div class="post-meta">
-    <em class="post-date pull-right"> - Nov 23, 2014</em>
-    <h2 class="post-title">Comparing reverse sort and flip compare</h2>
-  </div>
-  <h3 id="comparing-flip-compare">Comparing flip compare</h3>
-<p>GHCmod-vim hinted at an improvement in some code I was writing:</p>
-<p><code>reverse $ sort</code> why not <code>sortBy (flip compare)</code></p>
-<p>So I looked at the type signatures for each of these.</p>
-<pre><code>λ &gt; :t reverse $ sort
-λ &gt; Ord a =&gt; [a] -&gt; [a]
-
-λ &gt; :t sortBy
-λ &gt; (a -&gt; a -&gt; Ordering) -&gt; [a] -&gt; [a]
-
-λ &gt; :t (flip compare)
-λ &gt; Ord b =&gt; b -&gt; b -&gt; Ordering</code></pre>
-<p><code>flip</code> is just <code>f x y = f y x</code></p>
-<p>A little reminder of how <code>compare</code> works:</p>
-<pre><code>λ &gt; compare 1 2
-λ &gt; LT
-λ &gt; flip compare 1 2
-λ &gt; GT</code></pre>
-<p>This is the part that wasn’t obvious to me; that by simply flipping the comparison we’re reversing the resulting sorted list. At that point we can see that <code>sortBy</code> is traversing the list once whereas <code>reverse $ sort</code> is running through the list twice.</p>
-
-  <div class="pager">
-    <ul class="list-unstyled list-inline">
-      
-        <li class="previous left">
-          <a class="button" href="/posts/2013-08-20-feature_or_defect_p1.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
-        </li>
-      
-
-      
-        <li class="next right">
-          <a class="button" href="/posts/2014-12-10-rspec-pattern-for-testing-permissions.html" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
-        </li>
-      
-    </ul>
-  </div>
-  <br>
-  <br>
-</div>
-]]></description>
-    <pubDate>Sun, 23 Nov 2014 00:00:00 UT</pubDate>
-    <guid>http://brdyorn.com/posts/2014-11-23-reverse-sort-versus-flip-compare.html</guid>
     <dc:creator>Brady Ouren</dc:creator>
 </item>
 
