@@ -67,7 +67,29 @@
   </div>
   <br>
   <br>
+  <div id="disqus_thread"></div>
+  <script>
+
+  /**
+   *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+   *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+  /*
+  */
+  /* var disqus_config = function () {
+      this.page.url = "brdyorn.com/posts/2016-08-06-upgrading-servant-client-from-zero-four.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "posts/2016-08-06-upgrading-servant-client-from-zero-four.md"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+      this.page.title = 'Upgrading Servant Clients';
+  }; */
+  (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = '//brdyorn.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
+
 ]]></description>
     <pubDate>Sat, 06 Aug 2016 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2016-08-06-upgrading-servant-client-from-zero-four.html</guid>
@@ -215,7 +237,29 @@ js:
   </div>
   <br>
   <br>
+  <div id="disqus_thread"></div>
+  <script>
+
+  /**
+   *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+   *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+  /*
+  */
+  /* var disqus_config = function () {
+      this.page.url = "brdyorn.com/posts/2016-08-04-typed-fullstack-with-elm-and-haskell.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "posts/2016-08-04-typed-fullstack-with-elm-and-haskell.md"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+      this.page.title = 'A Typed Fullstack With Elm & Haskell';
+  }; */
+  (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = '//brdyorn.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
+
 ]]></description>
     <pubDate>Thu, 04 Aug 2016 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2016-08-04-typed-fullstack-with-elm-and-haskell.html</guid>
@@ -309,7 +353,29 @@ getRecentPath <span class="fu">=</span> <span class="kw">do</span>
   </div>
   <br>
   <br>
+  <div id="disqus_thread"></div>
+  <script>
+
+  /**
+   *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+   *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+  /*
+  */
+  /* var disqus_config = function () {
+      this.page.url = "brdyorn.com/posts/2016-07-29-simple-client-with-wreq.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "posts/2016-07-29-simple-client-with-wreq.md"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+      this.page.title = 'Writing a simple cli with Wreq';
+  }; */
+  (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = '//brdyorn.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
+
 ]]></description>
     <pubDate>Fri, 29 Jul 2016 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2016-07-29-simple-client-with-wreq.html</guid>
@@ -430,7 +496,29 @@ revSort <span class="fu">=</span> sortBy (flip compare)
   </div>
   <br>
   <br>
+  <div id="disqus_thread"></div>
+  <script>
+
+  /**
+   *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+   *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+  /*
+  */
+  /* var disqus_config = function () {
+      this.page.url = "brdyorn.com/posts/2016-06-05-monoidal-sum.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "posts/2016-06-05-monoidal-sum.md"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+      this.page.title = 'Exploring monoids for sum averages';
+  }; */
+  (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = '//brdyorn.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
+
 ]]></description>
     <pubDate>Sun, 05 Jun 2016 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2016-06-05-monoidal-sum.html</guid>
@@ -505,7 +593,29 @@ declareAnimals animals <span class="fu">=</span>
   </div>
   <br>
   <br>
+  <div id="disqus_thread"></div>
+  <script>
+
+  /**
+   *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+   *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+  /*
+  */
+  /* var disqus_config = function () {
+      this.page.url = "brdyorn.com/posts/2016-04-18-simple-enum-generation.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "posts/2016-04-18-simple-enum-generation.md"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+      this.page.title = 'Using Template Haskell to generate an Enum';
+  }; */
+  (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = '//brdyorn.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
+
 ]]></description>
     <pubDate>Mon, 18 Apr 2016 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2016-04-18-simple-enum-generation.html</guid>
@@ -596,7 +706,29 @@ signalParser <span class="fu">=</span> choice <span class="fu">$</span> fmap try
   </div>
   <br>
   <br>
+  <div id="disqus_thread"></div>
+  <script>
+
+  /**
+   *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+   *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+  /*
+  */
+  /* var disqus_config = function () {
+      this.page.url = "brdyorn.com/posts/2016-03-27-parser-combinators2.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "posts/2016-03-27-parser-combinators2.md"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+      this.page.title = 'Parser Combinatorz part2';
+  }; */
+  (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = '//brdyorn.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
+
 ]]></description>
     <pubDate>Sun, 27 Mar 2016 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2016-03-27-parser-combinators2.html</guid>
@@ -676,7 +808,29 @@ descriptorP <span class="fu">=</span> optionMaybe <span class="fu">$</span> try 
   </div>
   <br>
   <br>
+  <div id="disqus_thread"></div>
+  <script>
+
+  /**
+   *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+   *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+  /*
+  */
+  /* var disqus_config = function () {
+      this.page.url = "brdyorn.com/posts/2016-03-26-parser-combinators.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "posts/2016-03-26-parser-combinators.md"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+      this.page.title = 'Parser Combinatorz part1';
+  }; */
+  (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = '//brdyorn.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
+
 ]]></description>
     <pubDate>Sat, 26 Mar 2016 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2016-03-26-parser-combinators.html</guid>
@@ -776,7 +930,29 @@ run <span class="fu">$</span> getUsers <span class="dt">Nothing</span> (<span cl
   </div>
   <br>
   <br>
+  <div id="disqus_thread"></div>
+  <script>
+
+  /**
+   *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+   *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+  /*
+  */
+  /* var disqus_config = function () {
+      this.page.url = "brdyorn.com/posts/2015-12-12-servant-patterns-for-clients.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "posts/2015-12-12-servant-patterns-for-clients.md"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+      this.page.title = 'Servant Patterns for Clients';
+  }; */
+  (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = '//brdyorn.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
+
 ]]></description>
     <pubDate>Sat, 12 Dec 2015 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2015-12-12-servant-patterns-for-clients.html</guid>
@@ -840,7 +1016,29 @@ weekendHolidayFrom d <span class="fu">=</span> <span class="kw">case</span> week
   </div>
   <br>
   <br>
+  <div id="disqus_thread"></div>
+  <script>
+
+  /**
+   *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+   *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+  /*
+  */
+  /* var disqus_config = function () {
+      this.page.url = "brdyorn.com/posts/2015-06-04-partial-application.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "posts/2015-06-04-partial-application.md"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+      this.page.title = 'Partial Application for real';
+  }; */
+  (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = '//brdyorn.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
+
 ]]></description>
     <pubDate>Thu, 04 Jun 2015 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2015-06-04-partial-application.html</guid>
@@ -936,7 +1134,29 @@ context <span class="st">&quot;as a plebian user&quot;</span> <span class="kw">d
   </div>
   <br>
   <br>
+  <div id="disqus_thread"></div>
+  <script>
+
+  /**
+   *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+   *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+  /*
+  */
+  /* var disqus_config = function () {
+      this.page.url = "brdyorn.com/posts/2014-12-10-rspec-pattern-for-testing-permissions.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "posts/2014-12-10-rspec-pattern-for-testing-permissions.md"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+      this.page.title = 'rspec pattern for testing permissions';
+  }; */
+  (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = '//brdyorn.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
+
 ]]></description>
     <pubDate>Wed, 10 Dec 2014 00:00:00 UT</pubDate>
     <guid>http://brdyorn.com/posts/2014-12-10-rspec-pattern-for-testing-permissions.html</guid>
