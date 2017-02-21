@@ -1,0 +1,199 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Brady Ouren (Tippenein)</title>
+
+    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"> 
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/default.css">
+    <link rel="stylesheet" href="../css/syntax.css">
+    <link rel="alternate" type="application/rss+xml" title="BrdyOrn.com" href="brdyorn.com/feed.xml">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <header class="profile row">
+      <div class="six columns">
+        <p class="name"><a class="header-link" href="../">Brady Ouren</a></p>
+      </div>
+      <div class="six columns">
+        <ul class="social list-inline list-unstyled">
+          <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
+          <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
+          <li><a class="header-link" href="../feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
+        </ul>
+      </div>
+    </header>
+    <section>
+      <div class="content">
+        <div class="info">
+  <!-- Posted on Dec 17, 2016 -->
+  
+</div>
+
+<div class="post-body">
+  <div class="post-meta">
+    <em class="post-date pull-right"> - Dec 17, 2016</em>
+    <h2 class="post-title">Norvigs spell correct in Haskell</h2>
+  </div>
+  <p>Peter Norvig has an <a href="http://norvig.com/spell-correct.html">old post</a> about writing a spell checker which I’ve always loved the succinctness of. I was on a plane for a few hours and wanted to see how this translated from python to haskell. This is the tale of the journey which I did not intend to take.</p>
+<h2 id="keeping-the-same-structure">Keeping the same structure</h2>
+<p>First step was going through and recreating the main functionality which is mainly lists and sets, so, no big deal.</p>
+<h2 id="splitting">Splitting</h2>
+<p>We split the raw text into words</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">words<span class="ot"> ::</span> <span class="dt">Text</span> <span class="ot">-&gt;</span> [<span class="dt">Text</span>]
+words <span class="fu">=</span> T.split (not <span class="fu">.</span> <span class="dt">Char</span><span class="fu">.</span>isAsciiLower) <span class="fu">.</span> T.toLower</code></pre></div>
+<p>This code is the intuitive answer to the problem above, however it’s very slow. We’ll look at performance later in this post.</p>
+<h2 id="counter-bag">Counter / Bag</h2>
+<p>In python, the <code>Counter</code> is implemented as a multiset / “bag”. We’ll create our own with a Map from <code>Text</code> (word) to <code>Int</code> (count)</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Counter</span> <span class="fu">=</span> <span class="dt">Map</span> <span class="dt">Text</span> <span class="dt">Int</span>
+
+<span class="ot">toCounter ::</span> [<span class="dt">Text</span>] <span class="ot">-&gt;</span> <span class="dt">Hist</span>
+toCounter <span class="fu">=</span> Map.fromListWith (<span class="fu">+</span>) <span class="fu">.</span> fmap (,<span class="dv">1</span>)
+
+words <span class="ot">&lt;-</span> toCounter <span class="fu">.</span> words <span class="fu">&lt;$&gt;</span> readFile <span class="st">&quot;big.txt&quot;</span></code></pre></div>
+<p>There is also a package called <code>multiset</code> but I didn’t know this because the wifi on the plane didn’t work.</p>
+<h2 id="probability-and-correction">Probability and Correction</h2>
+<p>In order to guess the right way of correcting we need to have probabilities based on the corpus’ word counts.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prob ::</span> <span class="dt">Counter</span> <span class="ot">-&gt;</span> <span class="dt">Text</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+prob counter word <span class="fu">=</span> occurences <span class="ot">`div`</span> totalWords
+  <span class="kw">where</span>
+    occurences <span class="fu">=</span> fromMaybe <span class="dv">0</span> <span class="fu">$</span> Map.lookup t counter
+    totalWords <span class="fu">=</span> Map.size ms
+
+<span class="ot">correction ::</span> <span class="dt">Counter</span> <span class="ot">-&gt;</span> <span class="dt">Text</span> <span class="ot">-&gt;</span> <span class="dt">Text</span>
+correction counter word <span class="fu">=</span> maximumBy (\a b <span class="ot">-&gt;</span> p a <span class="ot">`compare`</span> p b) <span class="fu">$</span> candidates counter word
+  <span class="kw">where</span> p <span class="fu">=</span> prob counter</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">candidates ::</span> <span class="dt">Counter</span> <span class="ot">-&gt;</span> <span class="dt">Text</span> <span class="ot">-&gt;</span> <span class="dt">Set</span> <span class="dt">Text</span>
+candidates counter word <span class="fu">=</span> detect
+  [ known counter <span class="fu">$</span> Set.singleton t
+  , known counter (edits1 word)
+  , known counter (edits2 word)
+  , Set.fromList [t]
+  ]
+
+<span class="ot">detect ::</span> [<span class="dt">Set</span> <span class="dt">Text</span>] <span class="ot">-&gt;</span> <span class="dt">Set</span> <span class="dt">Text</span>
+detect <span class="fu">=</span> fromMaybe Set.empty <span class="fu">.</span> head <span class="fu">.</span> filter (not <span class="fu">.</span> Set.null)
+
+<span class="ot">known ::</span> <span class="dt">Counter</span> <span class="ot">-&gt;</span> <span class="dt">Set</span> <span class="dt">Text</span> <span class="ot">-&gt;</span> <span class="dt">Set</span> <span class="dt">Text</span>
+known counter <span class="fu">=</span> Set.filter (\w <span class="ot">-&gt;</span> Map.member w counter)</code></pre></div>
+<h2 id="edits-permutations">Edits / Permutations</h2>
+<p>I initially squished all the logic into single list-comprehensions, but you’ll see I’ve split the heavier functions out.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">edits1 ::</span> <span class="dt">Text</span> <span class="ot">-&gt;</span> [<span class="dt">Text</span>]
+edits1 w <span class="fu">=</span> nub' <span class="fu">$</span> mconcat [transposes', deletes', replaces', inserts]
+  <span class="kw">where</span>
+    alphabet    <span class="fu">=</span> fmap T.singleton [<span class="ch">'a'</span><span class="fu">..</span><span class="ch">'z'</span>]
+    splits      <span class="fu">=</span> zip (T.inits w) (T.tails w)
+    deletes'    <span class="fu">=</span> deletes splits
+    transposes' <span class="fu">=</span> transposes splits
+    replaces'   <span class="fu">=</span> replaces splits
+    inserts     <span class="fu">=</span> [l <span class="fu">&lt;&gt;</span> c <span class="fu">&lt;&gt;</span> r <span class="fu">|</span> (l,r) <span class="ot">&lt;-</span> splits, c <span class="ot">&lt;-</span> alphabet]</code></pre></div>
+<p>The <code>splits</code> gets its own type for cleanliness:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Splits</span> <span class="fu">=</span> [(<span class="dt">Text</span>, <span class="dt">Text</span>)]</code></pre></div>
+<p>Instead of <code>if R</code> or <code>if len(R)&lt;1</code> and such like we have in python, I used a <code>guard</code> to skip over splits with contents fitting a certain criteria (e.g (l,r) where r is not empty)</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">unSplit ::</span> (<span class="dt">Monad</span> f, <span class="dt">Alternative</span> f) <span class="ot">=&gt;</span> (<span class="dt">Text</span>, <span class="dt">Text</span>) <span class="ot">-&gt;</span> f (<span class="dt">Text</span>,<span class="dt">Text</span>)
+unSplit <span class="fu">=</span> unSplitWith (<span class="fu">/=</span> <span class="st">&quot;&quot;</span>)
+
+<span class="ot">unSplitWith ::</span> (<span class="dt">Monad</span> f, <span class="dt">Alternative</span> f) <span class="ot">=&gt;</span> (<span class="dt">Text</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (<span class="dt">Text</span>, <span class="dt">Text</span>) <span class="ot">-&gt;</span> f (<span class="dt">Text</span>,<span class="dt">Text</span>)
+unSplitWith f (l, r) <span class="fu">=</span> guard (f r) <span class="fu">&gt;&gt;</span> pure (l, r)
+
+<span class="co">-- | swap the 1st and 2nd letters across our list of splits (&quot;derp&quot; -&gt; &quot;edrp&quot;)</span>
+<span class="ot">transposes ::</span> <span class="dt">Splits</span> <span class="ot">-&gt;</span> [<span class="dt">Text</span>]
+transposes splits <span class="fu">=</span>
+  [l <span class="fu">&lt;&gt;</span> swap' r <span class="fu">|</span> x <span class="ot">&lt;-</span> splits, (l,r) <span class="ot">&lt;-</span> unSplitWith (\a <span class="ot">-&gt;</span> T.length a <span class="fu">&gt;</span> <span class="dv">1</span>) x]
+  <span class="kw">where</span>
+    swap' w <span class="fu">=</span> T.intercalate <span class="st">&quot;&quot;</span> [two, one', rest]
+      <span class="kw">where</span>
+        two  <span class="fu">=</span> T.take <span class="dv">1</span> <span class="fu">$</span> T.drop <span class="dv">1</span> w
+        one'  <span class="fu">=</span> T.take <span class="dv">1</span> w
+        rest <span class="fu">=</span> T.tail <span class="fu">$</span> T.tail w
+
+<span class="co">-- | remove a letter across all splits &quot;derp&quot; -&gt; [&quot;drp&quot;,&quot;dep&quot;,&quot;der&quot;]</span>
+<span class="ot">deletes ::</span> <span class="dt">Splits</span> <span class="ot">-&gt;</span> [<span class="dt">Text</span>]
+deletes splits <span class="fu">=</span>
+  [l <span class="fu">&lt;&gt;</span> T.tail r <span class="fu">|</span> x <span class="ot">&lt;-</span> splits, (l,r) <span class="ot">&lt;-</span> unSplit x]
+
+<span class="co">-- | try replacing a letter with one from the alphabet in each spot. This one is very large</span>
+<span class="ot">replaces ::</span> <span class="dt">Splits</span> <span class="ot">-&gt;</span> [<span class="dt">Text</span>]
+replaces splits <span class="fu">=</span> [l <span class="fu">&lt;&gt;</span> c <span class="fu">&lt;&gt;</span> T.tail r <span class="fu">|</span> x <span class="ot">&lt;-</span> splits, (l,r) <span class="ot">&lt;-</span> unSplit x, c <span class="ot">&lt;-</span> alphabet]</code></pre></div>
+<p>I think this comes out reasonably concise.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">edits2 ::</span> <span class="dt">Text</span> <span class="ot">-&gt;</span> [<span class="dt">Text</span>]
+edits2 w <span class="fu">=</span> nub' [ e2 <span class="fu">|</span> e1 <span class="ot">&lt;-</span> edits1 w, e2 <span class="ot">&lt;-</span> edits1 e1 ]
+
+<span class="co">-- Prelude's nub is prrrrrretty bad, so we use this instead.</span>
+<span class="ot">nub' ::</span> [<span class="dt">Text</span>] <span class="ot">-&gt;</span> [<span class="dt">Text</span>]
+nub' <span class="fu">=</span> Set.toList <span class="fu">.</span> Set.fromList</code></pre></div>
+<h2 id="performance">Performance</h2>
+<p>The performance of the implementation I came to is… really bad. The time taken to guess even short words was ~4 seconds. This was unacceptable considering the python version is nearly instant.</p>
+<p>After asking around on irc and slack, two main problems were pointed out.</p>
+<ul>
+<li>The <code>words</code> function was extremely inefficient (thanks to <span class="citation">@mwutton</span> for pointing this out)</li>
+<li>The Map and Set in <code>containers</code> package are not optimized for this sort of bagging. (thanks to <span class="citation">@yaron</span>)</li>
+</ul>
+<h2 id="lessons">Lessons</h2>
+<ol style="list-style-type: decimal">
+<li>Always use <code>unordered-containers</code> unless you for some reason need to keep the ordering of your data structures.</li>
+<li>Sometimes pre-processing is worth the effort. You can try as hard as you want to optimize the function, but at some point you have to call it a loss.</li>
+</ol>
+<p>I’d like comments about how this could be improved further. The result was not encouraging but despite this, I did learn some things along the way.</p>
+<p>Using profiteur tool to visualize the performance issues. <img src="http://i.imgur.com/BkHfS6m.png" alt="profiling" /></p>
+<p>The full code is <a href="https://github.com/tippenein/spelling-hs">here</a> A literate haskell file to follow along is <a href="https://github.com/tippenein/spelling-hs/blob/master/spelling.lhs">here</a></p>
+
+  <div class="pager">
+    <ul class="list-unstyled list-inline">
+      
+        <li class="previous left">
+          <a class="button" href="../posts/2016-08-06-upgrading-servant-client-from-zero-four.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
+        </li>
+      
+
+      
+        <li class="next right">
+          <a class="button" href data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+        </li>
+      
+    </ul>
+  </div>
+  <br>
+  <br>
+  <div id="disqus_thread"></div>
+  <script>
+
+  /**
+   *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+   *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+  /*
+  */
+  /* var disqus_config = function () {
+      this.page.url = "brdyorn.com/posts/2016-12-17-Norvigs-spell-correct-in-Haskell.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "posts/2016-12-17-Norvigs-spell-correct-in-Haskell.md"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+      this.page.title = 'Norvigs spell correct in Haskell';
+  }; */
+  (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = '//brdyorn.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+
+
+      </div>
+    </section>
+    <footer>
+      <hr />
+      <p class="left">Site generated with <a href="http://jaspervdj.be/hakyll">Hakyll</a></p>
+
+      <p class="right"><a href="mailto:brady@andand.co">Work with me</a></p>
+    </footer>
+  </body>
+</html>

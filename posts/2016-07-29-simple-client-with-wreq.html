@@ -65,7 +65,7 @@ uploadAndReturnUrl <span class="fu">=</span> <span class="kw">do</span>
                 ]
                                   
   res <span class="ot">&lt;-</span> postWith authHeader <span class="st">&quot;https://api.imgur.com/3/image.json&quot;</span> payload
-  <span class="kw">let</span> guid <span class="fu">=</span> res <span class="fu">^.</span> responseBody <span class="fu">.</span> key <span class="st">&quot;data&quot;</span> <span class="fu">.</span> key <span class="st">&quot;id&quot;</span> <span class="fu">.</span> _<span class="dt">String</span>
+  <span class="kw">let</span> guid <span class="fu">=</span> res <span class="fu">^.</span> responseBody <span class="fu">.</span> key <span class="st">&quot;data&quot;</span> <span class="fu">.</span> key <span class="st">&quot;id&quot;</span> <span class="fu">.</span> _String
   return <span class="fu">$</span> <span class="st">&quot;http://imgur.com/&quot;</span> <span class="fu">++</span> T.unpack guid</code></pre></div>
 <p>Let’s talk about what might be confusing here. The declaration of <code>authHeader</code>; what is that?</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">-- in this context, simply a merge </span>
@@ -81,7 +81,7 @@ defaults[<span class="st">:headers</span>].merge({ <span class="st">:Authorizati
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">postWith ::</span> <span class="dt">Postable</span> a <span class="ot">=&gt;</span> <span class="dt">Options</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Response</span> <span class="dt">ByteString</span>)</code></pre></div>
 <p>The <code>Postable</code> typeclass refers to our <code>[Part]</code> which we constructed in the payload declaration, nbd.</p>
 <h3 id="the-response">The Response</h3>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">res <span class="fu">^.</span> responseBody <span class="fu">.</span> key <span class="st">&quot;data&quot;</span> <span class="fu">.</span> key <span class="st">&quot;id&quot;</span> <span class="fu">.</span> _<span class="dt">String</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">res <span class="fu">^.</span> responseBody <span class="fu">.</span> key <span class="st">&quot;data&quot;</span> <span class="fu">.</span> key <span class="st">&quot;id&quot;</span> <span class="fu">.</span> _String</code></pre></div>
 <p>We use <code>^.</code> to pull out the image id returned from imgur. Unfortunately, lens’ compose left to right, unlike normal functions in haskell so this is <code>responseBody.data.id</code></p>
 <p>The equivalent ruby code might be something like:</p>
 <div class="sourceCode"><pre class="sourceCode ruby"><code class="sourceCode ruby">response.body[<span class="st">:data</span>][<span class="st">:id</span>]</code></pre></div>

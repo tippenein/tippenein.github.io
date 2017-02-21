@@ -125,7 +125,7 @@ view model <span class="fu">=</span>
   div []
     [
       statusMessage model<span class="fu">.</span>documents
-    , searchBox model <span class="dt">Search</span>  <span class="fu">---</span> a function to generate markdown for a search box
+    , searchBox model <span class="dt">Search</span>  <span class="co">--- a function to generate markdown for a search box</span>
     , documentList model<span class="fu">.</span>documents
     ]</code></pre></div>
 <p>From a high level, this is a very useful abstraction. We can modularize our view “partials” as we see fit and it helps us think about the best way to organize our components.</p>
@@ -152,7 +152,7 @@ js:
 <span class="kw">&lt;script&gt;</span>
     <span class="kw">var</span> node <span class="op">=</span> <span class="va">document</span>.<span class="at">getElementById</span>(<span class="st">'content'</span>)<span class="op">;</span>
     <span class="kw">var</span> app <span class="op">=</span> <span class="va">Elm</span>.<span class="va">Main</span>.<span class="at">embed</span>(node)<span class="op">;</span>
-<span class="op">&lt;</span><span class="ss">/script&gt;</span></code></pre></div>
+<span class="kw">&lt;/script&gt;</span></code></pre></div>
 <p>Since these steps won’t work on your machine unless you gather all the dependencies (typed-wire, ghc, elm, etc.), in the next step we’ll put this all in a docker container and show how to deploy it using whichever docker service you’d like.</p>
 
   <div class="pager">
