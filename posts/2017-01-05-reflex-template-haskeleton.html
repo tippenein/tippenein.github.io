@@ -44,12 +44,18 @@
     <h2 class="post-title">Reflex Template</h2>
   </div>
   <h2 id="project-bootstrapping">Project Bootstrapping!</h2>
-<p>You can now use this template to bootstrap a reflex project. It uses stack for dependencies and provides a small core module along with a baseline Model/View/Update logic.</p>
+<p>I’m announcing a Reflex FRP bootstrapping template!</p>
 <p>You can use it now if you have <a href="https://github.com/fujimura/hi">hi</a> installed.</p>
-<pre><code>hi some_project --repository git://github.com/tippenein/haskeleton-reflex.git
+<pre class="shell"><code>hi some_project --repository git://github.com/tippenein/haskeleton-reflex.git
 cd some_project
 make</code></pre>
-<p>You can look further at how it’s set up <a href="https://github.com/tippenein/haskeleton-reflex/tree/master/package-name">here</a></p>
+<h2 id="what-it-gives-you">What it gives you</h2>
+<ul>
+<li>stack for dependencies</li>
+<li>small base of common widgets and helpers (which I’ll continue to add to)</li>
+<li>a baseline Model/View/Update logic.</li>
+</ul>
+<p>The intention is to be able to start right in by adding your <code>Action</code>’s and <code>Model</code> attributes and have them already plugged into the simple reflex event fold.</p>
 <h2 id="other-options">Other options</h2>
 <p>The <a href="https://github.com/reflex-frp/reflex-platform">reflex-platform</a> is the official way supported by reflex for development, so this project is for people who want a reference on a working Stack config or people who are simply too stubborn to move to nix.</p>
 
