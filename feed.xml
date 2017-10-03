@@ -16,11 +16,8 @@
   
 </div>
 
+<h1 class="section-block blog">Reflex Template</h1>
 <div class="post-body">
-  <div class="post-meta">
-    <em class="post-date pull-right"> - Jan  5, 2017</em>
-    <h2 class="post-title">Reflex Template</h2>
-  </div>
   <h2 id="project-bootstrapping">Project Bootstrapping!</h2>
 <p>I’m announcing a Reflex FRP bootstrapping template!</p>
 <p>You can use it now if you have <a href="https://github.com/fujimura/hi">hi</a> installed.</p>
@@ -90,11 +87,8 @@ make</code></pre>
   
 </div>
 
+<h1 class="section-block blog">Norvigs spell correct in Haskell</h1>
 <div class="post-body">
-  <div class="post-meta">
-    <em class="post-date pull-right"> - Dec 17, 2016</em>
-    <h2 class="post-title">Norvigs spell correct in Haskell</h2>
-  </div>
   <p>Peter Norvig has an <a href="http://norvig.com/spell-correct.html">old post</a> about writing a spell checker which I’ve always loved the succinctness of. I was on a plane for a few hours and wanted to see how this translated from python to haskell. This is the tale of the journey which I did not intend to take.</p>
 <h2 id="keeping-the-same-structure">Keeping the same structure</h2>
 <p>First step was going through and recreating the main functionality which is mainly lists and sets, so, no big deal.</p>
@@ -255,11 +249,8 @@ nub&#39; <span class="fu">=</span> Set.toList <span class="fu">.</span> Set.from
   
 </div>
 
+<h1 class="section-block blog">Upgrading Servant Clients</h1>
 <div class="post-body">
-  <div class="post-meta">
-    <em class="post-date pull-right"> - Aug  6, 2016</em>
-    <h2 class="post-title">Upgrading Servant Clients</h2>
-  </div>
   <p>A few things have changed with Servant’s client deriving between <code>0.4</code> and <code>0.7</code>. I’ll document here what I did to upgrade.</p>
 <h3 id="follow-the-types">Follow the types</h3>
 <p>First thing you’ll notice after building your project with the 0.7 version of servant client is some failing functions. Let’s follow the types and do what they tell us.</p>
@@ -344,11 +335,8 @@ nub&#39; <span class="fu">=</span> Set.toList <span class="fu">.</span> Set.from
   
 </div>
 
+<h1 class="section-block blog">A Typed Fullstack With Elm & Haskell</h1>
 <div class="post-body">
-  <div class="post-meta">
-    <em class="post-date pull-right"> - Aug  4, 2016</em>
-    <h2 class="post-title">A Typed Fullstack With Elm & Haskell</h2>
-  </div>
   <h3 id="hard-choices">Hard Choices</h3>
 <p>Everytime you make a design decision about a system, you have to (or should) consider the possible maintenance implications. Personally, I think typed languages make this much more manageable. We’ll use Haskell and Elm to illustrate this case via a project called <a href="https://github.com/tippenein/hasken">hasken</a>.</p>
 <p>This started as a simple CLI communicating with an API, but as is so common, we now want a frontend to display the resources on the web.</p>
@@ -514,11 +502,8 @@ js:
   
 </div>
 
+<h1 class="section-block blog">Writing a simple cli with Wreq</h1>
 <div class="post-body">
-  <div class="post-meta">
-    <em class="post-date pull-right"> - Jul 29, 2016</em>
-    <h2 class="post-title">Writing a simple cli with Wreq</h2>
-  </div>
   <h3 id="starter-project">Starter project</h3>
 <p>I remember when I started programming in python. I looked for anything I could write as a CLI or automate in some way, so in the spirit of that, I decided to write a bit about doing the same using haskell libraries.</p>
 <p>I replaced monosnap functionality (sharing screenshots) with this script awhile back. It’s generically useful and <a href="https://github.com/tippenein/imgup/blob/master/lib/Imgup.hs">here is the whole of it</a> if you’re only interested in the source.</p>
@@ -630,11 +615,8 @@ getRecentPath <span class="fu">=</span> <span class="kw">do</span>
   
 </div>
 
+<h1 class="section-block blog">Exploring monoids for sum averages</h1>
 <div class="post-body">
-  <div class="post-meta">
-    <em class="post-date pull-right"> - Jun  5, 2016</em>
-    <h2 class="post-title">Exploring monoids for sum averages</h2>
-  </div>
   <p>In <a href="https://www.youtube.com/watch?v=cMY1KVrJk0w">a talk</a> by Avi Bryant about practical systems for Analytics or Aggregation he drew comparisons to Monoids and Abelian Groups. I thought it would be helpful to work through what he was explaining with haskell, so here we go.</p>
 <p>The first thing discussed is a simple summing with a monoid. We need implementations for:</p>
 <ul>
@@ -773,11 +755,8 @@ revSort <span class="fu">=</span> sortBy (flip compare)
   
 </div>
 
+<h1 class="section-block blog">Using Template Haskell to generate an Enum</h1>
 <div class="post-body">
-  <div class="post-meta">
-    <em class="post-date pull-right"> - Apr 18, 2016</em>
-    <h2 class="post-title">Using Template Haskell to generate an Enum</h2>
-  </div>
   <h3 id="a-simple-useful-case-for-template-haskell">A simple useful case for Template Haskell</h3>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE TemplateHaskell #-}</span>
 
@@ -870,11 +849,8 @@ declareAnimals animals <span class="fu">=</span>
   
 </div>
 
+<h1 class="section-block blog">Parser Combinatorz part2</h1>
 <div class="post-body">
-  <div class="post-meta">
-    <em class="post-date pull-right"> - Mar 27, 2016</em>
-    <h2 class="post-title">Parser Combinatorz part2</h2>
-  </div>
   <h3 id="prt2">P▲rT2</h3>
 <p>In the <a href="/posts/2016-03-26-parser-combinators.html">previous post</a> I showed how to use <a href="https://www.stackage.org/package/parsec">parsec</a> to parse data in a format like this:</p>
 <p><code>&quot;1%400:3.2 6%some_description|100:1&quot;</code></p>
@@ -983,11 +959,8 @@ signalParser <span class="fu">=</span> choice <span class="fu">$</span> fmap try
   
 </div>
 
+<h1 class="section-block blog">Parser Combinatorz part1</h1>
 <div class="post-body">
-  <div class="post-meta">
-    <em class="post-date pull-right"> - Mar 26, 2016</em>
-    <h2 class="post-title">Parser Combinatorz part1</h2>
-  </div>
   <h3 id="the-value-of-composable-parts">The value of composable parts</h3>
 <p>I’ve found myself in some strange parsing tasks lately. This is a new thing for me, so don’t take this post as an example of the best practices for parsing. However, FWIW, all the parsers <em>work</em>.</p>
 <h3 id="the-setup">The Setup</h3>
@@ -1085,11 +1058,8 @@ descriptorP <span class="fu">=</span> optionMaybe <span class="fu">$</span> try 
   
 </div>
 
+<h1 class="section-block blog">Servant Patterns for Clients</h1>
 <div class="post-body">
-  <div class="post-meta">
-    <em class="post-date pull-right"> - Dec 12, 2015</em>
-    <h2 class="post-title">Servant Patterns for Clients</h2>
-  </div>
   <p>Edit: Servant has changed its Client api, but <a href="/posts/2016-08-06-upgrading-servant-client-from-zero-four.html">this</a> is a post about how to migrate to the new way of deriving clients.</p>
 <h3 id="clients-for-free">Clients for Free</h3>
 <p>The unfortunate reality of many of our day jobs is that we are <em>not</em> able to replace existing services with haskell. However, don’t despair! We can still write services which consume our existing services quite easily with <a href="https://github.com/haskell-servant/servant">Servant</a>.</p>
