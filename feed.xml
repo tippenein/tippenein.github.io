@@ -25,7 +25,11 @@
 <li>Remove Redundancy - (more code is more maintenance)</li>
 </ul>
 <p>The below is an extended description of the process I talked about at Purescript LA. (slides <a href="/slides/bridge-talk.html">here</a>)</p>
-<p>The 2 goals for minimum viability in my mind are: 1. provide correct interfaces for domain-specific queries to build on. 2. ensure handling all responses from the server.</p>
+<p>The 2 goals for minimum viability in my mind are:</p>
+<ol style="list-style-type: decimal">
+<li>provide correct interfaces for domain-specific queries to build on.</li>
+<li>ensure handling all responses from the server.</li>
+</ol>
 <h2 id="a-big-hammer">A Big Hammer</h2>
 <p>Codegen can be a bit dangerous to wield, but I’ll argue here for certain cases where it makes sense and the benefit outweighs the cost.</p>
 <p>Anything you are serializing across a network should be considered for codegen. If you’re using haskell for your client code, by all means, share your types! For the rest of us using Purescript, we have the fantastic work of <a href="https://github.com/eskimor/purescript-bridge">purescript-bridge</a>. If you happen to be using Servant you could further utilize <a href="https://github.com/eskimor/servant-purescript">servant-purescript</a>. However, my experience was with a Yesod API. Either way, you’ll depend on the generic json deriving of Aeson (haskell) and <a href="https://github.com/eskimor/purescript-argonaut-generic-codecs/">argonaut’s generic codecs</a> which are directly compatible with aeson.</p>
