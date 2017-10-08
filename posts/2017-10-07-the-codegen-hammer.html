@@ -145,6 +145,40 @@ utcTimeBridge <span class="fu">=</span> typeName <span class="fu">^==</span> <sp
 main <span class="fu">=</span> writePSTypes <span class="st">&quot;frontend/src/&quot;</span> (buildBridge mainBridge) myTypes
   <span class="kw">where</span>
     mainBridge <span class="fu">=</span> defaultBridge <span class="fu">&lt;|&gt;</span> int64Bridge <span class="fu">&lt;|&gt;</span> utcTimeBridge</code></pre></div>
+<h2 id="gen-crafted-types-for-your-enjoyment">Gen-Crafted types for your enjoyment</h2>
+<p>Below are some examples of the output!</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">-- src/App/Form.purs</span>
+derive <span class="kw">instance</span><span class="ot"> genericCuratorForm ::</span> <span class="dt">Generic</span> <span class="dt">CuratorForm</span>
+derive <span class="kw">instance</span><span class="ot"> newtypeCuratorForm ::</span> <span class="dt">Newtype</span> <span class="dt">CuratorForm</span> _
+
+_email <span class="fu">=</span> _Newtype <span class="fu">&lt;&lt;&lt;</span> prop (<span class="dt">SProxy</span><span class="ot"> ::</span> <span class="dt">SProxy</span> <span class="st">&quot;email&quot;</span>)
+_message <span class="fu">=</span> _Newtype <span class="fu">&lt;&lt;&lt;</span> prop (<span class="dt">SProxy</span><span class="ot"> ::</span> <span class="dt">SProxy</span> <span class="st">&quot;message&quot;</span>)
+
+<span class="co">-- src/App/Crud.purs</span>
+<span class="kw">data</span> <span class="dt">CreateResponse</span> <span class="fu">=</span>
+    <span class="dt">CreateSuccess</span> <span class="dt">Int</span>
+  <span class="fu">|</span> <span class="dt">CreateFailure</span> <span class="dt">String</span>
+  <span class="fu">|</span> <span class="dt">FailedUniquenessConstraint</span> 
+derive <span class="kw">instance</span><span class="ot"> genericCreateResponse ::</span> <span class="dt">Generic</span> <span class="dt">CreateResponse</span>
+
+<span class="ot">_CreateSuccess ::</span> <span class="dt">Prism'</span> <span class="dt">CreateResponse</span> <span class="dt">Int</span>
+_CreateSuccess <span class="fu">=</span> prism' <span class="dt">CreateSuccess</span> f
+  <span class="kw">where</span>
+    f (<span class="dt">CreateSuccess</span> a) <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span> a
+    f _ <span class="fu">=</span> <span class="dt">Nothing</span>
+
+<span class="ot">_CreateFailure ::</span> <span class="dt">Prism'</span> <span class="dt">CreateResponse</span> <span class="dt">String</span>
+_CreateFailure <span class="fu">=</span> prism' <span class="dt">CreateFailure</span> f
+  <span class="kw">where</span>
+    f (<span class="dt">CreateFailure</span> a) <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span> a
+    f _ <span class="fu">=</span> <span class="dt">Nothing</span>
+
+<span class="ot">_FailedUniquenessConstraint ::</span> <span class="dt">Prism'</span> <span class="dt">CreateResponse</span> <span class="dt">Unit</span>
+_FailedUniquenessConstraint <span class="fu">=</span> prism' (\_ <span class="ot">-&gt;</span> <span class="dt">FailedUniquenessConstraint</span>) f
+  <span class="kw">where</span>
+    f <span class="dt">FailedUniquenessConstraint</span> <span class="fu">=</span> <span class="dt">Just</span> unit
+    f _ <span class="fu">=</span> <span class="dt">Nothing</span></code></pre></div>
+<p>I’ve pasted the entirety of both files I’m using to <a href="https://gist.github.com/tippenein/2e15b695bac673a5acd7a167c2ba4808">this gist</a> and note the naming is slightly different because in <em>real</em> use you’ll have to deal with the travesty of haskell record namespaces.</p>
 <h2 id="next-steps">Next Steps</h2>
 <p>This is fine and dandy, but it could be much better. Purescript has the tools to <a href="https://pursuit.purescript.org/packages/purescript-sparkle/4.1.0">generate forms from data types</a> and ideally that’s the direction I’d like to move this work.</p>
 
