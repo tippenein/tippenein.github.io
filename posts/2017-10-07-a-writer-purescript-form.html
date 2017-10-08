@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Brady Ouren (Tippenein)</title>
+
+    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"> 
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/default.css">
+    <link rel="stylesheet" href="../css/syntax.css">
+    <link rel="alternate" type="application/rss+xml" title="BrdyOrn.com" href="brdyorn.com/feed.xml">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <header class="profile row">
+      <div class="six columns">
+        <p class="name"><a class="header-link" href="../">Brady Ouren</a></p>
+      </div>
+      <div class="six columns">
+        <ul class="social list-inline list-unstyled">
+          <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
+          <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
+          <li><a class="header-link" href="../feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
+        </ul>
+      </div>
+    </header>
+    <section>
+      <div class="content">
+        <div class="info">
+  <!-- Posted on Oct  7, 2017 -->
+  
+</div>
+
+<h1 class="section-block blog">A Purescript Form</h1>
+<div class="post-body">
+  <p>What follows is a further look at a portion of <a href="http://www.parsonsmatt.org/2016/01/03/ann_quicklift.html">this post</a> by <span class="citation">@parsonsmatt</span>. WForm, as explained there, is a nice abstraction which is inspired partly by Yesod forms. I found it useful and dropped the implementation in a <a href="https://github.com/tippenein/wform">repo</a> to work on when I have time (please help).</p>
+<p>Right now it’s specific to Halogen and bootstrap css, but I don’t see any reason it needs to be. In essence it comes down to 2 type aliases and 1 data type. Along with some helper methods for creating fields, you can get a long way with these basics.</p>
+<p>There are also further details around the following example in a related <a href="../posts/2017-10-07-the-codegen-hammer.html">post about codegen</a></p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">WForm</span> v f a <span class="fu">=</span>
+  <span class="dt">ReaderT</span>
+    (<span class="dt">Tuple</span> a (<span class="dt">FormAction</span> f a))
+    (<span class="dt">Writer</span> (<span class="dt">Array</span> (<span class="dt">HTML</span> v (f <span class="dt">Unit</span>))))
+    a
+
+<span class="kw">type</span> <span class="dt">FormAction</span> f a <span class="fu">=</span> <span class="dt">FormInput</span> a <span class="ot">-&gt;</span> <span class="dt">Unit</span> <span class="ot">-&gt;</span> f <span class="dt">Unit</span>
+<span class="kw">data</span> <span class="dt">FormInput</span> a
+  <span class="fu">=</span> <span class="dt">Submit</span>
+  <span class="fu">|</span> <span class="dt">Edit</span> (a <span class="ot">-&gt;</span> a)</code></pre></div>
+<p>This provides a nice, general interface for forms!</p>
+<p>Using this abstraction, we can define an <code>Input</code> for a component</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Input</span> a
+  <span class="fu">=</span> <span class="dt">NewCurator</span> (<span class="dt">Form.FormInput</span> <span class="dt">CuratorForm</span>) a</code></pre></div>
+<p>One thing I like about this is the ease of edit actions using the lens’ provided by codegen and the FormInput’s <code>Edit</code> constructor</p>
+<p>For example, you might handle a form edit in your eval loop similar to this:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">eval (<span class="dt">NewCurator</span> ev next) <span class="fu">=</span> handleNewCurator ev <span class="fu">$&gt;</span> next
+  <span class="kw">where</span>
+    handleNewCurator (<span class="dt">Form.Edit</span> f) <span class="fu">=</span> <span class="kw">do</span>
+      H.modify (_form <span class="fu">%~</span> f)
+    <span class="co">-- ...</span></code></pre></div>
+<p>We can apply the edit action directly on the form via our lens’. The errors are handled internally to the WForm writer monad.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">-- we need access to the form from the top level</span>
+<span class="co">-- the form itself already has lens' defined (src/App/Form.purs)</span>
+<span class="ot">_form ::</span> <span class="dt">Lens'</span> <span class="dt">State</span> <span class="dt">CuratorForm</span>
+_form <span class="fu">=</span> lens _<span class="fu">.</span>form _ { form <span class="fu">=</span> _}
+
+<span class="ot">initialState ::</span> <span class="dt">State</span>
+initialState <span class="fu">=</span> 
+  { form<span class="fu">:</span> <span class="dt">CuratorForm</span> { invitee<span class="fu">:</span> <span class="st">&quot;&quot;</span>, message<span class="fu">:</span> <span class="dt">Nothing</span> } }</code></pre></div>
+<p>Between WForm and our generated lens’ we can compose a form quite cleanly:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">-- example of a generated field accessor for out form</span>
+_message <span class="fu">=</span> _Newtype <span class="fu">&lt;&lt;&lt;</span> prop (<span class="dt">SProxy</span><span class="ot"> ::</span> <span class="dt">SProxy</span> <span class="st">&quot;message&quot;</span>)
+
+<span class="ot">render ::</span> <span class="dt">State</span> <span class="ot">-&gt;</span> <span class="dt">H.ComponentHTML</span> <span class="dt">Input</span>
+render state <span class="fu">=</span>
+  div_ <span class="fu">$</span> Form.renderForm state<span class="fu">.</span>form <span class="dt">NewCurator</span> <span class="kw">do</span>
+    void <span class="fu">$</span> Form.textField <span class="st">&quot;email&quot;</span> <span class="st">&quot;Email&quot;</span> _invitee (Form.nonBlank <span class="fu">&lt;=&lt;</span> Form.emailValidator)
+    Form.textFieldOpt <span class="st">&quot;message&quot;</span> <span class="st">&quot;A Note&quot;</span> _message  Form.optional
+    <span class="co">--                name,      label,  lens,     validations</span></code></pre></div>
+<p>Some context (and all the flaws) of this example can be found <a href="https://github.com/tippenein/dusk/blob/master/frontend/src/Component/Admin/Curator.purs">here</a></p>
+<p>If you think this could be useful and could provide documentation, examples, or code go <a href="https://github.com/tippenein/wform">to github</a></p>
+
+  <div class="pager">
+    <ul class="list-unstyled list-inline">
+      
+        <li class="previous left">
+          <a class="button" href="../posts/2017-01-05-reflex-template-haskeleton.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
+        </li>
+      
+
+      
+        <li class="next right">
+          <a class="button" href="../posts/2017-10-07-the-codegen-hammer.html" data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+        </li>
+      
+    </ul>
+  </div>
+  <br>
+  <br>
+  <div id="disqus_thread"></div>
+  <script>
+
+  /**
+   *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+   *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+  /*
+  */
+  /* var disqus_config = function () {
+      this.page.url = "brdyorn.com/posts/2017-10-07-a-writer-purescript-form.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "posts/2017-10-07-a-writer-purescript-form.md"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+      this.page.title = 'A Purescript Form';
+  }; */
+  (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = '//brdyorn.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+
+
+      </div>
+    </section>
+    <footer>
+      <hr />
+      <p class="left">Site generated with <a href="http://jaspervdj.be/hakyll">Hakyll</a></p>
+
+      <p class="right"><a href="mailto:brady@andand.co">Work with me</a></p>
+    </footer>
+  </body>
+</html>

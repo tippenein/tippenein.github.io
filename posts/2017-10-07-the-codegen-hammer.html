@@ -1,0 +1,201 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Brady Ouren (Tippenein)</title>
+
+    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"> 
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/default.css">
+    <link rel="stylesheet" href="../css/syntax.css">
+    <link rel="alternate" type="application/rss+xml" title="BrdyOrn.com" href="brdyorn.com/feed.xml">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <header class="profile row">
+      <div class="six columns">
+        <p class="name"><a class="header-link" href="../">Brady Ouren</a></p>
+      </div>
+      <div class="six columns">
+        <ul class="social list-inline list-unstyled">
+          <li><a class="header-link" href="https://github.com/tippenein"><i class="fa fa-github fa-3x"></i></a></li>
+          <li><a class="header-link" href="https://twitter.com/tippenein"><i class="fa fa-twitter fa-3x"></i></a></li>
+          <li><a class="header-link" href="../feed.xml"><i class="fa fa-rss fa-3x"></i></a></li>
+        </ul>
+      </div>
+    </header>
+    <section>
+      <div class="content">
+        <div class="info">
+  <!-- Posted on Oct  7, 2017 -->
+  
+</div>
+
+<h1 class="section-block blog">The Codegen Hammer</h1>
+<div class="post-body">
+  <p>If you must build a Single Page App, it would be nice to avoid some of the work generally required in a separate codebase. Personally, I look for these attributes to justify the overhead:</p>
+<ul>
+<li>Easy to build on - if it takes slightly longer to bootstrap, that’s fine.</li>
+<li>Hard to break - interfaces are shared and nearly 1-to-1*</li>
+<li>Remove Redundancy - (more code is more maintenance)</li>
+</ul>
+<p>The below is an extended description of the process I talked about at Purescript LA. (slides <a href="../slides/bridge-talk.html">here</a>)</p>
+<p>The 2 goals for minimum viability in my mind are: 1. provide correct interfaces for domain-specific queries to build on. 2. ensure handling all responses from the server.</p>
+<h2 id="a-big-hammer">A Big Hammer</h2>
+<p>Codegen can be a bit dangerous to wield, but I’ll argue here for certain cases where it makes sense and the benefit outweighs the cost.</p>
+<p>Anything you are serializing across a network should be considered for codegen. If you’re using haskell for your client code, by all means, share your types! For the rest of us using Purescript, we have the fantastic work of <a href="https://github.com/eskimor/purescript-bridge">purescript-bridge</a>. If you happen to be using Servant you could further utilize <a href="https://github.com/eskimor/servant-purescript">servant-purescript</a>. However, my experience was with a Yesod API. Either way, you’ll depend on the generic json deriving of Aeson (haskell) and <a href="https://github.com/eskimor/purescript-argonaut-generic-codecs/">argonaut’s generic codecs</a> which are directly compatible with aeson.</p>
+<h2 id="forms-are-a-subset-of-your-model">Forms are a subset of your model</h2>
+<p>The low-hanging fruit of this approach is form interactions. Your forms will likely be different than your database representations, so this is a nice place to set up types to describe the frontend <em>input</em>. Say one of our pages is submitting an email of someone who should be invited to the platform. The database representation might include a token, inviter’s id, date invited, etc, but you only need an email and a personal note attached.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">CuratorForm</span> <span class="fu">=</span> <span class="dt">CuratorForm</span> 
+  {<span class="ot"> email ::</span> <span class="dt">EmailAddress</span>
+  ,<span class="ot"> message ::</span> <span class="dt">Text</span> }</code></pre></div>
+<p>This is what the haskell backend expects as a POST so if our form is directly using this type in purescript we can be certain we won’t screw up and send the wrong things.</p>
+<p>I’ll gloss over the form implementation here because it’s pretty similar to what’s covered in “<a href="https://leanpub.com/purescript">Purescript by Example</a>” and covered in detail a bit futher <a href="../posts/2017-10-07-a-writer-purescript-form.html">here</a></p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">initialState <span class="fu">=</span> { form<span class="fu">:</span> curatorForm }
+
+curatorForm <span class="fu">=</span> <span class="dt">CuratorForm</span> { email<span class="fu">:</span> <span class="st">&quot;&quot;</span>, message<span class="fu">:</span> <span class="dt">Nothing</span> }
+
+render state <span class="fu">=</span> <span class="kw">do</span>
+  <span class="co">-- ...</span>
+  div_ <span class="fu">$</span> Form.renderForm state<span class="fu">.</span>form <span class="dt">NewCurator</span> <span class="kw">do</span>
+    void <span class="fu">$</span> Form.textField <span class="st">&quot;message&quot;</span> <span class="st">&quot;A Note&quot;</span> _message Form.optional
+    Form.textField <span class="st">&quot;email&quot;</span>   <span class="st">&quot;Email&quot;</span>  _email   (Form.nonBlank <span class="fu">&lt;=&lt;</span> Form.emailValidator)</code></pre></div>
+<p>Something worth noting here is the 3rd arguments to <code>textField</code>. These lens’ are generated from purescript-bridge (along with Prisms for <code>CreateResponse</code>) and they’re uses to access and set values in the form where <code>state.form</code> is giving us the <code>CuratorForm</code> which is also generated from our haskell types. The only thing here that’s actually locally defined is the <code>NewCurator</code> input event. That’s all that should be needed to hook this form into your state.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">  <span class="co">-- the CuratorForm is the 'form' field of our state.</span>
+  response <span class="ot">&lt;-</span> post (apiUrl <span class="fu">&lt;&gt;</span> <span class="st">&quot;/admin/curators&quot;</span>) (encodeJson state<span class="fu">.</span>form)
+  <span class="kw">let</span> <span class="dt">Tuple</span> typ msg <span class="fu">=</span> handleCreateResponse <span class="st">&quot;admin.curator&quot;</span> response
+  return <span class="fu">$</span> flashMessage typ msg</code></pre></div>
+<p>We’re able to move a lot of code out or generalize it away here because create’s are pretty simple. There’s another type we’re generating called <code>CreateResponse</code>. The <code>handleCreateResponse</code> function will take care of retrieving the status and a message. (the first argument string is a dumb little i18n translation “index”).</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">--  Success, Warning, Failure are for determining the message color..</span>
+<span class="ot">handleCreateResponse ::</span> <span class="dt">TranslationIndex</span> <span class="ot">-&gt;</span> <span class="dt">Json</span> <span class="ot">-&gt;</span> <span class="dt">Tuple</span> <span class="dt">Message</span> <span class="dt">String</span>
+handleCreateResponse idx res <span class="fu">=</span>
+  <span class="kw">case</span> decodeJson res<span class="fu">.</span>response <span class="kw">of</span>
+    <span class="dt">Left</span> e <span class="ot">-&gt;</span> <span class="dt">Tuple</span> <span class="dt">Failure</span> e
+    <span class="dt">Right</span> cr <span class="ot">-&gt;</span> 
+      <span class="kw">let</span> msg <span class="fu">=</span> Msg.t idx cr <span class="co">-- lookup the message based on the response type</span>
+      <span class="kw">in</span>
+        <span class="kw">case</span> cr <span class="kw">of</span>
+          <span class="dt">CreateSuccess</span> _ <span class="ot">-&gt;</span> <span class="dt">Tuple</span> <span class="dt">Success</span> msg
+          <span class="dt">NotUnique</span> <span class="ot">-&gt;</span> <span class="dt">Tuple</span> <span class="dt">Warning</span> msg
+          <span class="dt">CreateFailure</span> t <span class="ot">-&gt;</span> <span class="dt">Tuple</span> <span class="dt">Failure</span> msg</code></pre></div>
+<p>Here’s what it looks like on the haskell side:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">CreateResponse</span>
+  <span class="fu">=</span> <span class="dt">CreateSuccess</span> <span class="dt">Int64</span>
+  <span class="fu">|</span> <span class="dt">CreateFailure</span> <span class="dt">Text</span>
+  <span class="fu">|</span> <span class="dt">NotUnique</span>
+  <span class="kw">deriving</span> (<span class="dt">Generic</span>, <span class="dt">Typeable</span>, <span class="dt">Show</span>)</code></pre></div>
+<p>This can change based on the backend needs and you’ll be forced to handle those cases in the frontend. <em>thumbs up</em></p>
+<h2 id="your-haskell-api">Your Haskell API</h2>
+<p>The codegen will have to fit somewhere in your build-chain; I put mine in the application settings fetch</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">getAppSettings ::</span> <span class="dt">IO</span> <span class="dt">AppSettings</span>
+getAppSettings <span class="fu">=</span> <span class="kw">do</span>
+  CodeGen.main 
+  loadEnv
+  loadYamlSettings [configSettingsYml] [] useEnv</code></pre></div>
+<p>This will:</p>
+<ul>
+<li>generate the code in “frontend/src” (Will show where this is specified later)</li>
+<li>populate ENV from a <code>.env</code> file</li>
+<li>read the app settings from a yaml and return it</li>
+</ul>
+<p><em>brent rambo thumbs up gif</em></p>
+<h2 id="gen">Gen</h2>
+<p>The process of defining “bridges” from haskell to purescript is relatively straightforward. One “gotcha” is in that “.purs” files are generated in the same module name as where they’re <em>defined</em> in your haskell. Perhaps that’s what you expected, but I’d have preferred they get generated into the same file. I’m using a forked version to provide newtype unwrapping and lens for each record field. (PR <a href="https://github.com/eskimor/purescript-bridge/pull/31">here</a>)</p>
+<p>This next bit could all be found in the <a href="https://github.com/gonimo/gonimo-back/blob/master/app/PSGenerator.hs">example</a> or readme of <a href="https://www.stackage.org/nightly-2017-10-07/package/purescript-bridge-0.11.0.0">purescript-bridge</a>, but I’ll briefly explain the context for each of these code blocks.</p>
+<p>In you CodeGen module you’ll need to specify which types are going to be generated in purescript.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">-- Your list of types to provide</span>
+<span class="ot">myTypes ::</span> [<span class="dt">SumType</span> <span class="ch">'Haskell]</span>
+myTypes <span class="fu">=</span> [
+    mkSumType (<span class="dt">Proxy</span><span class="ot"> ::</span> <span class="dt">Proxy</span> <span class="dt">CuratorForm</span>)
+  , mkSumType (<span class="dt">Proxy</span><span class="ot"> ::</span> <span class="dt">Proxy</span> <span class="dt">EventForm</span>)
+  , mkSumType (<span class="dt">Proxy</span><span class="ot"> ::</span> <span class="dt">Proxy</span> <span class="dt">CreateResponse</span>)
+  <span class="co">-- ...</span>
+  ]</code></pre></div>
+<p>There will be types you’ll need to be specific about; one’s without direct purescript primitives. For example, the <code>Int64</code> of a primary id database column will need to fall to an <code>Int</code> type in purescript:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Language.PureScript.Bridge.PSTypes</span> (psInt)
+
+<span class="co">-- delegate to a primitive</span>
+<span class="ot">int64Bridge ::</span> <span class="dt">BridgePart</span>
+int64Bridge <span class="fu">=</span> typeName <span class="fu">^==</span> <span class="st">&quot;Int64&quot;</span> <span class="fu">&gt;&gt;</span> return psInt</code></pre></div>
+<p>This is saying: “Purescript already knows how to handle this but it’s called something else”</p>
+<p>The other case might involve delegating a type you’ve defined in purescript. This is not great because you can break your dependent code if you change these. This isn’t <em>bad</em> based on how most of the world does frontend development, it’s actually exactly how you’d make promises with a javascript app to decode consistently. I think we can do better though.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">psDateTime ::</span> <span class="dt">TypeInfo</span> <span class="ch">'PureScript</span>
+psDateTime <span class="fu">=</span> <span class="dt">TypeInfo</span> {
+    _typePackage <span class="fu">=</span> <span class="st">&quot;&quot;</span>
+  , _typeModule <span class="fu">=</span> <span class="st">&quot;Types&quot;</span>
+  , _typeName <span class="fu">=</span> <span class="st">&quot;DateStamp&quot;</span>
+  , _typeParameters <span class="fu">=</span> []
+  }
+
+<span class="ot">utcTimeBridge ::</span> <span class="dt">BridgePart</span>
+utcTimeBridge <span class="fu">=</span> typeName <span class="fu">^==</span> <span class="st">&quot;UTCTime&quot;</span> <span class="fu">&gt;&gt;</span> return psDateTime</code></pre></div>
+<p>The above example is saying: you’ll find a type <em>named</em> <code>DateStamp</code> in the purescript <em>module</em> <code>Types</code> and it doesn’t require an external <em>package</em>. Use this when generating fields with type <code>UTCTime</code>.</p>
+<p>This is about it for the haskell side and you’ll write out the types to a file like so:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">-- defaultBridge, buildBridge, etc are provided by </span>
+<span class="co">-- Language.PureScript.Bridge</span>
+
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> writePSTypes <span class="st">&quot;frontend/src/&quot;</span> (buildBridge mainBridge) myTypes
+  <span class="kw">where</span>
+    mainBridge <span class="fu">=</span> defaultBridge <span class="fu">&lt;|&gt;</span> int64Bridge <span class="fu">&lt;|&gt;</span> utcTimeBridge</code></pre></div>
+<h2 id="next-steps">Next Steps</h2>
+<p>This is fine and dandy, but it could be much better. Purescript has the tools to <a href="https://pursuit.purescript.org/packages/purescript-sparkle/4.1.0">generate forms from data types</a> and ideally that’s the direction I’d like to move this work.</p>
+
+  <div class="pager">
+    <ul class="list-unstyled list-inline">
+      
+        <li class="previous left">
+          <a class="button" href="../posts/2017-10-07-a-writer-purescript-form.html" data-toggle="tooltip" data-placement="top" title="Previous Post">&larr; Previous Post</a>
+        </li>
+      
+
+      
+        <li class="next right">
+          <a class="button" href data-toggle="tooltip" data-placement="top" title="Next Post">Next Post &rarr;</a>
+        </li>
+      
+    </ul>
+  </div>
+  <br>
+  <br>
+  <div id="disqus_thread"></div>
+  <script>
+
+  /**
+   *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+   *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables */
+  /*
+  */
+  /* var disqus_config = function () {
+      this.page.url = "brdyorn.com/posts/2017-10-07-the-codegen-hammer.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "posts/2017-10-07-the-codegen-hammer.md"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+      this.page.title = 'The Codegen Hammer';
+  }; */
+  (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = '//brdyorn.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+
+
+      </div>
+    </section>
+    <footer>
+      <hr />
+      <p class="left">Site generated with <a href="http://jaspervdj.be/hakyll">Hakyll</a></p>
+
+      <p class="right"><a href="mailto:brady@andand.co">Work with me</a></p>
+    </footer>
+  </body>
+</html>
