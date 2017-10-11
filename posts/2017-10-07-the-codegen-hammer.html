@@ -71,7 +71,7 @@ render state <span class="fu">=</span> <span class="kw">do</span>
   div_ <span class="fu">$</span> Form.renderForm state<span class="fu">.</span>form <span class="dt">NewCurator</span> <span class="kw">do</span>
     void <span class="fu">$</span> Form.textField <span class="st">&quot;message&quot;</span> <span class="st">&quot;A Note&quot;</span> _message Form.optional
     Form.textField <span class="st">&quot;email&quot;</span>   <span class="st">&quot;Email&quot;</span>  _email   (Form.nonBlank <span class="fu">&lt;=&lt;</span> Form.emailValidator)</code></pre></div>
-<p>Something worth noting here is the 3rd arguments to <code>textField</code>. These lens’ are generated from purescript-bridge (along with Prisms for <code>CreateResponse</code>) and they’re uses to access and set values in the form where <code>state.form</code> is giving us the <code>CuratorForm</code> which is also generated from our haskell types. The only thing here that’s actually locally defined is the <code>NewCurator</code> input event. That’s all that should be needed to hook this form into your state.</p>
+<p>Something worth noting here is the 3rd arguments to <code>textField</code>. These lens’ are generated from purescript-bridge (along with Prisms for <code>CreateResponse</code>) and they’re used to access and set values in the form where <code>state.form</code> is giving us the <code>CuratorForm</code> which is also generated from our haskell types. The only thing here that’s actually locally defined is the <code>NewCurator</code> input event. That’s all that should be needed to hook this form into your state.</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">  <span class="co">-- the CuratorForm is the 'form' field of our state.</span>
   response <span class="ot">&lt;-</span> post (apiUrl <span class="fu">&lt;&gt;</span> <span class="st">&quot;/admin/curators&quot;</span>) (encodeJson state<span class="fu">.</span>form)
   <span class="kw">let</span> <span class="dt">Tuple</span> typ msg <span class="fu">=</span> handleCreateResponse <span class="st">&quot;admin.curator&quot;</span> response
@@ -95,7 +95,7 @@ handleCreateResponse idx res <span class="fu">=</span>
   <span class="fu">|</span> <span class="dt">CreateFailure</span> <span class="dt">Text</span>
   <span class="fu">|</span> <span class="dt">NotUnique</span>
   <span class="kw">deriving</span> (<span class="dt">Generic</span>, <span class="dt">Typeable</span>, <span class="dt">Show</span>)</code></pre></div>
-<p>This can change based on the backend needs and you’ll be forced to handle those cases in the frontend. <em>thumbs up</em></p>
+<p>This can change based on the backend needs and you’ll be forced to handle those cases in the frontend.</p>
 <h2 id="your-haskell-api">Your Haskell API</h2>
 <p>The codegen will have to fit somewhere in your build-chain; I put mine in the application settings fetch</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">getAppSettings ::</span> <span class="dt">IO</span> <span class="dt">AppSettings</span>
@@ -109,11 +109,11 @@ getAppSettings <span class="fu">=</span> <span class="kw">do</span>
 <li>populate ENV from a <code>.env</code> file</li>
 <li>read the app settings from a yaml and return it</li>
 </ul>
-<p><em>brent rambo thumbs up gif</em></p>
+<p><em>brent rambo thumbs up</em></p>
 <h2 id="gen">Gen</h2>
 <p>The process of defining “bridges” from haskell to purescript is relatively straightforward. One “gotcha” is in that “.purs” files are generated in the same module name as where they’re <em>defined</em> in your haskell. Perhaps that’s what you expected, but I’d have preferred they get generated into the same file. I’m using a forked version to provide newtype unwrapping and lens for each record field. (PR <a href="https://github.com/eskimor/purescript-bridge/pull/31">here</a>)</p>
 <p>This next bit could all be found in the <a href="https://github.com/gonimo/gonimo-back/blob/master/app/PSGenerator.hs">example</a> or readme of <a href="https://www.stackage.org/nightly-2017-10-07/package/purescript-bridge-0.11.0.0">purescript-bridge</a>, but I’ll briefly explain the context for each of these code blocks.</p>
-<p>In you CodeGen module you’ll need to specify which types are going to be generated in purescript.</p>
+<p>In your CodeGen module you’ll need to specify which types are going to be generated in purescript.</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">-- Your list of types to provide</span>
 <span class="ot">myTypes ::</span> [<span class="dt">SumType</span> <span class="ch">'Haskell]</span>
 myTypes <span class="fu">=</span> [
